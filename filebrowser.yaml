@@ -1,0 +1,45 @@
+version: '3'
+name: filebrowser
+
+services:
+  filebrowser_init:
+    image: alpine
+    command: /bin/sh -c "touch /databases/database.db && chmod 777 /databases/database.db"
+    volumes:
+      - databases_volume:/databases
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    restart: unless-stopped
+    depends_on:
+      filebrowser_init:
+        condition: service_completed_successfully
+    networks:
+      rev-proxy-net:
+        ipv4_address: 172.20.0.101
+    volumes:
+      - files_volume:/files
+      - databases_volume:/databases
+    user: 1000:1000
+    configs:
+      - .filebrowser.json
+    command:
+      - "--config=/.filebrowser.json"
+configs:
+  .filebrowser.json:
+    # Requires manual password setup - filebrowser has some weird bug and doesn't parse json file properly with $ signs
+    content: '{"port": 2000,"baseURL": "","address": "","log": "stdout","database": "/databases/database.db","root": "/files", "username": "rgryta"}'
+
+volumes:
+  # Volume pointing to files directory where files are stored
+  files_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /e/Github
+      o: bind
+  databases_volume:
+  
+networks:
+  rev-proxy-net:
+    external:
+      name: homelab-network
