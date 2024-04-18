@@ -36,7 +36,7 @@ volumes:
     driver_opts:
       type: cifs
       device: //192.168.1.1/Drive
-      o: username=test,password=test
+      o: username=<smb_user>,password=<smb_pass>
   jellyfin_config:
     driver: local
     driver_opts:
