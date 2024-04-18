@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 name: filebrowser
 
 services:
@@ -26,7 +26,7 @@ services:
       - "--config=/.filebrowser.json"
 configs:
   .filebrowser.json:
-    # Requires manual password setup - filebrowser has some weird bug and doesn't parse json file properly with $ signs
+    # Requires manual password setup - filebrowser has some weird bug and doesn't parse json file properly with $ characters
     content: '{"port": 2000,"baseURL": "","address": "","log": "stdout","database": "/databases/database.db","root": "/files", "username": "rgryta"}'
 
 volumes:
@@ -34,10 +34,15 @@ volumes:
   files_volume:
     driver: local
     driver_opts:
-      type: none
-      device: /e/Github
-      o: bind
+      type: cifs
+      device: //192.168.1.1/Drive
+      o: username=test,password=test
   databases_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/filebrowser
   
 networks:
   rev-proxy-net:

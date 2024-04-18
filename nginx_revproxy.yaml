@@ -1,5 +1,6 @@
 version: '3.8'
 name: nginx-revproxy
+
 services:
   app:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -17,8 +18,16 @@ services:
 
 volumes:
   nginx_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/nginx/data
   nginx_letsencrypt:
-  
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/nginx/letsencrypt
+
 networks:
   proxy-network:
     name: homelab-network

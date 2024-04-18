@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 name: pihole-unbound
 
 services:
@@ -6,8 +6,6 @@ services:
     container_name: pi-hole
     image: pihole/pihole:latest
     restart: unless-stopped
-    hostname: pi-hole
-    domainname: gryta.eu
     depends_on:
       - unbound
     networks:
@@ -16,13 +14,8 @@ services:
     volumes: # Persistent settings
       - pi_pihole:/etc/pihole
       - pi_dnsmasq:/etc/dnsmasq.d
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
     environment:
-      ServerIP: 172.20.0.254
-      VIRTUAL_HOST: pi-hole.gryta.eu
-      WEBPASSWORD: "123456"
+      WEBPASSWORD: "<password>"
       TZ: "Europe/Warsaw"
       PIHOLE_DNS_: 172.20.0.253#5335
       DNSSEC: true
@@ -31,18 +24,11 @@ services:
     container_name: unbound
     image: madnuttah/unbound:latest
     restart: unless-stopped
-    hostname: unbound
-    domainname: gryta.eu
-    ports:
-      - 5335:5335/tcp
-      - 5335:5335/udp
     networks:
       rev-proxy-net:
         ipv4_address: 172.20.0.253
     environment:
       TZ: "Europe/Warsaw"
-      ServerIP: 172.20.0.253
-      VIRTUAL_HOST: unbound.gryta.eu
     healthcheck:
       test: /usr/local/unbound/sbin/healthcheck.sh
       interval: 60s
@@ -52,8 +38,16 @@ services:
 
 volumes:
   pi_pihole:
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/pihole/pihole
   pi_dnsmasq:
-  
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/pihole/dnsmasq
+
 networks:
   rev-proxy-net:
     external:
