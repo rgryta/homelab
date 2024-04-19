@@ -11,22 +11,26 @@ services:
     networks:
       rev-proxy-net:
         ipv4_address: 172.20.0.254
+    ports:
+        - 80:80/tcp
+        - 53:53/tcp
     volumes: # Persistent settings
       - pi_pihole:/etc/pihole
       - pi_dnsmasq:/etc/dnsmasq.d
     environment:
       WEBPASSWORD: "<password>"
       TZ: "Europe/Warsaw"
-      PIHOLE_DNS_: 172.20.0.253#5335
+      PIHOLE_DNS_: 172.20.0.103#53
       DNSSEC: true
 
   unbound:
     container_name: unbound
-    image: madnuttah/unbound:latest
+    image: mvance/unbound:latest
     restart: unless-stopped
-    networks:
-      rev-proxy-net:
-        ipv4_address: 172.20.0.253
+    network_mode: container:vpn
+    # networks:
+    #   rev-proxy-net:
+    #     ipv4_address: 172.20.0.253
     environment:
       TZ: "Europe/Warsaw"
     healthcheck:
@@ -35,18 +39,14 @@ services:
       retries: 5
       start_period: 15s
       timeout: 30s
+    entrypoint: /bin/bash
+    command: |
+        -c 'sed -i "s/log-queries: no/log-queries: yes/g" /unbound.sh && sed -i "s/logfile: \/dev\/null/logfile: \/opt\/unbound\/etc\/unbound\/unbound.log/g" /unbound.sh && /unbound.sh'
+        
 
 volumes:
   pi_pihole:
-    driver_opts:
-      o: bind
-      type: none
-      device: <path>/volumes/pihole/pihole
   pi_dnsmasq:
-    driver_opts:
-      o: bind
-      type: none
-      device: <path>/volumes/pihole/dnsmasq
 
 networks:
   rev-proxy-net:

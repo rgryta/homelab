@@ -1,0 +1,21 @@
+version: '3.8'
+name: test
+
+services:
+  test:
+    container_name: test
+    image: ubuntu:latest
+    restart: unless-stopped
+    network_mode: container:vpn
+    # networks:
+    #   rev-proxy-net:
+    #     ipv4_address: 172.20.0.253
+    environment:
+      TZ: "Europe/Warsaw"
+    command: |
+        tail -f /dev/null
+
+networks:
+  rev-proxy-net:
+    external:
+      name: homelab-network
