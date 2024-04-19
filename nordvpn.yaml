@@ -1,0 +1,43 @@
+version: '3.8'
+name: nordvpn
+
+services:
+  nordvpn:
+    build:
+      context: .
+      dockerfile: ./nordvpn.Dockerfile
+    container_name: nordvpn
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TOKEN=<token>
+      - CONNECT=Poland
+      - TECHNOLOGY=NordLynx
+      - NETWORK=192.168.1.0/24
+    volumes:
+      - /path/to/appdata/config:/config
+      - /lib/modules:/lib/modules #optional
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    entrypoint: /bin/bash
+    command: |
+        -c "tail -f /dev/null"
+    networks:
+      proxy-network:
+        ipv4_address: 172.20.0.103
+        
+        
+networks:
+  proxy-network:
+    name: homelab-network
+    driver: bridge
+    driver_opts:
+      parent: eth0
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
