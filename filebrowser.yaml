@@ -17,7 +17,8 @@ services:
       rev-proxy-net:
         ipv4_address: 172.20.0.101
     volumes:
-      - files_volume:/files
+      - files_data_volume:/files/Data
+      - files_media_volume:/files/Media
       - databases_volume:/databases
     user: 1000:1000
     configs:
@@ -31,11 +32,17 @@ configs:
 
 volumes:
   # Volume pointing to files directory where files are stored
-  files_volume:
+  files_data_volume:
     driver: local
     driver_opts:
       type: cifs
-      device: //192.168.1.1/Drive
+      device: //192.168.1.1/Data
+      o: username=<smb_user>,password=<smb_pass>
+  files_media_volume:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: //192.168.1.1/Media
       o: username=<smb_user>,password=<smb_pass>
   databases_volume:
     driver: local
