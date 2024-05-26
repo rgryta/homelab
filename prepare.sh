@@ -20,6 +20,11 @@ mkdir -p volumes/filebrowser
 # jellyfin
 mkdir -p volumes/jellyfin
 
+# mail
+mkdir -p volumes/mail/data
+mkdir -p volumes/mail/state
+mkdir -p volumes/mail/config
+
 
 # Update path
 PTH=$(printf '%s\n' "$(pwd)" | sed -e 's/[\/&]/\\&/g')

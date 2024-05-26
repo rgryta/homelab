@@ -8,3 +8,4 @@ docker-compose -f nginx_revproxy.yaml up -d
 docker-compose -f filebrowser.yaml up -d
 docker-compose -f pihole_unbound.yaml up -d
 docker-compose -f jellyfin.yaml up -d
+docker-compose -f mail.yaml up -d

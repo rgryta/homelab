@@ -1,0 +1,44 @@
+version: '3.8'
+name: nginx-revproxy
+
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    ports:
+      - "25:25"    # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+      - "465:465"  # ESMTP (implicit TLS)
+      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+      - "993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - dms_data:/var/mail/
+      - dms_state:/var/mail-state/
+      - dms_config:/tmp/docker-mailserver/
+    restart: always
+    stop_grace_period: 1m
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+      
+      
+volumes:
+  dms_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/mail/data
+  dms_state:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/mail/state
+  dms_config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/mail/config

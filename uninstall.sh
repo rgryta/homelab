@@ -8,8 +8,10 @@ docker-compose -f nginx_revproxy.yaml stop
 docker-compose -f filebrowser.yaml stop
 docker-compose -f pihole_unbound.yaml stop
 docker-compose -f jellyfin.yaml stop
+docker-compose -f mail.yaml stop
 
 docker-compose -f nginx_revproxy.yaml rm -v
 docker-compose -f filebrowser.yaml rm -v
 docker-compose -f pihole_unbound.yaml rm -v
 docker-compose -f jellyfin.yaml rm -v
+docker-compose -f mail.yaml rm -v
