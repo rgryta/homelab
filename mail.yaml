@@ -10,6 +10,12 @@ services:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
       - dms_config:/tmp/docker-mailserver/
+      - dms_certs:/tmp/dms/custom-certs/:ro
+    environment:
+      - SSL_TYPE=manual
+      # Values should match the file paths inside the container:
+      - SSL_CERT_PATH=/tmp/dms/custom-certs/public.crt
+      - SSL_KEY_PATH=/tmp/dms/custom-certs/private.key
     restart: always
     stop_grace_period: 1m
     healthcheck:
@@ -43,3 +49,9 @@ volumes:
       o: bind
       type: none
       device: <path>/volumes/mail/config
+  dms_certs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: <path>/volumes/mail/cert

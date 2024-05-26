@@ -24,6 +24,7 @@ mkdir -p volumes/jellyfin
 mkdir -p volumes/mail/data
 mkdir -p volumes/mail/state
 mkdir -p volumes/mail/config
+mkdir -p volumes/mail/cert
 
 
 # Update path
