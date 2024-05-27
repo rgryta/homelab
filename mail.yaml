@@ -10,7 +10,7 @@ services:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
       - dms_config:/tmp/docker-mailserver/
-      - dms_certs:/tmp/dms/custom-certs/:ro
+      - dms_certs:/etc/letsencrypt
     environment:
       - SSL_TYPE=letsencrypt
     ports:

@@ -11,6 +11,9 @@ mkdir -p volumes/certbot/logs
 ##
 ## docker run --rm -it -v "<path>/volumes/certbot/certs/:/etc/letsencrypt/" -v "<path>/volumes/certbot/logs/:/var/log/letsencrypt/" -p 80:80  certbot/certbot certonly --standalone -d <hostname>
 ##
+## sudo chmod +777 <path>/volumes/certbot/certs/live/
+## sudo chmod +777 <path>/volumes/certbot/certs/archive/
+##
 
 
 # nginx
