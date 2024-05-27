@@ -5,6 +5,13 @@ WEB_PASS=""
 SAMBA_USER=""
 SAMBA_PASS=""
 
+# certbot
+mkdir -p volumes/certbot/certs
+mkdir -p volumes/certbot/logs
+##
+## docker run --rm -it -v "<path>/volumes/certbot/certs/:/etc/letsencrypt/" -v "<path>/volumes/certbot/logs/:/var/log/letsencrypt/" -p 80:80  certbot/certbot certonly --standalone -d <hostname>
+##
+
 
 # nginx
 mkdir -p volumes/nginx/data
@@ -24,7 +31,6 @@ mkdir -p volumes/jellyfin
 mkdir -p volumes/mail/data
 mkdir -p volumes/mail/state
 mkdir -p volumes/mail/config
-mkdir -p volumes/mail/cert
 
 
 # Update path

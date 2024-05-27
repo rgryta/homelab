@@ -12,24 +12,18 @@ services:
       - dms_config:/tmp/docker-mailserver/
       - dms_certs:/tmp/dms/custom-certs/:ro
     environment:
-      - SSL_TYPE=manual
-      # Values should match the file paths inside the container:
-      - SSL_CERT_PATH=/tmp/dms/custom-certs/public.crt
-      - SSL_KEY_PATH=/tmp/dms/custom-certs/private.key
+      - SSL_TYPE=letsencrypt
+    ports:
+      - "25:25"
+      - "143:143"
+      - "465:465"
     restart: always
     stop_grace_period: 1m
     healthcheck:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
       retries: 0
-    networks:
-      rev-proxy-net:
-        ipv4_address: 172.20.0.103
       
-networks:
-  rev-proxy-net:
-    external:
-      name: homelab-network
 volumes:
   dms_data:
     driver: local
@@ -54,4 +48,4 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: <path>/volumes/mail/cert
+      device: <path>/volumes/certbot/certs
