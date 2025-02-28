@@ -9,7 +9,7 @@ services:
       - databases_volume:/databases
   filebrowser:
     image: filebrowser/filebrowser:latest
-    restart: unless-stopped
+    restart: always
     depends_on:
       filebrowser_init:
         condition: service_completed_successfully
