@@ -27,7 +27,7 @@ services:
     networks:
       rev-proxy-net:
         ipv4_address: 172.20.0.102
-    restart: unless-stopped
+    restart: always
 
     volumes:
       - jellyfin_config:/config
