@@ -5,7 +5,7 @@ services:
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
-    hostname: <hostname>
+    hostname: mail.gryta.eu
     volumes:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
