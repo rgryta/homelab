@@ -35,6 +35,10 @@ mkdir -p volumes/mail/data
 mkdir -p volumes/mail/state
 mkdir -p volumes/mail/config
 
+# roundcube
+mkdir -p volumes/roundcube/www
+mkdir -p volumes/roundcube/sqlite
+
 
 # Update path
 PTH=$(printf '%s\n' "$(pwd)" | sed -e 's/[\/&]/\\&/g')

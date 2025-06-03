@@ -5,8 +5,6 @@ services:
     container_name: roundcubemail
     image: roundcube/roundcubemail:latest
     restart: unless-stopped
-    depends_on:
-      - unbound
     networks:
       rev-proxy-net:
         ipv4_address: 172.20.0.104
@@ -17,7 +15,8 @@ services:
       ROUNDCUBEMAIL_DB_TYPE: "sqlite"
       ROUNDCUBEMAIL_SKIN: "elastic"
       ROUNDCUBEMAIL_DEFAULT_HOST: "tls://mail.gryta.eu"
-      ROUNDCUBEMAIL_SMTP_SERVER: "tls://mail.gryta.eu"
+      ROUNDCUBEMAIL_SMTP_SERVER: "ssl://mail.gryta.eu"
+      ROUNDCUBEMAIL_SMTP_PORT: "465"
 
 volumes:
   roundcube_www:
