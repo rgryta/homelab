@@ -1,0 +1,49 @@
+services:
+  lldap:
+    image: lldap/lldap:stable
+    container_name: lldap
+    restart: unless-stopped
+    networks:
+      proxy-network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "17170:17170"
+    volumes:
+      - "lldap_data:/data"
+    environment:
+      LLDAP_LDAP_BASE_DN: "dc=gryta,dc=eu"
+
+      # Docker secrets will be mounted at /run/secrets/<secret_name>
+      LLDAP_JWT_SECRET_FILE: /run/secrets/lldap_jwt_secret
+      LLDAP_KEY_SEED_FILE: /run/secrets/lldap_key_seed
+      LLDAP_LDAP_USER_PASS_FILE: /run/secrets/lldap_admin_password
+
+      # Optional: enable password reset via SMTP
+      # LLDAP_SMTP_OPTIONS__ENABLE_PASSWORD_RESET: "true"
+      # LLDAP_SMTP_OPTIONS__SERVER: "smtp.example.com"
+      # LLDAP_SMTP_OPTIONS__PORT: "587"
+      # LLDAP_SMTP_OPTIONS__SMTP_ENCRYPTION: "STARTTLS"
+      # LLDAP_SMTP_OPTIONS__USER: "no-reply@example.com"
+      # LLDAP_SMTP_OPTIONS__PASSWORD: "your-smtp-password"
+      # LLDAP_SMTP_OPTIONS__FROM: "no-reply <no-reply@example.com>"
+      # LLDAP_SMTP_OPTIONS__TO: "admin <admin@example.com>"
+
+    secrets:
+      - lldap_jwt_secret
+      - lldap_key_seed
+      - lldap_admin_password
+
+volumes:
+  lldap_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/lldap/data
+      
+secrets:
+  lldap_jwt_secret:
+    external: true
+  lldap_key_seed:
+    external: true
+  lldap_admin_password:
+    external: true
