@@ -23,7 +23,7 @@ services:
       - "traefik_letsencrypt:/traefik/letsencrypt"
       - "traefik_dynamic:/traefik/dynamic"
     networks:
-      proxy-network:
+      homelab-network:
         ipv4_address: 172.20.0.100
 
 volumes:
@@ -44,7 +44,7 @@ volumes:
       device: /mnt/quick/apps/volumes/traefik/dynamic
 
 networks:
-  proxy-network:
+  homelab-network:
     name: homelab-network
     driver: bridge
     ipam:
