@@ -1,0 +1,94 @@
+# .env
+# POSTGRES_PASSWORD=
+# AUTHENTIK_SECRET_KEY=
+
+services:
+  authentik-db:
+    image: postgres:17-alpine
+    container_name: authentik-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: authentik
+    volumes:
+      - authentik_db_data:/var/lib/postgresql/data
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.11
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      test:
+      - CMD-SHELL
+      - pg_isready -d authentik -U authentik
+      timeout: 5s
+
+  authentik-redis:
+    image: redis:alpine
+    container_name: authentik-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.12
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      test:
+      - CMD-SHELL
+      - redis-cli ping | grep PONG
+
+  authentik-server:
+    command: server
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-server
+    restart: unless-stopped
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_REDIS__HOST: authentik-redis
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.13
+    ports:
+      - "9000:9000"
+
+  authentik-worker:
+    command: worker
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-worker
+    restart: unless-stopped
+    depends_on:
+      - authentik-server
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_REDIS__HOST: authentik-redis
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.14
+
+volumes:
+  authentik_db_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/authentik/db
+
+networks:
+  homelab-network:
+    external: true

@@ -1,0 +1,21 @@
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    restart: unless-stopped
+    volumes:
+      - /mnt/quick/apps/volumes/authelia/config:/config
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.11
+    environment:
+      TZ: "Europe/Warsaw"
+      AUTHELIA_SESSION_SECRET: ${AUTHELIA_SESSION_SECRET}
+      AUTHELIA_STORAGE_ENCRYPTION_KEY: ${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      AUTHELIA_OIDC_HMAC_SECRET: ${AUTHELIA_OIDC_HMAC_SECRET}
+      AUTHELIA_OIDC_ISSUER_PRIVATE_KEY: ${AUTHELIA_OIDC_ISSUER_PRIVATE_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`auth.gryta.eu`)"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls.certresolver=le"

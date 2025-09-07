@@ -12,6 +12,12 @@ Memory: 512MB
 ## IP Addresses
 ### homelab-network (172.20.0.0/24)
  - Traefik: 172.20.0.100
+ - LLDAP: 172.20.0.10
+ - Authentik:
+	- Postgres: 172.20.0.11
+	- Redis: 172.20.0.12
+	- Auth-Server: 172.20.0.13
+	- Auth-Worker: 172.20.0.14
  
  - Filebrowser: 172.20.0.101
  - Jellyfin: 172.20.0.102
