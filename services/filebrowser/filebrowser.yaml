@@ -1,0 +1,45 @@
+services:
+  filebrowser:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.filebrowser.rule=Host(`filebrowser.gryta.eu`)
+      - traefik.http.routers.filebrowser.entrypoints=websecure
+      - traefik.http.routers.filebrowser.tls.certresolver=le
+      - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
+      - traefik.http.routers.filebrowser.middlewares=filebrowser-proxy@docker
+      - traefik.http.middlewares.filebrowser-proxy.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
+      - traefik.http.middlewares.filebrowser-proxy.forwardauth.trustforwardheader=true
+      - traefik.http.middlewares.filebrowser-proxy.forwardauth.authresponseheaders=X-Authentik-Username
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.102
+    volumes:
+      - filebrowser_db:/database
+      - filebrowser_data:/srv/Data
+      - filebrowser_media:/srv/Media
+    user: 1000:1000
+volumes:
+  filebrowser_db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/filebrowser/db
+  filebrowser_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/filebrowser/data
+  filebrowser_media:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/filebrowser/media
+networks:
+  homelab-network:
+    external: true

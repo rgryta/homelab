@@ -11,7 +11,7 @@ services:
       - traefik.http.routers.lldap.entrypoints=websecure
       - traefik.http.routers.lldap.tls.certresolver=le
       - traefik.http.routers.lldap.middlewares=authentik-forward-auth@docker
-      - traefik.http.services.authentik.loadbalancer.server.port=17170
+      - traefik.http.services.lldap.loadbalancer.server.port=17170
       - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
       - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
       - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
