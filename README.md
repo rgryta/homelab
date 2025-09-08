@@ -37,8 +37,8 @@ Memory: 512MB
 	- Auth-Server: 172.20.0.13
 	- Auth-Worker: 172.20.0.14
  - Whoami: 172.20.0.20
+ - Filebrowser: 172.20.0.102
  
- - Filebrowser: 172.20.0.101
  - Jellyfin: 172.20.0.102
  - NordVPN Client: 172.20.0.103
  - Roundcube: 172.20.0.104
