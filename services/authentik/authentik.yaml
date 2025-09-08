@@ -52,7 +52,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.authentik.rule=Host(`authentik.gryta.eu`)
-      - traefik.http.routers.authentik.entrypoints=web
+      - traefik.http.routers.authentik.entrypoints=websecure
+      - traefik.http.routers.authentik.tls.certresolver=le
+      - traefik.http.services.authentik.loadbalancer.server.port=9000
     command: server
     image: ghcr.io/goauthentik/server:latest
     container_name: authentik-server
@@ -63,6 +65,7 @@ services:
       authentik-redis:
         condition: service_healthy
     environment:
+      AUTHENTIK_HOST: https://authentik.gryta.eu
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
       AUTHENTIK_POSTGRESQL__HOST: authentik-db
       AUTHENTIK_POSTGRESQL__USER: authentik
@@ -72,8 +75,6 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.13
-    ports:
-      - 9000:9000
   authentik-worker:
     labels:
       - traefik.enable=false

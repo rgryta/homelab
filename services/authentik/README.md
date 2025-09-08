@@ -8,6 +8,10 @@ https://github.com/lldap/lldap/blob/main/example_configs/authentik.md
 
 LDAP syncs every now and then - but can be manually synced.
 
+## Outpost
+
+Remember to update embedded outpost with correct hostname: `authentik_host: https://authentik.gryta.eu`.
+
 # Adding Applications
 
 ## Applications without LDAP support
@@ -16,7 +20,7 @@ Open Applications -> Applications.
 Create the application with "Create with Provider".
 Name of the application e.g. "Whoami", slug "whoami", policies "any".
 Provider: "Proxy Provider" with Authorization flow: "default-provider-authorization-explicit-consent (Authorize Application)".
-Type is "Forward auth (single application)" with external host being e.g. "http://whoami.gryta.eu".
+Type is "Forward auth (single application)" with external host being e.g. "http://whoami.gryta.eu" (or https if needed).
 Binding - here I add a binding for a group, e.g. lldap_family_member.
 
 

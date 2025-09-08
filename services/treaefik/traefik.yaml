@@ -4,13 +4,15 @@ services:
     container_name: traefik
     restart: unless-stopped
     command:
+      - --log.level=DEBUG
       - --api.insecure=true
       - --api.dashboard=true
       - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
       - --entrypoints.websecure.address=:443
       - --providers.docker=true
-      - --providers.file.directory=/traefik/dynamic
-      - --providers.file.watch=true
+      - --certificatesresolvers.le.acme.email=radek.gryta@gmail.com
       - --certificatesresolvers.le.acme.storage=/traefik/letsencrypt/acme.json
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
     ports:
@@ -21,7 +23,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik_data:/traefik/data
       - traefik_letsencrypt:/traefik/letsencrypt
-      - traefik_dynamic:/traefik/dynamic
     networks:
       homelab-network:
         ipv4_address: 172.20.0.100
@@ -37,11 +38,6 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/traefik/letsencrypt
-  traefik_dynamic:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/traefik/dynamic
 networks:
   homelab-network:
     name: homelab-network
