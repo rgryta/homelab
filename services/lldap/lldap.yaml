@@ -3,7 +3,6 @@
 # LLDAP_KEY_SEED=
 # LLDAP_ADMIN_PASSWORD=
 
-
 services:
   lldap:
     image: lldap/lldap:stable
@@ -13,15 +12,14 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.10
     ports:
-      - "17170:17170"
+      - 17170:17170
     volumes:
-      - "lldap_data:/data"
+      - lldap_data:/data
     environment:
-      LLDAP_LDAP_BASE_DN: "dc=gryta,dc=eu"
+      LLDAP_LDAP_BASE_DN: dc=gryta,dc=eu
       LLDAP_JWT_SECRET: ${LLDAP_JWT_SECRET}
       LLDAP_KEY_SEED: ${LLDAP_KEY_SEED}
       LLDAP_LDAP_USER_PASS: ${LLDAP_ADMIN_PASSWORD}
-
       # Optional: enable password reset via SMTP
       # LLDAP_SMTP_OPTIONS__ENABLE_PASSWORD_RESET: "true"
       # LLDAP_SMTP_OPTIONS__SERVER: "smtp.example.com"
@@ -31,14 +29,20 @@ services:
       # LLDAP_SMTP_OPTIONS__PASSWORD: "your-smtp-password"
       # LLDAP_SMTP_OPTIONS__FROM: "no-reply <no-reply@example.com>"
       # LLDAP_SMTP_OPTIONS__TO: "admin <admin@example.com>"
-
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lldap.rule=Host(`lldap.gryta.eu`)
+      - traefik.http.routers.lldap.entrypoints=web
+      - traefik.http.routers.lldap.middlewares=authentik-forward-auth@docker
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
 volumes:
   lldap_data:
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/lldap/data
-      
 networks:
   homelab-network:
     external: true

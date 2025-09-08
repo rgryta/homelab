@@ -1,9 +1,25 @@
 ## Setup
 ### Dockge
+
 #### Mounts
+
  - /dev/dri:/dev/dri
  - /mnt/quick:/mnt/quick
  - /mnt/archive:/mnt/archive
+ 
+#### Labels
+
+All labels need to be pointing to dockge container of course.
+
+ - traefik.enable=true
+ - traefik.http.routers.dockge.rule=Host(`dockge.gryta.eu`)
+ - traefik.http.routers.dockge.entrypoints=web
+ - traefik.http.services.dockge.loadbalancer.server.port=31014
+ - traefik.http.routers.dockge.middlewares=authentik-forward-auth@docker
+ - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
+ - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
+ - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
+
 
 #### Resources
 CPU: 1
@@ -18,6 +34,7 @@ Memory: 512MB
 	- Redis: 172.20.0.12
 	- Auth-Server: 172.20.0.13
 	- Auth-Worker: 172.20.0.14
+ - Whoami: 172.20.0.20
  
  - Filebrowser: 172.20.0.101
  - Jellyfin: 172.20.0.102

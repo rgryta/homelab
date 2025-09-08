@@ -4,6 +4,8 @@
 
 services:
   authentik-db:
+    labels:
+      - traefik.enable=false
     image: postgres:17-alpine
     container_name: authentik-db
     restart: unless-stopped
@@ -21,15 +23,21 @@ services:
       retries: 5
       start_period: 20s
       test:
-      - CMD-SHELL
-      - pg_isready -d authentik -U authentik
+        - CMD-SHELL
+        - pg_isready -d authentik -U authentik
       timeout: 5s
-
   authentik-redis:
+    labels:
+      - traefik.enable=false
     image: redis:alpine
     container_name: authentik-redis
     restart: unless-stopped
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - no
     networks:
       homelab-network:
         ipv4_address: 172.20.0.12
@@ -38,10 +46,13 @@ services:
       retries: 5
       start_period: 20s
       test:
-      - CMD-SHELL
-      - redis-cli ping | grep PONG
-
+        - CMD-SHELL
+        - redis-cli ping | grep PONG
   authentik-server:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.authentik.rule=Host(`authentik.gryta.eu`)
+      - traefik.http.routers.authentik.entrypoints=web
     command: server
     image: ghcr.io/goauthentik/server:latest
     container_name: authentik-server
@@ -62,9 +73,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.13
     ports:
-      - "9000:9000"
-
+      - 9000:9000
   authentik-worker:
+    labels:
+      - traefik.enable=false
     command: worker
     image: ghcr.io/goauthentik/server:latest
     container_name: authentik-worker
@@ -81,14 +93,12 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.14
-
 volumes:
   authentik_db_data:
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/authentik/db
-
 networks:
   homelab-network:
     external: true

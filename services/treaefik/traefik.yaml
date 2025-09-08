@@ -4,28 +4,28 @@ services:
     container_name: traefik
     restart: unless-stopped
     command:
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--providers.docker=true"
-      - "--providers.file.directory=/traefik/dynamic"
-      - "--providers.file.watch=true"
-      - "--certificatesresolvers.le.acme.storage=/traefik/letsencrypt/acme.json"
-      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.file.directory=/traefik/dynamic
+      - --providers.file.watch=true
+      - --certificatesresolvers.le.acme.storage=/traefik/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
     ports:
-      - "80:80"
-      - "443:443"
-      - "81:8080"  # Dashboard mapped to host port 81
+      - 80:80
+      - 443:443
+      - 81:8080
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "traefik_data:/traefik/data"
-      - "traefik_letsencrypt:/traefik/letsencrypt"
-      - "traefik_dynamic:/traefik/dynamic"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_data:/traefik/data
+      - traefik_letsencrypt:/traefik/letsencrypt
+      - traefik_dynamic:/traefik/dynamic
     networks:
       homelab-network:
         ipv4_address: 172.20.0.100
-
+      ix-dockge_default: {}
 volumes:
   traefik_data:
     driver_opts:
@@ -42,7 +42,6 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/traefik/dynamic
-
 networks:
   homelab-network:
     name: homelab-network
@@ -51,3 +50,5 @@ networks:
       config:
         - subnet: 172.20.0.0/24
           gateway: 172.20.0.1
+  ix-dockge_default:
+    external: true
