@@ -1,0 +1,16 @@
+services:
+  wellmateio:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wellmateio.rule=Host(`wellmate.io`)
+      - traefik.http.routers.wellmateio.entrypoints=websecure
+      - traefik.http.routers.wellmateio.tls.certresolver=le
+      - traefik.http.services.wellmateio.loadbalancer.server.port=3000
+    image: ghcr.io/wellmateio/wellmate.io:main
+    container_name: wellmateio
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.150
+networks:
+  homelab-network:
+    external: true

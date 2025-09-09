@@ -38,6 +38,7 @@ Memory: 512MB
 	- Auth-Worker: 172.20.0.14
  - Whoami: 172.20.0.20
  - Filebrowser: 172.20.0.102
+ - WellMate (website): 172.20.0.150
  
  - Jellyfin: 172.20.0.102
  - NordVPN Client: 172.20.0.103
