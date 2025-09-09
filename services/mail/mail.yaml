@@ -1,0 +1,73 @@
+services:
+  roundcube:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.roundcube.rule=Host(`roundcube.gryta.eu`)
+      - traefik.http.routers.roundcube.entrypoints=websecure
+      - traefik.http.routers.roundcube.tls.certresolver=le
+    container_name: roundcubemail
+    image: roundcube/roundcubemail:latest
+    restart: unless-stopped
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.104
+    volumes:
+      - roundcube_www:/var/www/html
+      - roundcube_sqlite:/var/roundcube/db
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: "sqlite"
+      ROUNDCUBEMAIL_SKIN: "elastic"
+      ROUNDCUBEMAIL_DEFAULT_HOST: "tls://mail.gryta.eu"
+      ROUNDCUBEMAIL_SMTP_SERVER: "ssl://mail.gryta.eu"
+      ROUNDCUBEMAIL_SMTP_PORT: "465"
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.gryta.eu
+    restart: unless-stopped
+    environment:
+      SSL_TYPE: letsencrypt
+      SSL_DOMAIN: mail.gryta.eu
+    volumes:
+      - dms_data:/var/mail/
+      - dms_state:/var/mail-state/
+      - dms_config:/tmp/docker-mailserver/
+      - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
+    ports:
+      - 25:25
+      - 143:143
+      - 465:465
+    healthcheck:
+      test: ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
+      timeout: 3s
+      retries: 0
+volumes:
+  roundcube_www:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/roundcube/www
+  roundcube_sqlite:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/roundcube/sqlite
+  dms_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/data
+  dms_state:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/state
+  dms_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/config
+
+networks:
+  homelab-network:
+    external: true

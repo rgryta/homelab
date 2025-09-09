@@ -39,10 +39,10 @@ Memory: 512MB
  - Whoami: 172.20.0.20
  - Filebrowser: 172.20.0.102
  - WellMate (website): 172.20.0.150
+ - Roundcube: 172.20.0.104
  
  - Jellyfin: 172.20.0.102
  - NordVPN Client: 172.20.0.103
- - Roundcube: 172.20.0.104
  - Unbound: 172.20.0.253
  - PiHole: 172.20.0.254
 
