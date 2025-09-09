@@ -2,7 +2,7 @@ services:
   roundcube:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.roundcube.rule=Host(`roundcube.gryta.eu`)
+      - traefik.http.routers.roundcube.rule=Host(`mail.gryta.eu`)
       - traefik.http.routers.roundcube.entrypoints=websecure
       - traefik.http.routers.roundcube.tls.certresolver=le
     container_name: roundcubemail
@@ -15,10 +15,10 @@ services:
       - roundcube_www:/var/www/html
       - roundcube_sqlite:/var/roundcube/db
     environment:
-      ROUNDCUBEMAIL_DB_TYPE: "sqlite"
-      ROUNDCUBEMAIL_SKIN: "elastic"
-      ROUNDCUBEMAIL_DEFAULT_HOST: "tls://mail.gryta.eu"
-      ROUNDCUBEMAIL_SMTP_SERVER: "ssl://mail.gryta.eu"
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_SKIN: elastic
+      ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
+      ROUNDCUBEMAIL_SMTP_SERVER: ssl://mail.gryta.eu
       ROUNDCUBEMAIL_SMTP_PORT: "465"
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
@@ -67,7 +67,6 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/mailserver/config
-
 networks:
   homelab-network:
     external: true
