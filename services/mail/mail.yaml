@@ -33,6 +33,9 @@ services:
       - dms_state:/var/mail-state/
       - dms_config:/tmp/docker-mailserver/
       - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.105
     ports:
       - 25:25
       - 143:143
