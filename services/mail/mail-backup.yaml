@@ -1,21 +1,18 @@
-# .env
-# LLDAP_ADMIN_PASS=
-
 services:
-  roundcube:
+  roundcube-backup:
     labels:
       - traefik.enable=true
       - traefik.http.routers.roundcube.rule=Host(`mail.gryta.eu`)
       - traefik.http.routers.roundcube.entrypoints=websecure
       - traefik.http.routers.roundcube.tls.certresolver=le
-    container_name: roundcubemail
+    container_name: roundcubemail-backup
     image: roundcube/roundcubemail:latest
     restart: unless-stopped
     networks:
       homelab-network:
-        ipv4_address: 172.20.0.104
+        ipv4_address: 172.20.0.106
     extra_hosts:
-      - mail.gryta.eu:172.20.0.105
+      - mail.gryta.eu:172.20.0.107
     volumes:
       - roundcube_www:/var/www/html
       - roundcube_sqlite:/var/roundcube/db
@@ -24,33 +21,17 @@ services:
       ROUNDCUBEMAIL_SKIN: elastic
       ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
       ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
-  mailserver:
+  mailserver-backup:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
-    container_name: mailserver
+    container_name: mailserver-backup
     hostname: mail.gryta.eu
     depends_on:
-      roundcube:
+      roundcube-backup:
         condition: service_started
     restart: unless-stopped
     environment:
       SSL_TYPE: letsencrypt
       SSL_DOMAIN: mail.gryta.eu
-      ACCOUNT_PROVISIONER: LDAP
-      LDAP_SERVER_HOST: ldap://lldap:3890
-      LDAP_SEARCH_BASE: ou=people,dc=gryta,dc=eu
-      LDAP_BIND_DN: uid=admin,ou=people,dc=gryta,dc=eu
-      LDAP_BIND_PW: ${LLDAP_ADMIN_PASS}
-      #
-      LDAP_QUERY_FILTER_USER: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)(mailalias=%u)))
-      LDAP_QUERY_FILTER_GROUP: (|)
-      LDAP_QUERY_FILTER_ALIAS: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)))
-      LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
-      #
-      ENABLE_QUOTAS: 0
-      DOVECOT_AUTH_BIND: yes
-      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)))
-      DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
-      SPOOF_PROTECTION: 1
     volumes:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
@@ -58,7 +39,7 @@ services:
       - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
     networks:
       homelab-network:
-        ipv4_address: 172.20.0.105
+        ipv4_address: 172.20.0.107
     ports:
       - 25:25
       - 143:143
@@ -68,31 +49,23 @@ services:
       timeout: 3s
       retries: 0
 volumes:
-  roundcube_www:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/roundcube/www
-  roundcube_sqlite:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/roundcube/sqlite
+  roundcube_www: {}
+  roundcube_sqlite: {}
   dms_data:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/data
+      device: /mnt/quick/apps/volumes/mailserver-backup/data
   dms_state:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/state
+      device: /mnt/quick/apps/volumes/mailserver-backup/state
   dms_config:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/config
+      device: /mnt/quick/apps/volumes/mailserver-backup/config
 networks:
   homelab-network:
     external: true
