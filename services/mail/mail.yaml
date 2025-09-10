@@ -1,16 +1,18 @@
 services:
-  roundcube:
+  roundcube-backup:
     labels:
       - traefik.enable=true
       - traefik.http.routers.roundcube.rule=Host(`mail.gryta.eu`)
       - traefik.http.routers.roundcube.entrypoints=websecure
       - traefik.http.routers.roundcube.tls.certresolver=le
-    container_name: roundcubemail
+    container_name: roundcubemail-backup
     image: roundcube/roundcubemail:latest
     restart: unless-stopped
     networks:
       homelab-network:
-        ipv4_address: 172.20.0.104
+        ipv4_address: 172.20.0.106
+    extra_hosts:
+      - mail.gryta.eu:172.20.0.107
     volumes:
       - roundcube_www:/var/www/html
       - roundcube_sqlite:/var/roundcube/db
@@ -18,12 +20,14 @@ services:
       ROUNDCUBEMAIL_DB_TYPE: sqlite
       ROUNDCUBEMAIL_SKIN: elastic
       ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
-      ROUNDCUBEMAIL_SMTP_SERVER: ssl://mail.gryta.eu
-      ROUNDCUBEMAIL_SMTP_PORT: "465"
-  mailserver:
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
+  mailserver-backup:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
-    container_name: mailserver
+    container_name: mailserver-backup
     hostname: mail.gryta.eu
+    depends_on:
+      roundcube-backup:
+        condition: service_started
     restart: unless-stopped
     environment:
       SSL_TYPE: letsencrypt
@@ -35,7 +39,7 @@ services:
       - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
     networks:
       homelab-network:
-        ipv4_address: 172.20.0.105
+        ipv4_address: 172.20.0.107
     ports:
       - 25:25
       - 143:143
@@ -45,31 +49,23 @@ services:
       timeout: 3s
       retries: 0
 volumes:
-  roundcube_www:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/roundcube/www
-  roundcube_sqlite:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/roundcube/sqlite
+  roundcube_www: {}
+  roundcube_sqlite: {}
   dms_data:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/data
+      device: /mnt/quick/apps/volumes/mailserver-backup/data
   dms_state:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/state
+      device: /mnt/quick/apps/volumes/mailserver-backup/state
   dms_config:
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/mailserver/config
+      device: /mnt/quick/apps/volumes/mailserver-backup/config
 networks:
   homelab-network:
     external: true
