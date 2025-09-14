@@ -1,5 +1,7 @@
 # .env
 # LLDAP_ADMIN_PASS=
+# OAUTH_CLIENT_ID=
+# OAUTH_CLIENT_SECRET=
 
 services:
   roundcube:
@@ -35,22 +37,25 @@ services:
     environment:
       SSL_TYPE: letsencrypt
       SSL_DOMAIN: mail.gryta.eu
+      
       ACCOUNT_PROVISIONER: LDAP
       LDAP_SERVER_HOST: ldap://lldap:3890
       LDAP_SEARCH_BASE: ou=people,dc=gryta,dc=eu
       LDAP_BIND_DN: uid=admin,ou=people,dc=gryta,dc=eu
       LDAP_BIND_PW: ${LLDAP_ADMIN_PASS}
-      #
-      LDAP_QUERY_FILTER_USER: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)(mailalias=%u)))
+      LDAP_QUERY_FILTER_USER: (&(objectClass=inetOrgPerson)(mail=%s))
       LDAP_QUERY_FILTER_GROUP: (|)
-      LDAP_QUERY_FILTER_ALIAS: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)))
+      LDAP_QUERY_FILTER_ALIAS: (&(objectClass=inetOrgPerson)(|(mailalias1=%s)(mailalias2=%s)(mailalias3=%s)(mailalias4=%s)))
       LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
-      #
+      
       ENABLE_QUOTAS: 0
       DOVECOT_AUTH_BIND: yes
-      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(|(uid=%u)(mail=%u)))
-      DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
+      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%u))
+      DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
       SPOOF_PROTECTION: 1
+      
+      ENABLE_OAUTH2: 1
+      OAUTH2_INTROSPECTION_URL: https://${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}@authentik.gryta.eu/application/o/introspect/
     volumes:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
@@ -63,6 +68,8 @@ services:
       - 25:25
       - 143:143
       - 465:465
+      - 587:587
+      - 993:993
     healthcheck:
       test: ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
       timeout: 3s
@@ -93,6 +100,11 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/mailserver/config
+  dovecot_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/dovecot
 networks:
   homelab-network:
     external: true

@@ -36,5 +36,6 @@ chown -R 1000:1000 /mnt/quick/apps/volumes/roundcube
 mkdir -p /mnt/quick/apps/volumes/mailserver/data
 mkdir -p /mnt/quick/apps/volumes/mailserver/state
 mkdir -p /mnt/quick/apps/volumes/mailserver/config
+mkdir -p /mnt/quick/apps/volumes/mailserver/dovecot
 chown -R root:root /mnt/quick/apps/volumes/mailserver
 chmod -R 777 /mnt/quick/apps/volumes/mailserver
