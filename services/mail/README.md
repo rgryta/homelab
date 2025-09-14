@@ -4,7 +4,7 @@ Once the services are spun up, two modifications are needed for roundcube and do
 
 ## Authentik
 
-Follow the setup of Authentik Application with Oauth2 Provider.
+Follow the setup of Authentik Application with Oauth2 Provider - note redirect URL might be out of date - refer to documentation from roundcube or from the logs.
 
 ## Roundcube
 
@@ -23,6 +23,7 @@ Within roundcube container, append to file `/var/www/html/config/config.inc.php`
     $config['oauth_auth_parameters'] = [];
     $config['oauth_identity_fields'] = ['email'];
     $config['oauth_login_redirect'] = true;
+    $config['use_https'] = true;
 ```
 
 ## Docker-mailserver

@@ -60,6 +60,7 @@ services:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
       - dms_config:/tmp/docker-mailserver/
+      - dovecot_config:/etc/dovecot/
       - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
     networks:
       homelab-network:
