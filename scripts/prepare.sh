@@ -39,3 +39,14 @@ mkdir -p /mnt/quick/apps/volumes/mailserver/config
 mkdir -p /mnt/quick/apps/volumes/mailserver/dovecot
 chown -R root:root /mnt/quick/apps/volumes/mailserver
 chmod -R 777 /mnt/quick/apps/volumes/mailserver
+
+## Jellyfin
+
+### NVMe vdev for config and cache
+mkdir -p /mnt/quick/apps/volumes/jellyfin/config
+mkdir -p /mnt/quick/apps/volumes/jellyfin/cache
+chown -R 1000:1000 /mnt/quick/apps/volumes/jellyfin
+
+### Archive mount for media
+mkdir -p /mnt/archive/media
+chown -R 1000:1000 /mnt/archive/media
