@@ -1,0 +1,60 @@
+version: "3.8"
+name: pihole-unbound
+services:
+  pihole:
+    container_name: pi-hole
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    depends_on:
+      - unbound
+    networks:
+      pihole-network:
+        ipv4_address: 172.21.0.2
+    #  homelab-network:
+    #    ipv4_address: 172.20.0.254
+    volumes:
+      - pi_pihole:/etc/pihole
+      - pi_dnsmasq:/etc/dnsmasq.d
+    environment:
+      WEBPASSWORD: <password>
+      TZ: Europe/Warsaw
+      PIHOLE_DNS_: 172.20.0.253#5335
+      DNSSEC: true
+  unbound:
+    container_name: unbound
+    image: madnuttah/unbound:latest
+    restart: unless-stopped
+    networks:
+      pihole-network:
+        ipv4_address: 172.21.0.3
+    #  homelab-network:
+    #    ipv4_address: 172.20.0.253
+    environment:
+      TZ: Europe/Warsaw
+    healthcheck:
+      test: /usr/local/unbound/sbin/healthcheck.sh
+      interval: 60s
+      retries: 5
+      start_period: 15s
+      timeout: 30s
+volumes:
+  pi_pihole:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/pihole/pihole
+  pi_dnsmasq:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/pihole/dnsmasq
+networks:
+  pihole-network:
+    name: pihole-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
+  homelab-network:
+    external: true

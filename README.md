@@ -49,9 +49,8 @@ Memory: 512MB
 	- Roundcube: 172.20.0.104
  - Jellyfin: 172.20.0.103
  - Llama.cpp: 172.20.0.15
- 
- - NordVPN Client: 172.20.0.103
- - Unbound: 172.20.0.253
- - PiHole: 172.20.0.254
+ - PiHole:
+	- PiHole: 172.20.0.254
+	- Unbound: 172.20.0.253
 
 
