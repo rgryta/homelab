@@ -48,6 +48,7 @@ Memory: 512MB
 	- Mailserver: 172.20.0.105
 	- Roundcube: 172.20.0.104
  - Jellyfin: 172.20.0.103
+ - Llama.cpp: 172.20.0.15
  
  - NordVPN Client: 172.20.0.103
  - Unbound: 172.20.0.253
