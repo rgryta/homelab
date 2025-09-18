@@ -1,8 +1,9 @@
-version: "3.8"
-name: pihole-unbound
+# .env
+# WEBPASSWORD=
+
 services:
   pihole:
-    container_name: pi-hole
+    container_name: pihole
     image: pihole/pihole:latest
     restart: unless-stopped
     depends_on:
@@ -12,6 +13,8 @@ services:
         ipv4_address: 172.21.0.2
     #  homelab-network:
     #    ipv4_address: 172.20.0.254
+    ports:
+      - 53:53
     volumes:
       - pi_pihole:/etc/pihole
       - pi_dnsmasq:/etc/dnsmasq.d
