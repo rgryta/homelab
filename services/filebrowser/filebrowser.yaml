@@ -2,14 +2,33 @@ services:
   filebrowser:
     labels:
       - traefik.enable=true
+      - traefik.http.routers.filebrowser-public.priority=100
+      - traefik.http.routers.filebrowser.priority=10
+      # ==========================================
+      # SECURE ROUTER for users
+      # ==========================================
       - traefik.http.routers.filebrowser.rule=Host(`filebrowser.gryta.eu`)
       - traefik.http.routers.filebrowser.entrypoints=websecure
       - traefik.http.routers.filebrowser.tls.certresolver=le
-      - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
+      - traefik.http.routers.filebrowser.service=filebrowser
       - traefik.http.routers.filebrowser.middlewares=filebrowser-proxy@docker
+      # Authentik Forward Auth
       - traefik.http.middlewares.filebrowser-proxy.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
       - traefik.http.middlewares.filebrowser-proxy.forwardauth.trustforwardheader=true
       - traefik.http.middlewares.filebrowser-proxy.forwardauth.authresponseheaders=X-Authentik-Username
+      # ==========================================
+      # PUBLIC ROUTER for shared items
+      # ==========================================
+      - traefik.http.routers.filebrowser-public.rule=Host(`filebrowser.gryta.eu`)
+        && (PathPrefix(`/share`) || PathPrefix(`/static`) ||
+        PathPrefix(`/api/public`))
+      - traefik.http.routers.filebrowser-public.entrypoints=websecure
+      - traefik.http.routers.filebrowser-public.tls.certresolver=le
+      - traefik.http.routers.filebrowser-public.service=filebrowser
+      # ==========================================
+      # SERVICE CONFIG
+      # ==========================================
+      - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
     image: filebrowser/filebrowser:latest
     container_name: filebrowser
     restart: unless-stopped
