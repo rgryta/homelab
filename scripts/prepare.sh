@@ -21,7 +21,7 @@ mkdir -p /mnt/quick/apps/volumes/filebrowser/db
 mkdir -p /mnt/quick/apps/volumes/filebrowser/data
 chown -R 1000:1000 /mnt/quick/apps/volumes/filebrowser
 ### Archive mount for media
-mkdir -p /mnt/archive/apps/volumes/filebrowser/media
+mkdir -p /mnt/archive/apps/volumes/filebrowser/slow
 chown -R 1000:1000 /mnt/archive/apps/volumes/filebrowser
 
 ## Mail
