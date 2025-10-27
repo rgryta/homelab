@@ -52,5 +52,10 @@ Memory: 512MB
  - PiHole:
 	- PiHole: 172.20.0.254
 	- Unbound: 172.20.0.253
+ - What's up docker: 172.20.0.21
 
+### pihole-network (172.21.0.0/24)
+ - PiHole:
+	- PiHole: 172.21.0.2
+	- Unbound: 172.21.0.3
 
