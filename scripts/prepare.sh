@@ -50,3 +50,9 @@ chown -R 1000:1000 /mnt/archive/media
 mkdir -p /mnt/quick/apps/volumes/pihole/pihole
 mkdir -p /mnt/quick/apps/volumes/pihole/dnsmasq
 chown -R 1000:1000 /mnt/quick/apps/volumes/pihole
+
+
+## Netdata
+mkdir -p /mnt/quick/apps/volumes/netdata/config
+mkdir -p /mnt/quick/apps/volumes/netdata/lib
+chown -R 1000:1000 /mnt/quick/apps/volumes/netdata

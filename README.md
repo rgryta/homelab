@@ -53,6 +53,7 @@ Memory: 512MB
 	- PiHole: 172.20.0.254
 	- Unbound: 172.20.0.253
  - What's up docker: 172.20.0.21
+ - Netdata: 172.20.0.22
 
 ### pihole-network (172.21.0.0/24)
  - PiHole:
