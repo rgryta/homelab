@@ -27,6 +27,8 @@ services:
       ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
       ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
   mailserver:
+    labels:
+      - traefik.enable=true
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     hostname: mail.gryta.eu

@@ -2,7 +2,8 @@ services:
   jellyfin:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.gryta.eu`)
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.gryta.eu`) &&
+        !Path(`/Users/authenticatebyname`)
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.routers.jellyfin.tls.certresolver=le
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
