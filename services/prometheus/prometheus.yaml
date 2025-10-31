@@ -5,16 +5,16 @@ services:
     ports:
       - 9090:9090
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.enable-lifecycle
     networks:
       monitoring-network:
         ipv4_address: 172.22.0.2
       homelab-network:
-        ipv4_address: 172.20.0.254
+        ipv4_address: 172.20.0.22
     volumes:
       - /mnt/quick/apps/volumes/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -22,10 +22,10 @@ services:
     image: grafana/grafana:latest
     restart: always
     ports:
-      - "0.0.0.0:3000:3000"
+      - 0.0.0.0:3000:3000
     networks:
       monitoring-network:
-        ipv4_address: 172.22.0.2
+        ipv4_address: 172.22.0.5
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -33,7 +33,7 @@ services:
       monitoring-network:
         ipv4_address: 172.22.0.3
     ports:
-      - 8080:8080
+      - 8000:8080
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -52,9 +52,9 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"
 volumes:
   prometheus_data:
     driver: local
