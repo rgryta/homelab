@@ -4,18 +4,34 @@ services:
     container_name: prometheus
     ports:
       - 9090:9090
-    volumes:
-      - /mnt/quick/apps/volumes/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      monitoring-network:
+        ipv4_address: 172.22.0.2
+      homelab-network:
+        ipv4_address: 172.20.0.254
+    volumes:
+      - /mnt/quick/apps/volumes/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "0.0.0.0:3000:3000"
+    networks:
+      monitoring-network:
+        ipv4_address: 172.22.0.2
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    networks:
+      monitoring-network:
+        ipv4_address: 172.22.0.3
     ports:
       - 8080:8080
     volumes:
@@ -23,10 +39,12 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    networks:
+      monitoring-network:
+        ipv4_address: 172.22.0.4
     ports:
       - 9100:9100
     volumes:
@@ -37,14 +55,6 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
-
-volumes:
-  : {}
-    ports:
-      - 8888:80
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.22
 volumes:
   prometheus_data:
     driver: local
@@ -52,7 +62,13 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/prometheus/data
-  netdatacache:
 networks:
+  monitoring-network:
+    name: monitoring-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+          gateway: 172.22.0.1
   homelab-network:
     external: true

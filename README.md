@@ -60,3 +60,8 @@ Memory: 512MB
 	- PiHole: 172.21.0.2
 	- Unbound: 172.21.0.3
 
+### monitoring-network (172.22.0.0/24)
+ - Prometheus: 172.22.0.2
+ - cAdvisor: 172.22.0.3
+ - Node Exporter: 172.22.0.4
+
