@@ -4,15 +4,19 @@ After creating a config yaml file, put this in contents:
 
 ```yaml
 global:
-  scrape_interval: 15s
-
+ scrape_interval: 1m
+ 
 scrape_configs:
-  - job_name: 'docker'
-    docker_sd_configs:
-      - host: unix:///var/run/docker.sock
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: '/(.*)'
-        target_label: container_name
-        replacement: '$1'
+ - job_name: “prometheus”
+   scrape_interval: 1m
+   static_configs:
+   - targets: [“localhost:9090”]
+ - job_name: cadvisor
+   scrape_interval: 5s
+   static_configs:
+   - targets:
+     - (IP of cAdvisor node):8080
+ - job_name: “node”
+   static_configs:
+   - targets: ["(IP of node exporter node):9100"]
 ```

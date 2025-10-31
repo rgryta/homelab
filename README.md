@@ -64,4 +64,5 @@ Memory: 512MB
  - Prometheus: 172.22.0.2
  - cAdvisor: 172.22.0.3
  - Node Exporter: 172.22.0.4
+ - Grafana: 172.22.0.5
 
