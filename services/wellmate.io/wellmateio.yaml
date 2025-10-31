@@ -8,6 +8,7 @@ services:
       - traefik.http.services.wellmateio.loadbalancer.server.port=3000
     image: ghcr.io/wellmateio/wellmate.io:main
     container_name: wellmateio
+    restart: unless-stopped
     networks:
       homelab-network:
         ipv4_address: 172.20.0.150

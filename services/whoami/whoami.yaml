@@ -11,6 +11,7 @@ services:
       - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
     image: traefik/whoami:latest
     container_name: whoami
+    restart: unless-stopped
     networks:
       homelab-network:
         ipv4_address: 172.20.0.20

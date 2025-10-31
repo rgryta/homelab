@@ -11,6 +11,7 @@ services:
       - traefik.http.services.authentik.loadbalancer.server.port=8000
     image: ghcr.io/ggml-org/llama.cpp:server
     container_name: llama-cpp
+    restart: unless-stopped
     volumes:
       - models:/models
     environment:
