@@ -77,7 +77,7 @@ scrape_configs:
         action: drop
 
       # Use container IP and port for scraping
-      - source_labels: [__meta_docker_container_network_ip, scraping_port]
+      - source_labels: [__meta_docker_network_ip, scraping_port]
         regex: "(.+);(.+)"
         replacement: "$1:$2"
         target_label: __address__
