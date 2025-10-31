@@ -55,3 +55,7 @@ chown -R 1000:1000 /mnt/quick/apps/volumes/pihole
 mkdir -p /mnt/quick/apps/volumes/prometheus/config
 mkdir -p /mnt/quick/apps/volumes/prometheus/data
 chown -R 1000:1000 /mnt/quick/apps/volumes/prometheus
+
+## Grafana
+mkdir -p /mnt/quick/apps/volumes/grafana/data
+chown -R 1000:1000 /mnt/quick/apps/volumes/grafana
