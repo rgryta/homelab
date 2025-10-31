@@ -1,0 +1,73 @@
+# .env
+# WEBPASSWORD=
+
+services:
+  pihole:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pihole.rule=Host(`pihole.gryta.eu`)
+      - traefik.http.routers.pihole.entrypoints=websecure
+      - traefik.http.routers.pihole.tls.certresolver=le
+      - traefik.http.services.pihole.loadbalancer.server.port=80
+      - traefik.http.routers.pihole.middlewares=authentik-forward-auth@docker
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
+    container_name: pihole
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    depends_on:
+      - unbound
+    networks:
+      pihole-network:
+        ipv4_address: 172.21.0.2
+      homelab-network:
+        ipv4_address: 172.20.0.254
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    volumes:
+      - pi_pihole:/etc/pihole
+      - pi_dnsmasq:/etc/dnsmasq.d
+    environment:
+      FTLCONF_dns_listeningMode: all
+      FTLCONF_webserver_api_password: ${WEBPASSWORD}
+      FTLCONF_dns_upstreams: unbound#5335;
+      FTLCONF_dns_dnssec: true
+      TZ: Europe/Warsaw
+  unbound:
+    container_name: unbound
+    image: madnuttah/unbound:latest
+    restart: unless-stopped
+    networks:
+      pihole-network:
+        ipv4_address: 172.21.0.3
+    environment:
+      TZ: Europe/Warsaw
+    healthcheck:
+      test: /usr/local/unbound/sbin/healthcheck.sh
+      interval: 60s
+      retries: 5
+      start_period: 15s
+      timeout: 30s
+volumes:
+  pi_pihole:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/pihole/pihole
+  pi_dnsmasq:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/pihole/dnsmasq
+networks:
+  pihole-network:
+    name: pihole-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
+  homelab-network:
+    external: true

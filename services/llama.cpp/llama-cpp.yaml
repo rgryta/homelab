@@ -1,0 +1,42 @@
+# .env
+# LLAMA_API_KEY=
+
+services:
+  llama-cpp:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.llama.rule=Host(`llama.gryta.eu`)
+      - traefik.http.routers.llama.entrypoints=websecure
+      - traefik.http.routers.llama.tls.certresolver=le
+      - traefik.http.services.authentik.loadbalancer.server.port=8000
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: llama-cpp
+    restart: unless-stopped
+    volumes:
+      - models:/models
+    environment:
+      LLAMA_ARG_MODEL: /models/Mistral-Small-3.2-24B-Instruct-2506-Q2_K.gguf
+      LLAMA_ARG_CTX_SIZE: 10000
+      LLAMA_ARG_N_PARALLEL: 2
+      LLAMA_ARG_ENDPOINT_METRICS: 1
+      LLAMA_ARG_HOST: 0.0.0.0
+      LLAMA_ARG_PORT: 8000
+      LLAMA_API_KEY: ${LLAMA_API_KEY}
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8000/health
+      interval: 1m
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.15
+volumes:
+  models: null
+networks:
+  homelab-network:
+    external: true

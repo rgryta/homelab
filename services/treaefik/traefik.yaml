@@ -1,0 +1,64 @@
+services:
+  traefik:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.gryta.eu`)
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.tls.certresolver=le
+      - traefik.http.routers.traefik.middlewares=authentik-forward-auth@docker
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
+      - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
+      - prometheus.scrape=true
+      - prometheus.port=8080
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --certificatesresolvers.le.acme.email=radek.gryta@gmail.com
+      - --certificatesresolvers.le.acme.storage=/traefik/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addRoutersLabels=true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_data:/traefik/data
+      - traefik_letsencrypt:/traefik/letsencrypt
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.100
+      ix-dockge_default: {}
+volumes:
+  traefik_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/traefik/data
+  traefik_letsencrypt:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/traefik/letsencrypt
+networks:
+  homelab-network:
+    name: homelab-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
+  ix-dockge_default:
+    external: true

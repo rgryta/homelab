@@ -1,0 +1,113 @@
+# .env
+# LLDAP_ADMIN_PASS=
+# OAUTH_CLIENT_ID=
+# OAUTH_CLIENT_SECRET=
+
+services:
+  roundcube:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.roundcube.rule=Host(`mail.gryta.eu`)
+      - traefik.http.routers.roundcube.entrypoints=websecure
+      - traefik.http.routers.roundcube.tls.certresolver=le
+    container_name: roundcubemail
+    image: roundcube/roundcubemail:latest
+    restart: unless-stopped
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.104
+    extra_hosts:
+      - mail.gryta.eu:172.20.0.105
+    volumes:
+      - roundcube_www:/var/www/html
+      - roundcube_sqlite:/var/roundcube/db
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: sqlite
+      ROUNDCUBEMAIL_SKIN: elastic
+      ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
+  mailserver:
+    labels:
+      - traefik.enable=true
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.gryta.eu
+    depends_on:
+      roundcube:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      SSL_TYPE: letsencrypt
+      SSL_DOMAIN: mail.gryta.eu
+      
+      ACCOUNT_PROVISIONER: LDAP
+      LDAP_SERVER_HOST: ldap://lldap:3890
+      LDAP_SEARCH_BASE: ou=people,dc=gryta,dc=eu
+      LDAP_BIND_DN: uid=admin,ou=people,dc=gryta,dc=eu
+      LDAP_BIND_PW: ${LLDAP_ADMIN_PASS}
+      LDAP_QUERY_FILTER_USER: (&(objectClass=inetOrgPerson)(mail=%s))
+      LDAP_QUERY_FILTER_GROUP: (|)
+      LDAP_QUERY_FILTER_ALIAS: (&(objectClass=inetOrgPerson)(|(mailalias1=%s)(mailalias2=%s)(mailalias3=%s)(mailalias4=%s)))
+      LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
+      
+      ENABLE_QUOTAS: 0
+      DOVECOT_AUTH_BIND: yes
+      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%u))
+      DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
+      SPOOF_PROTECTION: 1
+      
+      ENABLE_OAUTH2: 1
+      OAUTH2_INTROSPECTION_URL: https://${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}@authentik.gryta.eu/application/o/introspect/
+    volumes:
+      - dms_data:/var/mail/
+      - dms_state:/var/mail-state/
+      - dms_config:/tmp/docker-mailserver/
+      - dovecot_config:/etc/dovecot/
+      - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.105
+    ports:
+      - 25:25
+      - 143:143
+      - 465:465
+      - 587:587
+      - 993:993
+    healthcheck:
+      test: ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
+      timeout: 3s
+      retries: 0
+volumes:
+  roundcube_www:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/roundcube/www
+  roundcube_sqlite:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/roundcube/sqlite
+  dms_data:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/data
+  dms_state:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/state
+  dms_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/config
+  dovecot_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mailserver/dovecot
+networks:
+  homelab-network:
+    external: true
