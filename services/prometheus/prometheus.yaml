@@ -4,6 +4,8 @@
 
 services:
   prometheus:
+    labels:
+      - traefik.enable=false
     image: prom/prometheus:latest
     container_name: prometheus
     restart: unless-stopped
@@ -20,6 +22,8 @@ services:
       - --web.console.templates=/etc/prometheus/consoles
       - --web.enable-lifecycle
     networks:
+      homelab-network:
+        ipv4_address: 172.20.0.23
       monitoring-network:
         ipv4_address: 172.22.0.2
     volumes:
@@ -60,6 +64,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
   cadvisor:
+    labels:
+      - traefik.enable=false
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     restart: unless-stopped
@@ -72,6 +78,8 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
   node-exporter:
+    labels:
+      - traefik.enable=false
     image: prom/node-exporter:latest
     container_name: node-exporter
     restart: unless-stopped

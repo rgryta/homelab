@@ -54,6 +54,7 @@ Memory: 512MB
 	- Unbound: 172.20.0.253
  - What's up docker: 172.20.0.21
  - Grafana: 172.20.0.22
+ - Prometheus: 172.20.0.23
 
 ### pihole-network (172.21.0.0/24)
  - PiHole:
