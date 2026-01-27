@@ -13,18 +13,18 @@ services:
     volumes:
       - models:/models
     environment:
-      LLAMA_ARG_MODEL: /models/Qwen2.5-Coder-3B-Instruct-Q4_K_M.gguf
+      LLAMA_ARG_MODEL: /models/nomic-embed-text-v1.5.Q8_0.gguf
+      LLAMA_ARG_MODEL_URL: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q8_0.gguf
       LLAMA_ARG_HOST: 0.0.0.0
-      LLAMA_ARG_CTX_SIZE: 45096
-      LLAMA_ARG_N_PARALLEL: 1
+      LLAMA_ARG_CTX_SIZE: 2048
+      LLAMA_ARG_N_PARALLEL: 4
       LLAMA_ARG_ENDPOINT_METRICS: 1
       LLAMA_ARG_PORT: 8000
+      LLAMA_ARG_EMBEDDINGS: 1
+      LLAMA_ARG_POOLING: mean
       SYCL_CACHE_PERSISTENT: 1
-      SYCL_UR_TRACE: 1
-      # API
       LLAMA_API_KEY: ${LLAMA_API_KEY}
-      LLAMA_ARG_JINJA: 1
-      LLAMA_LOG_VERBOSITY: 4
+      LLAMA_LOG_VERBOSITY: 2
     healthcheck:
       test:
         - CMD
