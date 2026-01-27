@@ -136,7 +136,6 @@ services:
       - ANDROID_HOME=/opt/android-sdk
       - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:$PATH
       - CLOUDSDK_CONFIG=/opt/tools/gcloud-config
-      - CLAUDE_MCP_TOKEN=${CLAUDE_MCP_TOKEN}
     depends_on:
       - android
       - uv
