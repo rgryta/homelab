@@ -38,8 +38,16 @@ Each service has a `volume.sh` script that creates the required directories. Run
 | Traefik | `/mnt/quick/apps/volumes/traefik/` | - |
 | LLDAP | `/mnt/quick/apps/volumes/lldap/` | - |
 | Authentik | `/mnt/quick/apps/volumes/authentik/` | - |
-| Filebrowser | `/mnt/quick/apps/volumes/filebrowser/` | `/mnt/archive/apps/volumes/filebrowser/` |
+| Filebrowser | `/mnt/quick/apps/volumes/filebrowser/`<br>`/mnt/quick/media/` | `/mnt/archive/apps/volumes/filebrowser/` |
 | Mail | `/mnt/quick/apps/volumes/roundcube/`<br>`/mnt/quick/apps/volumes/mailserver/` | - |
-| Jellyfin | `/mnt/quick/apps/volumes/jellyfin/` | `/mnt/archive/media/` |
+| Jellyfin | `/mnt/quick/apps/volumes/jellyfin/`<br>`/mnt/quick/apps/volumes/jellyseerr/` | `/mnt/archive/media/` |
 | PiHole | `/mnt/quick/apps/volumes/pihole/` | - |
 | Prometheus | `/mnt/quick/apps/volumes/prometheus/`<br>`/mnt/quick/apps/volumes/grafana/` | - |
+| Arr | `/mnt/quick/apps/volumes/arr/` | `/mnt/archive/media/`<br>`/mnt/archive/apps/volumes/qbittorrent/downloads/` |
+| qBittorrent | `/mnt/quick/apps/volumes/qbittorrent/` | `/mnt/archive/apps/volumes/qbittorrent/downloads/` |
+| Immich | `/mnt/quick/apps/volumes/immich/` | - |
+| VS Code | `/mnt/quick/apps/volumes/vscode/` | - |
+| macOS | `/mnt/quick/apps/volumes/macos/` | - |
+| OpenFoodFacts | `/mnt/quick/apps/volumes/openfoodfacts/` | - |
+| GitHub Runner | - | - |
+| VPN Client | - | - |

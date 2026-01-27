@@ -19,16 +19,10 @@ Add this middleware for protected services:
 
 ```yaml
 labels:
-  - traefik.http.routers.SERVICE.middlewares=authentik-forward-auth@docker
+  - traefik.http.routers.SERVICE.middlewares=authentik-forward-auth@file
 ```
 
-The `authentik-forward-auth` middleware is defined in the Traefik service config:
-
-```yaml
-- traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
-- traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
-- traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
-```
+The `authentik-forward-auth` middleware is defined in Traefik's file provider configuration (`/traefik/data/`).
 
 ## Dockge Labels
 
@@ -41,10 +35,7 @@ labels:
   - traefik.http.routers.dockge.entrypoints=websecure
   - traefik.http.routers.dockge.tls.certresolver=le
   - traefik.http.services.dockge.loadbalancer.server.port=31014
-  - traefik.http.routers.dockge.middlewares=authentik-forward-auth@docker
-  - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
-  - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
-  - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
+  - traefik.http.routers.dockge.middlewares=authentik-forward-auth@file
 ```
 
 Once HTTPS and Authentik proxy is set up, add `DOCKGE_ENABLE_CONSOLE=true` for remote shell access.
