@@ -42,6 +42,66 @@ services:
         cp -a /usr/local/* /opt/node/ &&
         tail -f /dev/null
     restart: unless-stopped
+  tools:
+    labels:
+      - traefik.enable=false
+    image: debian:bookworm-slim
+    container_name: tools
+    volumes:
+      - /opt/tools
+      - gcloud_config:/opt/tools/gcloud-config
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        # Skip if already installed (marker file check)
+        if [ -f /opt/tools/.installed ]; then
+          echo "Tools already installed, skipping..."
+          exec tail -f /dev/null
+        fi
+        rm -rf /opt/tools/* 2>/dev/null || true
+        mkdir -p /opt/tools/bin
+        # Install dependencies
+        apt-get update && apt-get install -y --no-install-recommends \
+          make curl unzip wget ca-certificates gnupg \
+          && apt-get clean && rm -rf /var/lib/apt/lists/*
+        # Install make
+        cp /usr/bin/make /opt/tools/bin/
+        # Install GitHub CLI
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+          -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+        chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+          > /etc/apt/sources.list.d/github-cli.list
+        apt-get update && apt-get install -y gh && apt-get clean && rm -rf /var/lib/apt/lists/*
+        cp /usr/bin/gh /opt/tools/bin/
+        # Install Google Chrome (headless)
+        curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+          | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+          > /etc/apt/sources.list.d/google-chrome.list
+        apt-get update && apt-get install -y google-chrome-stable && apt-get clean && rm -rf /var/lib/apt/lists/*
+        cp /usr/bin/google-chrome-stable /opt/tools/bin/google-chrome
+        # Install gcloud CLI (for App Engine, BigQuery, Cloud SQL)
+        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+          | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+          > /etc/apt/sources.list.d/google-cloud-sdk.list
+        apt-get update && apt-get install -y google-cloud-cli \
+          google-cloud-cli-app-engine-python google-cloud-cli-app-engine-python-extras \
+          google-cloud-cli-cloud-run-proxy google-cloud-cli-gke-gcloud-auth-plugin \
+          && apt-get clean && rm -rf /var/lib/apt/lists/*
+        ln -sf /usr/bin/gcloud /opt/tools/bin/gcloud
+        ln -sf /usr/bin/gsutil /opt/tools/bin/gsutil
+        ln -sf /usr/bin/bq /opt/tools/bin/bq
+        # Configure gcloud to use persistent config directory
+        mkdir -p /opt/tools/gcloud-config
+        # Mark as installed
+        touch /opt/tools/.installed
+        echo "Tools installation complete"
+        exec tail -f /dev/null
+    restart: unless-stopped
   vscode:
     labels:
       - traefik.enable=true
@@ -56,6 +116,7 @@ services:
       - android
       - uv
       - node
+      - tools
     volumes:
       - vscode_config:/config
       - homelab_stack:/homelab_stack:ro
@@ -73,12 +134,14 @@ services:
         "https://marketplace.visualstudio.com/items"}'
       - JAVA_HOME=/opt/java/openjdk
       - ANDROID_HOME=/opt/android-sdk
-      - PATH=/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:$PATH
+      - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:$PATH
+      - CLOUDSDK_CONFIG=/opt/tools/gcloud-config
       - CLAUDE_MCP_TOKEN=${CLAUDE_MCP_TOKEN}
     depends_on:
       - android
       - uv
       - node
+      - tools
     restart: unless-stopped
     networks:
       homelab-network:
@@ -94,6 +157,11 @@ volumes:
       o: bind
       type: none
       device: /mnt/.ix-apps/app_mounts/dockge/stacks
+  gcloud_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/vscode/gcloud
 networks:
   homelab-network:
     external: true
