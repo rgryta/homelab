@@ -92,9 +92,11 @@ services:
           google-cloud-cli-app-engine-python google-cloud-cli-app-engine-python-extras \
           google-cloud-cli-cloud-run-proxy google-cloud-cli-gke-gcloud-auth-plugin \
           && apt-get clean && rm -rf /var/lib/apt/lists/*
-        ln -sf /usr/bin/gcloud /opt/tools/bin/gcloud
-        ln -sf /usr/bin/gsutil /opt/tools/bin/gsutil
-        ln -sf /usr/bin/bq /opt/tools/bin/bq
+        # Copy entire gcloud SDK (symlinks won't work across containers)
+        cp -a /usr/lib/google-cloud-sdk /opt/tools/
+        ln -sf /opt/tools/google-cloud-sdk/bin/gcloud /opt/tools/bin/gcloud
+        ln -sf /opt/tools/google-cloud-sdk/bin/gsutil /opt/tools/bin/gsutil
+        ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
         # Configure gcloud to use persistent config directory
         mkdir -p /opt/tools/gcloud-config
         # Mark as installed
