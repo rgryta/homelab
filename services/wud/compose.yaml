@@ -6,21 +6,18 @@ services:
       - traefik.http.routers.wud.entrypoints=websecure
       - traefik.http.routers.wud.tls.certresolver=le
       - traefik.http.services.wud.loadbalancer.server.port=3000
-      - traefik.http.routers.wud.middlewares=authentik-forward-auth@docker
-      - traefik.http.middlewares.authentik-forward-auth.forwardauth.address=http://authentik-server:9000/outpost.goauthentik.io/auth/traefik
-      - traefik.http.middlewares.authentik-forward-auth.forwardauth.trustforwardheader=true
-      - traefik.http.middlewares.authentik-forward-auth.forwardauth.authresponseheaders=X-Authentik-Email,X-Authentik-Username,X-Authentik-Groups
+      - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
     image: getwud/wud
     container_name: wud
-    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
-      - TZ=UTC
+      - TZ=Europe/Warsaw
     networks:
       homelab-network:
         ipv4_address: 172.20.0.21
+    restart: unless-stopped
 networks:
   homelab-network:
     external: true

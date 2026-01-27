@@ -11,7 +11,15 @@ TrueNAS Dockge-based homelab with containerized services.
 | [LLDAP](services/lldap/) | LDAP directory service |
 | [Filebrowser](services/filebrowser/) | Web-based file manager |
 | [Mail](services/mail/) | Roundcube + docker-mailserver |
-| [Jellyfin](services/jellyfin/) | Media server |
+| [Jellyfin](services/jellyfin/) | Media server with Jellyseerr |
+| [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Tdarr) |
+| [qBittorrent](services/qbittorrent/) | Torrent client (via VPN) |
+| [VPN Client](services/vpn-client/) | NordVPN container for tunneled services |
+| [Immich](services/immich/) | Photo and video management |
+| [VS Code](services/vscode/) | Web-based code editor |
+| [GitHub Runner](services/github-runner/) | Self-hosted GitHub Actions runner |
+| [macOS](services/macos/) | macOS virtualization |
+| [OpenFoodFacts](services/openfoodfacts/) | Food product database API |
 | [Prometheus](services/prometheus/) | Monitoring stack (Prometheus, Grafana, cAdvisor) |
 | [PiHole](services/pihole/) | DNS ad-blocking with Unbound |
 | [What's Up Docker](services/wud/) | Container update checker |

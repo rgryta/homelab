@@ -1,6 +1,6 @@
 # Network Configuration
 
-This homelab uses three isolated Docker networks for logical separation of services.
+This homelab uses five isolated Docker networks for logical separation of services.
 
 ## homelab-network (172.20.0.0/24)
 
@@ -19,12 +19,39 @@ Main application network for all services.
 | What's Up Docker | wud | 172.20.0.21 |
 | Grafana | grafana | 172.20.0.22 |
 | Prometheus | prometheus | 172.20.0.23 |
+| VS Code | code-server | 172.20.0.25 |
+| macOS | macos | 172.20.0.26 |
 | Filebrowser | filebrowser | 172.20.0.102 |
 | Jellyfin | jellyfin | 172.20.0.103 |
 | Roundcube | roundcube | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
+| Jellyseerr | jellyseerr | 172.20.0.106 |
+| OpenFoodFacts | openfoodfacts-server | 172.20.0.110 |
+| | openfoodfacts-db | 172.20.0.111 |
+| | openfoodfacts-redis | 172.20.0.112 |
+| Immich | immich-server | 172.20.0.114 |
 | WellMate | wellmate | 172.20.0.150 |
 | PiHole | pihole | 172.20.0.254 |
+
+## homelab-vpn-network (172.20.2.0/24)
+
+VPN-tunneled network for services requiring privacy/anonymity.
+
+| Service | Container | IP Address |
+|---------|-----------|------------|
+| Traefik | traefik | 172.20.2.2 |
+| VPN Client | vpn-client | 172.20.2.3 |
+| Sonarr | sonarr | 172.20.2.4 |
+| Radarr | radarr | 172.20.2.5 |
+| Prowlarr | prowlarr | 172.20.2.6 |
+| FlareSolverr | flaresolverr | 172.20.2.7 |
+| Lidarr | lidarr | 172.20.2.8 |
+| Bazarr | bazarr | 172.20.2.9 |
+| Cleanuparr | cleanuparr | 172.20.2.10 |
+| Huntarr | huntarr | 172.20.2.11 |
+| Tdarr | tdarr | 172.20.2.12 |
+| PiHole | pihole | 172.20.2.13 |
+| Jellyseerr | jellyseerr | 172.20.2.14 |
 
 ## pihole-network (172.21.0.0/24)
 
@@ -34,6 +61,17 @@ Isolated network for DNS services.
 |---------|-----------|------------|
 | PiHole | pihole | 172.21.0.2 |
 | Unbound | unbound | 172.21.0.3 |
+
+## immich-network (172.21.1.0/24)
+
+Isolated network for the photo management stack.
+
+| Service | Container | IP Address |
+|---------|-----------|------------|
+| Immich Server | immich-server | 172.21.1.2 |
+| Immich ML | immich-machine-learning | 172.21.1.3 |
+| Immich DB | immich-postgres | 172.21.1.4 |
+| Immich Redis | immich-redis | 172.21.1.5 |
 
 ## monitoring-network (172.22.0.0/24)
 

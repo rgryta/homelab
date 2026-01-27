@@ -1,0 +1,105 @@
+services:
+  immich-server:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.immich.rule=Host(`immich.gryta.eu`)
+      - traefik.http.routers.immich.entrypoints=websecure
+      - traefik.http.routers.immich.tls.certresolver=le
+      - traefik.http.services.immich.loadbalancer.server.port=2283
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    extends:
+      file: hwaccel.transcoding.yml
+      service: quicksync
+    networks:
+      immich-network:
+        ipv4_address: 172.21.1.2
+      homelab-network:
+        ipv4_address: 172.20.0.114
+    volumes:
+      - /mnt/quick/immich:/data
+      - immich_upload:/data2
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - database
+    restart: unless-stopped
+    healthcheck:
+      disable: false
+  immich-machine-learning:
+    labels:
+      - traefik.enable=false
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
+    extends:
+      file: hwaccel.ml.yml
+      service: openvino
+    volumes:
+      - model_cache:/cache
+    networks:
+      immich-network:
+        ipv4_address: 172.21.1.5
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      disable: false
+  redis:
+    labels:
+      - traefik.enable=false
+    container_name: immich_redis
+    image: docker.io/valkey/valkey:8@sha256:81db6d39e1bba3b3ff32bd3a1b19a6d69690f94a3954ec131277b9a26b95b3aa
+    healthcheck:
+      test: redis-cli ping || exit 1
+    networks:
+      immich-network:
+        ipv4_address: 172.21.1.3
+    restart: unless-stopped
+  database:
+    labels:
+      - traefik.enable=false
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: --data-checksums
+    volumes:
+      - immich_data:/var/lib/postgresql/data
+    networks:
+      immich-network:
+        ipv4_address: 172.21.1.4
+    shm_size: 128mb
+    restart: unless-stopped
+volumes:
+  immich_upload:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${UPLOAD_LOCATION}
+  immich_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DB_DATA_LOCATION}
+  model_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MODEL_CACHE_LOCATION}
+networks:
+  immich-network:
+    name: immich-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.1.0/24
+          gateway: 172.21.1.1
+  homelab-network:
+    external: true

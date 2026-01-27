@@ -1,0 +1,41 @@
+services:
+  macos:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.macos.rule=Host(`macos.gryta.eu`)
+      - traefik.http.routers.macos.entrypoints=websecure
+      - traefik.http.routers.macos.tls.certresolver=le
+      - traefik.http.routers.macos.middlewares=authentik-forward-auth@file
+      - traefik.http.services.macos.loadbalancer.server.port=80006
+    image: dockurr/macos
+    container_name: macos
+    environment:
+      VERSION: "16"
+      DEBUG: Y
+      RAM_SIZE: 12G
+      CPU_CORES: "6"
+      CPU_MODEL: Skylake-Client-v4
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    stop_grace_period: 2m
+    ports:
+      - 8006:8006
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.26
+    volumes:
+      - macos:/storage
+volumes:
+  macos:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/macos
+networks:
+  homelab-network:
+    external: true

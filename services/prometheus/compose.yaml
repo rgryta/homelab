@@ -1,7 +1,3 @@
-# .env
-# OAUTH_CLIENT_ID=
-# OAUTH_CLIENT_SECRET=
-
 services:
   prometheus:
     labels:

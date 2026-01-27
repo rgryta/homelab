@@ -1,0 +1,28 @@
+services:
+  vpn-client:
+    labels:
+      - traefik.enable=false
+    image: ghcr.io/bubuntux/nordlynx
+    container_name: vpn-client
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PRIVATE_KEY=${NORD_PK}
+      - COUNTRY_CODE=PL
+      - NET_LOCAL=192.168.0.0/16,172.16.0.0/12
+      - DNS=172.20.2.13
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.3
+    devices:
+      - /dev/net/tun
+    ports:  # Ports for services that use vpn network
+      - 51820:51820/udp
+    restart: unless-stopped
+networks:
+  homelab-network:
+    external: true
+  homelab-vpn-network:
+    external: true

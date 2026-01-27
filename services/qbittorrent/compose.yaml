@@ -1,0 +1,35 @@
+services:
+  qbittorrent:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.qbittorrent.rule=Host(`qbit.gryta.eu`)
+      - traefik.http.routers.qbittorrent.entrypoints=websecure
+      - traefik.http.routers.qbittorrent.tls.certresolver=le
+      - traefik.http.routers.qbittorrent.middlewares=authentik-forward-auth@file
+      - traefik.http.services.qbittorrent.loadbalancer.server.url=http://172.20.2.3:8888
+    image: ghcr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    network_mode: container:vpn-client
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8888
+    volumes:
+      - qb_config:/config
+      - qb_downloads:/downloads
+    restart: unless-stopped
+volumes:
+  qb_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/qbittorrent/config
+  qb_downloads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/qbittorrent/downloads
+networks: {}

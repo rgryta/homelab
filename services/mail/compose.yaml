@@ -1,8 +1,3 @@
-# .env
-# LLDAP_ADMIN_PASS=
-# OAUTH_CLIENT_ID=
-# OAUTH_CLIENT_SECRET=
-
 services:
   roundcube:
     labels:
@@ -28,7 +23,7 @@ services:
       ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
   mailserver:
     labels:
-      - traefik.enable=true
+      - traefik.enable=false
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     hostname: mail.gryta.eu
@@ -39,7 +34,6 @@ services:
     environment:
       SSL_TYPE: letsencrypt
       SSL_DOMAIN: mail.gryta.eu
-      
       ACCOUNT_PROVISIONER: LDAP
       LDAP_SERVER_HOST: ldap://lldap:3890
       LDAP_SEARCH_BASE: ou=people,dc=gryta,dc=eu
@@ -49,13 +43,11 @@ services:
       LDAP_QUERY_FILTER_GROUP: (|)
       LDAP_QUERY_FILTER_ALIAS: (&(objectClass=inetOrgPerson)(|(mailalias1=%s)(mailalias2=%s)(mailalias3=%s)(mailalias4=%s)))
       LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
-      
       ENABLE_QUOTAS: 0
       DOVECOT_AUTH_BIND: yes
       DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%u))
       DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
       SPOOF_PROTECTION: 1
-      
       ENABLE_OAUTH2: 1
       OAUTH2_INTROSPECTION_URL: https://${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}@authentik.gryta.eu/application/o/introspect/
     volumes:

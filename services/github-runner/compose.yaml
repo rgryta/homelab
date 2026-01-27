@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  github-runner:
+    image: myoung34/github-runner:ubuntu-noble
+    container_name: wellmate-github-runner
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    environment:
+      ORG_NAME: ${GITHUB_ORG_NAME}
+      RUNNER_SCOPE: org
+      RUNNER_NAME: truenas-docker-runner
+      RUNNER_WORKDIR: /tmp/runner/work
+      LABELS: self-hosted,linux,x64,docker
+      DOCKER_ENABLED: true
+      ACCESS_TOKEN: ${GH_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/runner/work:/tmp/runner/work
+networks: {}

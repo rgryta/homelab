@@ -1,0 +1,342 @@
+services:
+  sonarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.gryta.eu`)
+      - traefik.http.routers.sonarr.entrypoints=websecure
+      - traefik.http.routers.sonarr.tls.certresolver=le
+      - traefik.http.routers.sonarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.4
+    extra_hosts:
+      - qbit.gryta.eu:172.20.2.3 # Same IP as the VPN-client
+      - prowlarr.gryta.eu:172.20.2.6
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - sonarr_config:/config
+      - qb_downloads:/downloads
+      - tv_shows:/tv
+      - anime:/anime
+    restart: unless-stopped
+  radarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.radarr.rule=Host(`radarr.gryta.eu`)
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.routers.radarr.tls.certresolver=le
+      - traefik.http.routers.radarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.5
+    extra_hosts:
+      - qbit.gryta.eu:172.20.2.3
+      - prowlarr.gryta.eu:172.20.2.6
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - radarr_config:/config
+      - qb_downloads:/downloads
+      - movies:/movies
+    restart: unless-stopped
+  prowlarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.gryta.eu`)
+      - traefik.http.routers.prowlarr.entrypoints=websecure
+      - traefik.http.routers.prowlarr.tls.certresolver=le
+      - traefik.http.routers.prowlarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+    image: lscr.io/linuxserver/prowlarr
+    container_name: prowlarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.6
+    extra_hosts:
+      - sonarr.gryta.eu:172.20.2.4
+      - radarr.gryta.eu:172.20.2.5
+      - lidarr.gryta.eu:172.20.2.8
+      - flare.gryta.eu:172.20.2.7
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - prowlarr_config:/config
+      - qb_downloads:/downloads
+    restart: unless-stopped
+  flaresolverr:
+    labels:
+      - traefik.enable=false
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.7
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+  lidarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lidarr.rule=Host(`lidarr.gryta.eu`)
+      - traefik.http.routers.lidarr.entrypoints=websecure
+      - traefik.http.routers.lidarr.tls.certresolver=le
+      - traefik.http.routers.lidarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.lidarr.loadbalancer.server.port=8686
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.8
+    extra_hosts:
+      - qbit.gryta.eu:172.20.2.3
+      - prowlarr.gryta.eu:172.20.2.6
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - lidarr_config:/config
+      - qb_downloads:/downloads
+      - music:/music
+    restart: unless-stopped
+  bazarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.gryta.eu`)
+      - traefik.http.routers.bazarr.entrypoints=websecure
+      - traefik.http.routers.bazarr.tls.certresolver=le
+      - traefik.http.routers.bazarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.9
+    extra_hosts:
+      - sonarr.gryta.eu:172.20.2.4
+      - radarr.gryta.eu:172.20.2.5
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - bazarr_config:/config
+      - tv_shows:/tv
+      - movies:/movies
+      - anime:/anime
+    restart: unless-stopped
+  cleanuparr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cleanuparr.rule=Host(`cleanuparr.gryta.eu`)
+      - traefik.http.routers.cleanuparr.entrypoints=websecure
+      - traefik.http.routers.cleanuparr.tls.certresolver=le
+      - traefik.http.routers.cleanuparr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.cleanuparr.loadbalancer.server.port=11011
+    container_name: cleanuparr
+    restart: unless-stopped
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.10
+    extra_hosts:
+      - qbit.gryta.eu:172.20.2.3
+      - sonarr.gryta.eu:172.20.2.4
+      - radarr.gryta.eu:172.20.2.5
+      - lidarr.gryta.eu:172.20.2.8
+    volumes:
+      - cleanuparr_config:/config
+    environment:
+      - PORT=11011
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+  huntarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.huntarr.rule=Host(`huntarr.gryta.eu`)
+      - traefik.http.routers.huntarr.entrypoints=websecure
+      - traefik.http.routers.huntarr.tls.certresolver=le
+      - traefik.http.routers.huntarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.huntarr.loadbalancer.server.port=9705
+    image: huntarr/huntarr:latest
+    container_name: huntarr
+    restart: unless-stopped
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.11
+    extra_hosts:
+      - prowlarr.gryta.eu:172.20.2.6
+      - sonarr.gryta.eu:172.20.2.4
+      - radarr.gryta.eu:172.20.2.5
+      - lidarr.gryta.eu:172.20.2.8
+    volumes:
+      - huntarr_config:/config
+    environment:
+      - TZ=Europe/Warsaw
+  tdarr:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tdarr.rule=Host(`tdarr.gryta.eu`)
+      - traefik.http.routers.tdarr.entrypoints=websecure
+      - traefik.http.routers.tdarr.tls.certresolver=le
+      - traefik.http.routers.tdarr.middlewares=authentik-forward-auth@file
+      - traefik.http.services.tdarr.loadbalancer.server.port=8265
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
+    networks:
+      homelab-vpn-network:
+        ipv4_address: 172.20.2.12
+    extra_hosts:
+      - sonarr.gryta.eu:172.20.2.4
+      - radarr.gryta.eu:172.20.2.5
+    environment:
+      - TZ=Etc/UTC
+      - PUID=1000
+      - PGID=1000
+      - UMASK_SET=002
+      - serverIP=172.20.2.12
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=InternalNode
+      - auth=false
+      - openBrowser=false
+      - maxLogSizeMB=10
+      - cronPluginUpdate=
+    volumes:
+      - tdarr_server:/app/server
+      - tdarr_configs:/app/configs
+      - tdarr_logs:/app/logs
+      - tdarr_transcode_cache:/temp
+      - movies:/media/movies
+      - tv_shows:/media/tv
+      - anime:/media/anime
+    devices:
+      - /dev/dri:/dev/dri
+    restart: unless-stopped
+volumes:
+  # *Arr's configs
+  sonarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/sonarr/config
+  radarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/radarr/config
+  lidarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/lidarr/config
+  bazarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/bazarr/config
+  prowlarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/prowlarr/config
+  cleanuparr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/cleanuparr/config
+  huntarr_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/huntarr/config
+  # Tdarr
+  tdarr_server:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/tdarr/server
+  tdarr_configs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/tdarr/configs
+  tdarr_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/tdarr/logs
+  tdarr_transcode_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/tdarr/transcode_cache
+  # Downloads
+  qb_downloads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/qbittorrent/downloads
+  # Media
+  tv_shows:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/media/All/Shows
+  movies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/media/All/Movies
+  anime:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/media/All/Anime
+  music:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/media/All/Music
+  books:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/media/All/Books
+networks:
+  homelab-vpn-network:
+    external: true

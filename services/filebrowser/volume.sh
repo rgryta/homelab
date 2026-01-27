@@ -9,6 +9,10 @@ mkdir -p "$QUICK/filebrowser/db"
 mkdir -p "$QUICK/filebrowser/data"
 chown -R 1000:1000 "$QUICK/filebrowser"
 
+# Quick media mount
+mkdir -p /mnt/quick/media
+chown -R 1000:1000 /mnt/quick/media
+
 # Archive mount for slow storage
 mkdir -p "$ARCHIVE/filebrowser/slow"
 chown -R 1000:1000 "$ARCHIVE/filebrowser"
