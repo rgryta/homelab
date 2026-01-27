@@ -15,6 +15,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Tdarr) |
 | [qBittorrent](services/qbittorrent/) | Torrent client (via VPN) |
 | [VPN Client](services/vpn-client/) | NordVPN container for tunneled services |
+| [WireGuard](services/wireguard/) | VPN server for external client access |
 | [Immich](services/immich/) | Photo and video management |
 | [VS Code](services/vscode/) | Web-based code editor |
 | [GitHub Runner](services/github-runner/) | Self-hosted GitHub Actions runner |
