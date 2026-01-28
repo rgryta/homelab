@@ -18,7 +18,7 @@ services:
       - WG_HOST=${WG_HOST}
       - PASSWORD_HASH=${WG_PASSWORD_HASH}
       - PORT=51821
-      - WG_PORT=51820
+      - WG_PORT=55555
       - WG_DEFAULT_ADDRESS=172.20.3.x
       - WG_DEFAULT_DNS=172.20.0.254
       - WG_ALLOWED_IPS=0.0.0.0/0
