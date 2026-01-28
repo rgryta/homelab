@@ -2,6 +2,7 @@ services:
   wireguard:
     labels:
       - traefik.enable=true
+      - traefik.docker.network=homelab-network
       - traefik.http.routers.wireguard.rule=Host(`wireguard.gryta.eu`)
       - traefik.http.routers.wireguard.entrypoints=websecure
       - traefik.http.routers.wireguard.tls.certresolver=le
