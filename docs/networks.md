@@ -1,6 +1,6 @@
 # Network Configuration
 
-This homelab uses five isolated Docker networks for logical separation of services.
+This homelab uses six isolated Docker networks for logical separation of services.
 
 ## homelab-network (172.20.0.0/24)
 
@@ -31,6 +31,7 @@ Main application network for all services.
 | | openfoodfacts-redis | 172.20.0.112 |
 | Immich | immich-server | 172.20.0.114 |
 | WellMate | wellmate | 172.20.0.150 |
+| WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
 
 ## homelab-vpn-network (172.20.2.0/24)
@@ -83,3 +84,13 @@ Dedicated network for the monitoring stack.
 | cAdvisor | cadvisor | 172.22.0.3 |
 | Node Exporter | node-exporter | 172.22.0.4 |
 | Grafana | grafana | 172.22.0.5 |
+
+## wireguard-network (172.20.3.0/24)
+
+Docker bridge network for WireGuard container.
+
+| Service | Container | IP Address |
+|---------|-----------|------------|
+| WireGuard | wireguard | 172.20.3.254 |
+
+**Note**: WireGuard container also has IP 172.20.0.200 on homelab-network. VPN clients use separate tunnel subnet 10.8.0.0/24.
