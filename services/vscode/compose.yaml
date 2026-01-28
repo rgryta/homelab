@@ -47,6 +47,8 @@ services:
       - traefik.enable=false
     image: debian:bookworm-slim
     container_name: tools
+    environment:
+      - REINSTALL=${TOOLS_REINSTALL:-false}
     volumes:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
@@ -55,8 +57,8 @@ services:
       - -c
       - |
         set -e
-        # Skip if already installed (marker file check)
-        if [ -f /opt/tools/.installed ]; then
+        # Skip if already installed (unless REINSTALL is set)
+        if [ -f /opt/tools/.installed ] && [ "$REINSTALL" != "true" ]; then
           echo "Tools already installed, skipping..."
           exec tail -f /dev/null
         fi
@@ -64,10 +66,12 @@ services:
         mkdir -p /opt/tools/bin
         # Install dependencies
         apt-get update && apt-get install -y --no-install-recommends \
-          make curl unzip wget ca-certificates gnupg \
+          make curl unzip wget ca-certificates gnupg nmap \
           && apt-get clean && rm -rf /var/lib/apt/lists/*
         # Install make
         cp /usr/bin/make /opt/tools/bin/
+        # Install nmap
+        cp /usr/bin/nmap /opt/tools/bin/
         # Install GitHub CLI
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
           -o /usr/share/keyrings/githubcli-archive-keyring.gpg
