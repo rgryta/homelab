@@ -91,7 +91,7 @@ VPN tunnel network for external client access to homelab services.
 
 | Service | Container | IP Address |
 |---------|-----------|------------|
-| WireGuard | wireguard | 172.20.3.1 |
+| WireGuard | wireguard | 172.20.3.2 |
 | VPN Clients | - | 172.20.3.10-250 |
 
-**Note**: WireGuard server also has IP 172.20.0.200 on homelab-network for routing.
+**Note**: WireGuard server also has IP 172.20.0.200 on homelab-network for routing. Gateway 172.20.3.1 is reserved by Docker.
