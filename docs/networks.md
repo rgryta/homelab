@@ -87,11 +87,10 @@ Dedicated network for the monitoring stack.
 
 ## wireguard-network (172.20.3.0/24)
 
-VPN tunnel network for external client access to homelab services.
+Docker bridge network for WireGuard container.
 
 | Service | Container | IP Address |
 |---------|-----------|------------|
-| WireGuard | wireguard | 172.20.3.2 |
-| VPN Clients | - | 172.20.3.10-250 |
+| WireGuard | wireguard | 172.20.3.254 |
 
-**Note**: WireGuard server also has IP 172.20.0.200 on homelab-network for routing. Gateway 172.20.3.1 is reserved by Docker.
+**Note**: WireGuard container also has IP 172.20.0.200 on homelab-network. VPN clients use separate tunnel subnet 10.8.0.0/24.
