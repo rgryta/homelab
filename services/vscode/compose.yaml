@@ -70,8 +70,13 @@ services:
           && apt-get clean && rm -rf /var/lib/apt/lists/*
         # Install make
         cp /usr/bin/make /opt/tools/bin/
-        # Install nmap
+        # Install nmap with required libraries
         cp /usr/bin/nmap /opt/tools/bin/
+        mkdir -p /opt/tools/lib
+        for lib in $(ldd /usr/bin/nmap | grep -o '/[^ ]*'); do
+          cp -n "$lib" /opt/tools/lib/ 2>/dev/null || true
+        done
+        cp -r /usr/share/nmap /opt/tools/share/nmap
         # Install GitHub CLI
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
           -o /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -147,6 +152,7 @@ services:
       - JAVA_HOME=/opt/java/openjdk
       - ANDROID_HOME=/opt/android-sdk
       - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH
+      - LD_LIBRARY_PATH=/opt/tools/lib:$LD_LIBRARY_PATH
       - CLOUDSDK_CONFIG=/opt/tools/gcloud-config
     depends_on:
       - android
