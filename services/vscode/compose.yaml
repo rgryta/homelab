@@ -57,9 +57,9 @@ services:
       - -c
       - |
         set -e
-        # Skip if already installed (unless REINSTALL is set)
-        if [ -f /opt/tools/.installed ] && [ "$REINSTALL" != "true" ]; then
-          echo "Tools already installed, skipping..."
+        # Skip reinstall unless REINSTALL is set
+        if [ "$REINSTALL" != "true" ]; then
+          echo "REINSTALL not set, skipping..."
           exec tail -f /dev/null
         fi
         rm -rf /opt/tools/* 2>/dev/null || true
@@ -110,8 +110,6 @@ services:
         ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
         # Configure gcloud to use persistent config directory
         mkdir -p /opt/tools/gcloud-config
-        # Mark as installed
-        touch /opt/tools/.installed
         echo "Tools installation complete"
         exec tail -f /dev/null
     restart: unless-stopped
