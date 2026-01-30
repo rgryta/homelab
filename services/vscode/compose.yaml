@@ -98,6 +98,13 @@ services:
           && apt-get clean && rm -rf /var/lib/apt/lists/*
         # Copy entire gcloud SDK (symlinks won't work across containers)
         cp -a /usr/lib/google-cloud-sdk /opt/tools/
+        # Install Docker CLI
+        curl -fsSL https://download.docker.com/linux/debian/gpg \
+          | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" \
+          > /etc/apt/sources.list.d/docker.list
+        apt-get update && apt-get install -y docker-ce-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
+        cp /usr/bin/docker /opt/tools/bin/
         ln -sf /opt/tools/google-cloud-sdk/bin/gcloud /opt/tools/bin/gcloud
         ln -sf /opt/tools/google-cloud-sdk/bin/gsutil /opt/tools/bin/gsutil
         ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
@@ -126,6 +133,9 @@ services:
     volumes:
       - vscode_config:/config
       - homelab_stack:/homelab_stack:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-972}"
     environment:
       - PUID=1000
       - PGID=1000
