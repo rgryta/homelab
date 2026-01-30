@@ -75,9 +75,9 @@ services:
         # Install nmap (static binary - latest release from ernw/static-toolbox)
         NMAP_URL=$$(curl -sL https://api.github.com/repos/ernw/static-toolbox/releases \
           | jq -r '[.[] | select(.tag_name | startswith("nmap-"))][0].assets[] | select(.name | endswith("x86_64-portable.tar.gz")) | .browser_download_url')
-        curl -sL "$$NMAP_URL" | tar -xz -C /opt/tools
-        NMAP_DIR=$$(ls -d /opt/tools/nmap-* | head -1)
-        ln -sf "$$NMAP_DIR/bin/nmap" /opt/tools/bin/nmap
+        mkdir -p /opt/tools/nmap
+        curl -sL "$$NMAP_URL" | tar -xz -C /opt/tools/nmap
+        ln -sf /opt/tools/nmap/nmap /opt/tools/bin/nmap
         # Install GitHub CLI
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
           -o /usr/share/keyrings/githubcli-archive-keyring.gpg
