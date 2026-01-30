@@ -14,6 +14,7 @@ services:
         rm -rf /opt/python/* &&
         cp -a /opt/python_tmp/cpython-*/* /opt/python/ &&
         rm -rf /opt/python_tmp &&
+        chown -R 1000:1000 /opt/python &&
         tail -f /dev/null
     restart: unless-stopped
   android:
@@ -40,6 +41,7 @@ services:
       - |
         rm -rf /opt/node/* &&
         cp -a /usr/local/* /opt/node/ &&
+        chown -R 1000:1000 /opt/node &&
         tail -f /dev/null
     restart: unless-stopped
   tools:
@@ -47,6 +49,8 @@ services:
       - traefik.enable=false
     image: debian:bookworm-slim
     container_name: tools
+    environment:
+      - TOOLS_REINSTALL=${TOOLS_REINSTALL:-true}
     volumes:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
@@ -55,19 +59,26 @@ services:
       - -c
       - |
         set -e
-        # Skip if already installed (marker file check)
-        if [ -f /opt/tools/.installed ]; then
-          echo "Tools already installed, skipping..."
+        # Skip reinstall unless TOOLS_REINSTALL is set
+        if [ "$TOOLS_REINSTALL" != "true" ]; then
+          echo "TOOLS_REINSTALL not set, skipping..."
           exec tail -f /dev/null
         fi
         rm -rf /opt/tools/* 2>/dev/null || true
         mkdir -p /opt/tools/bin
         # Install dependencies
         apt-get update && apt-get install -y --no-install-recommends \
-          make curl unzip wget ca-certificates gnupg \
+          make curl unzip wget ca-certificates gnupg jq \
           && apt-get clean && rm -rf /var/lib/apt/lists/*
         # Install make
         cp /usr/bin/make /opt/tools/bin/
+        # Install nmap (static binary - latest release from ernw/static-toolbox)
+        NMAP_URL=$$(curl -sL https://api.github.com/repos/ernw/static-toolbox/releases \
+          | jq -r '[.[] | select(.tag_name | startswith("nmap-"))][0].assets[] | select(.name | endswith("x86_64-portable.tar.gz")) | .browser_download_url')
+        mkdir -p /opt/tools/nmap
+        curl -sL "$$NMAP_URL" | tar -xz -C /opt/tools/nmap
+        printf '#!/bin/sh\nNMAPDIR=/opt/tools/nmap/data exec /opt/tools/nmap/nmap "$$@"\n' > /opt/tools/bin/nmap
+        chmod +x /opt/tools/bin/nmap
         # Install GitHub CLI
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
           -o /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -94,13 +105,19 @@ services:
           && apt-get clean && rm -rf /var/lib/apt/lists/*
         # Copy entire gcloud SDK (symlinks won't work across containers)
         cp -a /usr/lib/google-cloud-sdk /opt/tools/
+        # Install Docker CLI
+        curl -fsSL https://download.docker.com/linux/debian/gpg \
+          | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" \
+          > /etc/apt/sources.list.d/docker.list
+        apt-get update && apt-get install -y docker-ce-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
+        cp /usr/bin/docker /opt/tools/bin/
         ln -sf /opt/tools/google-cloud-sdk/bin/gcloud /opt/tools/bin/gcloud
         ln -sf /opt/tools/google-cloud-sdk/bin/gsutil /opt/tools/bin/gsutil
         ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
         # Configure gcloud to use persistent config directory
         mkdir -p /opt/tools/gcloud-config
-        # Mark as installed
-        touch /opt/tools/.installed
+        chown -R 1000:1000 /opt/tools
         echo "Tools installation complete"
         exec tail -f /dev/null
     restart: unless-stopped
@@ -122,10 +139,13 @@ services:
     volumes:
       - vscode_config:/config
       - homelab_stack:/homelab_stack:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Warsaw
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - ATTACHED_DEVICES_PERMS=/var/run/docker.sock
       - HASHED_PASSWORD=${HASHED_PASSWORD}
       - SUDO_PASSWORD_HASH=${HASHED_PASSWORD}
       - PROXY_DOMAIN=vscode.gryta.eu
