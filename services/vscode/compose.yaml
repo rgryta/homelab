@@ -133,7 +133,7 @@ services:
       - homelab_stack:/homelab_stack:ro
       - /var/run/docker.sock:/var/run/docker.sock
     group_add:
-      - ${DOCKER_GID:-972}
+      - ${DOCKER_GID:-999}
     environment:
       - PUID=1000
       - PGID=1000
