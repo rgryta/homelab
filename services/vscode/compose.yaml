@@ -48,7 +48,7 @@ services:
     image: debian:bookworm-slim
     container_name: tools
     environment:
-      - REINSTALL=${TOOLS_REINSTALL:-false}
+      - REINSTALL=${TOOLS_REINSTALL:-true}
     volumes:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
