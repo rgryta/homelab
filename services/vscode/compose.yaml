@@ -77,7 +77,8 @@ services:
           | jq -r '[.[] | select(.tag_name | startswith("nmap-"))][0].assets[] | select(.name | endswith("x86_64-portable.tar.gz")) | .browser_download_url')
         mkdir -p /opt/tools/nmap
         curl -sL "$$NMAP_URL" | tar -xz -C /opt/tools/nmap
-        ln -sf /opt/tools/nmap/run-nmap.sh /opt/tools/bin/nmap
+        printf '#!/bin/sh\nNMAPDIR=/opt/tools/nmap/data exec /opt/tools/nmap/nmap "$$@"\n' > /opt/tools/bin/nmap
+        chmod +x /opt/tools/bin/nmap
         # Install GitHub CLI
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
           -o /usr/share/keyrings/githubcli-archive-keyring.gpg
