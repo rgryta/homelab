@@ -151,7 +151,7 @@ services:
         "https://marketplace.visualstudio.com/items"}'
       - JAVA_HOME=/opt/java/openjdk
       - ANDROID_HOME=/opt/android-sdk
-      - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH
+      - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$$PATH
       - LD_LIBRARY_PATH=/opt/tools/lib:$$LD_LIBRARY_PATH
       - CLOUDSDK_CONFIG=/opt/tools/gcloud-config
     depends_on:
