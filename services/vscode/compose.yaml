@@ -48,7 +48,7 @@ services:
     image: debian:bookworm-slim
     container_name: tools
     environment:
-      - REINSTALL=${TOOLS_REINSTALL:-true}
+      - TOOLS_REINSTALL=${TOOLS_REINSTALL:-true}
     volumes:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
@@ -57,9 +57,9 @@ services:
       - -c
       - |
         set -e
-        # Skip reinstall unless REINSTALL is set
-        if [ "$REINSTALL" != "true" ]; then
-          echo "REINSTALL not set, skipping..."
+        # Skip reinstall unless TOOLS_REINSTALL is set
+        if [ "$TOOLS_REINSTALL" != "true" ]; then
+          echo "TOOLS_REINSTALL not set, skipping..."
           exec tail -f /dev/null
         fi
         rm -rf /opt/tools/* 2>/dev/null || true
