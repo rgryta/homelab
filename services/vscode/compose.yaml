@@ -14,6 +14,7 @@ services:
         rm -rf /opt/python/* &&
         cp -a /opt/python_tmp/cpython-*/* /opt/python/ &&
         rm -rf /opt/python_tmp &&
+        chown -R 1000:1000 /opt/python &&
         tail -f /dev/null
     restart: unless-stopped
   android:
@@ -40,6 +41,7 @@ services:
       - |
         rm -rf /opt/node/* &&
         cp -a /usr/local/* /opt/node/ &&
+        chown -R 1000:1000 /opt/node &&
         tail -f /dev/null
     restart: unless-stopped
   tools:
@@ -117,6 +119,7 @@ services:
         ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
         # Configure gcloud to use persistent config directory
         mkdir -p /opt/tools/gcloud-config
+        chown -R 1000:1000 /opt/tools
         echo "Tools installation complete"
         exec tail -f /dev/null
     restart: unless-stopped
@@ -141,8 +144,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - PUID=1000
-      - PGID=${DOCKER_GID:-999}
+      - PGID=1000
       - TZ=Europe/Warsaw
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - ATTACHED_DEVICES_PERMS=/var/run/docker.sock
       - HASHED_PASSWORD=${HASHED_PASSWORD}
       - SUDO_PASSWORD_HASH=${HASHED_PASSWORD}
       - PROXY_DOMAIN=vscode.gryta.eu
@@ -153,7 +158,7 @@ services:
         "https://marketplace.visualstudio.com/items"}'
       - JAVA_HOME=/opt/java/openjdk
       - ANDROID_HOME=/opt/android-sdk
-      - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$$PATH
+      - PATH=/opt/tools/bin:/opt/python/bin:/opt/node/bin:/opt/java/openjdk/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH
       - CLOUDSDK_CONFIG=/opt/tools/gcloud-config
     depends_on:
       - android
