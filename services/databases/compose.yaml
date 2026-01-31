@@ -241,7 +241,7 @@ services:
       - traefik.http.routers.pgadmin.tls.certresolver=le
       - traefik.http.routers.pgadmin.middlewares=authentik-forward-auth@file
       - traefik.http.services.pgadmin.loadbalancer.server.port=80
-    image: dpage/pgadmin4:9.0
+    image: dpage/pgadmin4:9.11.0
     container_name: homelab-pgadmin
     restart: unless-stopped
     depends_on:
@@ -276,7 +276,7 @@ services:
       - traefik.http.routers.redisinsight.tls.certresolver=le
       - traefik.http.routers.redisinsight.middlewares=authentik-forward-auth@file
       - traefik.http.services.redisinsight.loadbalancer.server.port=5540
-    image: redis/redisinsight:2.68
+    image: redis/redisinsight:3.0.2
     container_name: homelab-redisinsight
     restart: unless-stopped
     depends_on:
