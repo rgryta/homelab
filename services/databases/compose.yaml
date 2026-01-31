@@ -1,9 +1,228 @@
-networks:
-  homelab-network:
-    external: true
-  monitoring-network:
-    external: true
-
+services:
+  postgres:
+    labels:
+      - traefik.enable=false
+    image: ghcr.io/rgryta/homelab-postgres:latest
+    container_name: homelab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - nvme_indexes:/mnt/tablespaces/nvme
+      - archive_data:/mnt/tablespaces/archive
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.30
+    shm_size: 256mb
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  valkey:
+    labels:
+      - traefik.enable=false
+    image: valkey/valkey:8
+    container_name: homelab-valkey
+    restart: unless-stopped
+    command:
+      - valkey-server
+      - /etc/valkey/valkey.conf
+    volumes:
+      - valkey_data:/data
+      - /mnt/quick/apps/volumes/databases/valkey/valkey.conf:/etc/valkey/valkey.conf:ro
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.31
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  questdb:
+    labels:
+      - traefik.enable=false
+    image: questdb/questdb:latest
+    container_name: homelab-questdb
+    restart: unless-stopped
+    environment:
+      QDB_PG_USER: ${QUESTDB_USER:-questdb}
+      QDB_PG_PASSWORD: ${QUESTDB_PASSWORD}
+      QDB_TELEMETRY_ENABLED: "false"
+    volumes:
+      - questdb_data:/var/lib/questdb
+    ports:
+      - "9000:9000"
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.32
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  qdrant:
+    labels:
+      - traefik.enable=false
+    image: qdrant/qdrant:latest
+    container_name: homelab-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.33
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+  memgraph:
+    labels:
+      - traefik.enable=false
+    image: memgraph/memgraph-platform:latest
+    container_name: homelab-memgraph
+    restart: unless-stopped
+    environment:
+      MEMGRAPH: "--log-level=WARNING --memory-limit=1024"
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.34
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  mongodb:
+    labels:
+      - traefik.enable=false
+    image: mongo:8
+    container_name: homelab-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.35
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  postgres-exporter:
+    labels:
+      - traefik.enable=false
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@homelab-postgres:5432/postgres?sslmode=disable"
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.40
+      monitoring-network:
+  valkey-exporter:
+    labels:
+      - traefik.enable=false
+    image: oliver006/redis_exporter:latest
+    container_name: valkey-exporter
+    restart: unless-stopped
+    depends_on:
+      valkey:
+        condition: service_healthy
+    command:
+      - '--redis.addr=redis://homelab-valkey:6379'
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.41
+      monitoring-network:
+  mongodb-exporter:
+    labels:
+      - traefik.enable=false
+    image: percona/mongodb_exporter:latest
+    container_name: mongodb-exporter
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command:
+      - '--mongodb.uri=mongodb://${MONGODB_ROOT_USER:-admin}:${MONGODB_ROOT_PASSWORD}@homelab-mongodb:27017'
+      - '--discovering-mode'
+      - '--compatible-mode'
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.42
+      monitoring-network:
 volumes:
   postgres_data:
     driver: local
@@ -59,231 +278,8 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/mongodb/data
-
-services:
-  postgres:
-    image: ghcr.io/rgryta/homelab-postgres:latest
-    container_name: homelab-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--data-checksums"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - nvme_indexes:/mnt/tablespaces/nvme
-      - archive_data:/mnt/tablespaces/archive
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.30
-    shm_size: 256mb
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    labels:
-      - "traefik.enable=false"
-  valkey:
-    image: valkey/valkey:8
-    container_name: homelab-valkey
-    restart: unless-stopped
-    command:
-      - valkey-server
-      - /etc/valkey/valkey.conf
-    volumes:
-      - valkey_data:/data
-      - /mnt/quick/apps/volumes/databases/valkey/valkey.conf:/etc/valkey/valkey.conf:ro
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.31
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    labels:
-      - "traefik.enable=false"
-  questdb:
-    image: questdb/questdb:latest
-    container_name: homelab-questdb
-    restart: unless-stopped
-    environment:
-      QDB_PG_USER: ${QUESTDB_USER:-questdb}
-      QDB_PG_PASSWORD: ${QUESTDB_PASSWORD}
-      QDB_TELEMETRY_ENABLED: "false"
-    volumes:
-      - questdb_data:/var/lib/questdb
-    ports:
-      - "9000:9000"
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.32
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/status"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    labels:
-      - "traefik.enable=false"
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: homelab-qdrant
-    restart: unless-stopped
-    environment:
-      QDRANT__SERVICE__GRPC_PORT: 6334
-      QDRANT__SERVICE__HTTP_PORT: 6333
-      QDRANT__TELEMETRY_DISABLED: "true"
-    volumes:
-      - qdrant_data:/qdrant/storage
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.33
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
-    labels:
-      - "traefik.enable=false"
-  memgraph:
-    image: memgraph/memgraph-platform:latest
-    container_name: homelab-memgraph
-    restart: unless-stopped
-    environment:
-      MEMGRAPH: "--log-level=WARNING --memory-limit=1024"
-    volumes:
-      - memgraph_data:/var/lib/memgraph
-      - memgraph_log:/var/log/memgraph
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.34
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    labels:
-      - "traefik.enable=false"
-  mongodb:
-    image: mongo:8
-    container_name: homelab-mongodb
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.35
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    labels:
-      - "traefik.enable=false"
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: postgres-exporter
-    restart: unless-stopped
-    environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@homelab-postgres:5432/postgres?sslmode=disable"
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.40
-      monitoring-network:
-    depends_on:
-      postgres:
-        condition: service_healthy
-    labels:
-      - "traefik.enable=false"
-
-  valkey-exporter:
-    image: oliver006/redis_exporter:latest
-    container_name: valkey-exporter
-    restart: unless-stopped
-    command:
-      - '--redis.addr=redis://homelab-valkey:6379'
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.41
-      monitoring-network:
-    depends_on:
-      valkey:
-        condition: service_healthy
-    labels:
-      - "traefik.enable=false"
-
-  mongodb-exporter:
-    image: percona/mongodb_exporter:latest
-    container_name: mongodb-exporter
-    restart: unless-stopped
-    command:
-      - '--mongodb.uri=mongodb://${MONGODB_ROOT_USER:-admin}:${MONGODB_ROOT_PASSWORD}@homelab-mongodb:27017'
-      - '--discovering-mode'
-      - '--compatible-mode'
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.42
-      monitoring-network:
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    labels:
-      - "traefik.enable=false"
+networks:
+  homelab-network:
+    external: true
+  monitoring-network:
+    external: true
