@@ -6,7 +6,7 @@ services:
       - traefik.http.routers.macos.entrypoints=websecure
       - traefik.http.routers.macos.tls.certresolver=le
       - traefik.http.routers.macos.middlewares=authentik-forward-auth@file
-      - traefik.http.services.macos.loadbalancer.server.port=80006
+      - traefik.http.services.macos.loadbalancer.server.port=8006
     image: dockurr/macos
     container_name: macos
     environment:
@@ -23,8 +23,6 @@ services:
       - NET_ADMIN
     restart: unless-stopped
     stop_grace_period: 2m
-    ports:
-      - 8006:8006
     networks:
       homelab-network:
         ipv4_address: 172.20.0.26
