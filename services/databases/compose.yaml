@@ -102,7 +102,7 @@ services:
       - /etc/valkey/valkey.conf
     volumes:
       - valkey_data:/data
-      - ./valkey.conf:/etc/valkey/valkey.conf:ro
+      - /mnt/quick/apps/volumes/databases/valkey/valkey.conf:/etc/valkey/valkey.conf:ro
     networks:
       homelab-network:
         ipv4_address: 172.20.0.31
