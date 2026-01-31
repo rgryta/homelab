@@ -20,7 +20,7 @@ services:
   android:
     labels:
       - traefik.enable=false
-    image: ghcr.io/rgryta/android-sdk:main
+    image: ghcr.io/rgryta/android-sdk:1.1.0
     container_name: android
     volumes:
       - /opt/java/openjdk
@@ -31,7 +31,7 @@ services:
   node:
     labels:
       - traefik.enable=false
-    image: node:20-bullseye
+    image: node:24-bullseye-slim
     container_name: node
     volumes:
       - /opt/node
@@ -47,79 +47,11 @@ services:
   tools:
     labels:
       - traefik.enable=false
-    image: debian:bookworm-slim
+    image: ghcr.io/rgryta/homelab-tools:1.0.0
     container_name: tools
-    environment:
-      - TOOLS_REINSTALL=${TOOLS_REINSTALL:-true}
     volumes:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
-    entrypoint:
-      - sh
-      - -c
-      - |
-        set -e
-        # Skip reinstall unless TOOLS_REINSTALL is set
-        if [ "$TOOLS_REINSTALL" != "true" ]; then
-          echo "TOOLS_REINSTALL not set, skipping..."
-          exec tail -f /dev/null
-        fi
-        rm -rf /opt/tools/* 2>/dev/null || true
-        mkdir -p /opt/tools/bin
-        # Install dependencies
-        apt-get update && apt-get install -y --no-install-recommends \
-          make curl unzip wget ca-certificates gnupg jq \
-          && apt-get clean && rm -rf /var/lib/apt/lists/*
-        # Install make
-        cp /usr/bin/make /opt/tools/bin/
-        # Install nmap (static binary - latest release from ernw/static-toolbox)
-        NMAP_URL=$$(curl -sL https://api.github.com/repos/ernw/static-toolbox/releases \
-          | jq -r '[.[] | select(.tag_name | startswith("nmap-"))][0].assets[] | select(.name | endswith("x86_64-portable.tar.gz")) | .browser_download_url')
-        mkdir -p /opt/tools/nmap
-        curl -sL "$$NMAP_URL" | tar -xz -C /opt/tools/nmap
-        printf '#!/bin/sh\nNMAPDIR=/opt/tools/nmap/data exec /opt/tools/nmap/nmap "$$@"\n' > /opt/tools/bin/nmap
-        chmod +x /opt/tools/bin/nmap
-        # Install GitHub CLI
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-          -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-        chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-          > /etc/apt/sources.list.d/github-cli.list
-        apt-get update && apt-get install -y gh && apt-get clean && rm -rf /var/lib/apt/lists/*
-        cp /usr/bin/gh /opt/tools/bin/
-        # Install Google Chrome (headless)
-        curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
-          | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-          > /etc/apt/sources.list.d/google-chrome.list
-        apt-get update && apt-get install -y google-chrome-stable && apt-get clean && rm -rf /var/lib/apt/lists/*
-        cp /usr/bin/google-chrome-stable /opt/tools/bin/google-chrome
-        # Install gcloud CLI (for App Engine, BigQuery, Cloud SQL)
-        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-          | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
-          > /etc/apt/sources.list.d/google-cloud-sdk.list
-        apt-get update && apt-get install -y google-cloud-cli \
-          google-cloud-cli-app-engine-python google-cloud-cli-app-engine-python-extras \
-          google-cloud-cli-cloud-run-proxy google-cloud-cli-gke-gcloud-auth-plugin \
-          && apt-get clean && rm -rf /var/lib/apt/lists/*
-        # Copy entire gcloud SDK (symlinks won't work across containers)
-        cp -a /usr/lib/google-cloud-sdk /opt/tools/
-        # Install Docker CLI
-        curl -fsSL https://download.docker.com/linux/debian/gpg \
-          | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" \
-          > /etc/apt/sources.list.d/docker.list
-        apt-get update && apt-get install -y docker-ce-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
-        cp /usr/bin/docker /opt/tools/bin/
-        ln -sf /opt/tools/google-cloud-sdk/bin/gcloud /opt/tools/bin/gcloud
-        ln -sf /opt/tools/google-cloud-sdk/bin/gsutil /opt/tools/bin/gsutil
-        ln -sf /opt/tools/google-cloud-sdk/bin/bq /opt/tools/bin/bq
-        # Configure gcloud to use persistent config directory
-        mkdir -p /opt/tools/gcloud-config
-        chown -R 1000:1000 /opt/tools
-        echo "Tools installation complete"
-        exec tail -f /dev/null
     restart: unless-stopped
   vscode:
     labels:
@@ -129,7 +61,7 @@ services:
       - traefik.http.routers.vscode.tls.certresolver=le
       - traefik.http.routers.vscode.middlewares=authentik-forward-auth@file
       - traefik.http.services.vscode.loadbalancer.server.port=8443
-    image: lscr.io/linuxserver/code-server:latest
+    image: lscr.io/linuxserver/code-server:4.108.2-ls314
     container_name: code-server
     volumes_from:
       - android
