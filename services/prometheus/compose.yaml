@@ -44,14 +44,14 @@ services:
       GF_AUTH_GENERIC_OAUTH_NAME: authentik
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
-      GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
-      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://authentik.gryta.eu/application/o/authorize/"
-      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://authentik.gryta.eu/application/o/token/"
-      GF_AUTH_GENERIC_OAUTH_API_URL: "https://authentik.gryta.eu/application/o/userinfo/"
-      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://authentik.gryta.eu/application/o/grafana/end-session/"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: openid profile email
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: https://authentik.gryta.eu/application/o/authorize/
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: https://authentik.gryta.eu/application/o/token/
+      GF_AUTH_GENERIC_OAUTH_API_URL: https://authentik.gryta.eu/application/o/userinfo/
+      GF_AUTH_SIGNOUT_REDIRECT_URL: https://authentik.gryta.eu/application/o/grafana/end-session/
       GF_AUTH_OAUTH_AUTO_LOGIN: "true"
-      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(groups[*], 'lldap_admin') && 'Admin'"
-      GF_SERVER_ROOT_URL: "https://grafana.gryta.eu"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: contains(groups[*], 'lldap_admin') && 'Admin'
+      GF_SERVER_ROOT_URL: https://grafana.gryta.eu
     networks:
       homelab-network:
         ipv4_address: 172.20.0.22
