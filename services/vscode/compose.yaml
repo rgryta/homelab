@@ -20,7 +20,7 @@ services:
   android:
     labels:
       - traefik.enable=false
-    image: ghcr.io/rgryta/android-sdk:1.2.0
+    image: ghcr.io/rgryta/android-sdk:1.2.1
     container_name: android
     volumes:
       - /opt/java/openjdk
@@ -70,6 +70,7 @@ services:
       - vscode_config:/config
       - homelab_stack:/homelab_stack:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - /mnt:/mnt
     environment:
       - PUID=1000
       - PGID=1000
