@@ -18,7 +18,8 @@ services:
         ipv4_address: 172.20.2.3
     devices:
       - /dev/net/tun
-    ports:  # Ports for services that use vpn network
+    ports:
+      # Ports for services that use vpn network
       - 51820:51820/udp
     restart: unless-stopped
 networks:
