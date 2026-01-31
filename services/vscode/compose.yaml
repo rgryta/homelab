@@ -20,13 +20,11 @@ services:
   android:
     labels:
       - traefik.enable=false
-    image: ghcr.io/rgryta/android-sdk:1.1.0
+    image: ghcr.io/rgryta/android-sdk:1.2.0
     container_name: android
     volumes:
       - /opt/java/openjdk
       - /opt/android-sdk
-    command: tail -f /dev/null
-    user: node
     restart: unless-stopped
   node:
     labels:
@@ -47,7 +45,7 @@ services:
   tools:
     labels:
       - traefik.enable=false
-    image: ghcr.io/rgryta/homelab-tools:1.1.0
+    image: ghcr.io/rgryta/homelab-tools:1.2.0
     container_name: tools
     volumes:
       - /opt/tools
