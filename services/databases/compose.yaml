@@ -34,7 +34,7 @@ services:
   valkey:
     labels:
       - traefik.enable=false
-    image: valkey/valkey:8
+    image: valkey/valkey:9
     container_name: homelab-valkey
     restart: unless-stopped
     command:
@@ -63,7 +63,7 @@ services:
   questdb:
     labels:
       - traefik.enable=false
-    image: questdb/questdb:9.2.0
+    image: questdb/questdb:9.3.2
     container_name: homelab-questdb
     restart: unless-stopped
     environment:
@@ -94,7 +94,7 @@ services:
   qdrant:
     labels:
       - traefik.enable=false
-    image: qdrant/qdrant:v1.12.4
+    image: qdrant/qdrant:v1.16
     container_name: homelab-qdrant
     restart: unless-stopped
     environment:
@@ -123,11 +123,12 @@ services:
   memgraph:
     labels:
       - traefik.enable=false
-    image: memgraph/memgraph-platform:2.14.1
+    image: memgraph/memgraph-mage:3.7.2
     container_name: homelab-memgraph
     restart: unless-stopped
-    environment:
-      MEMGRAPH: "--log-level=WARNING --memory-limit=1024"
+    command:
+      - --log-level=WARNING
+      - --memory-limit=1024
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
@@ -143,11 +144,39 @@ services:
           cpus: '0.25'
           memory: 512M
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "echo 'RETURN 0;' | mgconsole || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
+  memgraph-lab:
+    labels:
+      - traefik.enable=false
+    image: memgraph/lab:3.7.1
+    container_name: homelab-memgraph-lab
+    restart: unless-stopped
+    depends_on:
+      memgraph:
+        condition: service_healthy
+    environment:
+      QUICK_CONNECT_MG_HOST: homelab-memgraph
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.36
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
   mongodb:
     labels:
       - traefik.enable=false
@@ -179,7 +208,7 @@ services:
   postgres-exporter:
     labels:
       - traefik.enable=false
-    image: prometheuscommunity/postgres-exporter:v0.16.0
+    image: prometheuscommunity/postgres-exporter:0.18.1
     container_name: postgres-exporter
     restart: unless-stopped
     depends_on:
@@ -194,7 +223,7 @@ services:
   valkey-exporter:
     labels:
       - traefik.enable=false
-    image: oliver006/redis_exporter:v1.75.0
+    image: oliver006/redis_exporter:v1.80.2-alpine
     container_name: valkey-exporter
     restart: unless-stopped
     depends_on:
@@ -209,7 +238,7 @@ services:
   mongodb-exporter:
     labels:
       - traefik.enable=false
-    image: percona/mongodb_exporter:0.44.0
+    image: percona/mongodb_exporter:0.47.2
     container_name: mongodb-exporter
     restart: unless-stopped
     depends_on:

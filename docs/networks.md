@@ -21,6 +21,7 @@ Main application network for all services.
 | | homelab-qdrant | 172.20.0.33 |
 | | homelab-memgraph | 172.20.0.34 |
 | | homelab-mongodb | 172.20.0.35 |
+| | homelab-memgraph-lab | 172.20.0.36 |
 | | postgres-exporter | 172.20.0.40 |
 | | valkey-exporter | 172.20.0.41 |
 | | mongodb-exporter | 172.20.0.42 |
