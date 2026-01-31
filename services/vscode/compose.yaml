@@ -47,7 +47,7 @@ services:
   tools:
     labels:
       - traefik.enable=false
-    image: ghcr.io/rgryta/homelab-tools:1.0.0
+    image: ghcr.io/rgryta/homelab-tools:1.1.0
     container_name: tools
     volumes:
       - /opt/tools
