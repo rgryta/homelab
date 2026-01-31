@@ -144,7 +144,12 @@ services:
       start_period: 30s
   memgraph-lab:
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.http.routers.memlab.rule=Host(`memlab.gryta.eu`)
+      - traefik.http.routers.memlab.entrypoints=websecure
+      - traefik.http.routers.memlab.tls.certresolver=le
+      - traefik.http.routers.memlab.middlewares=authentik-forward-auth@file
+      - traefik.http.services.memlab.loadbalancer.server.port=3000
     image: memgraph/lab:3.7.1
     container_name: homelab-memgraph-lab
     restart: unless-stopped
