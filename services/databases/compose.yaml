@@ -233,6 +233,71 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+  pgadmin:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.gryta.eu`)
+      - traefik.http.routers.pgadmin.entrypoints=websecure
+      - traefik.http.routers.pgadmin.tls.certresolver=le
+      - traefik.http.routers.pgadmin.middlewares=authentik-forward-auth@file
+      - traefik.http.services.pgadmin.loadbalancer.server.port=80
+    image: dpage/pgadmin4:9.0
+    container_name: homelab-pgadmin
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@localhost}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_WTF_CSRF_ENABLED: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.38
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/misc/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  redisinsight:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.redisinsight.rule=Host(`redis.gryta.eu`)
+      - traefik.http.routers.redisinsight.entrypoints=websecure
+      - traefik.http.routers.redisinsight.tls.certresolver=le
+      - traefik.http.routers.redisinsight.middlewares=authentik-forward-auth@file
+      - traefik.http.services.redisinsight.loadbalancer.server.port=5540
+    image: redis/redisinsight:2.68
+    container_name: homelab-redisinsight
+    restart: unless-stopped
+    depends_on:
+      valkey:
+        condition: service_healthy
+    volumes:
+      - redisinsight_data:/data
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.39
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5540/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
   postgres-exporter:
     labels:
       - traefik.enable=false
@@ -335,6 +400,18 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/mongodb/data
+  pgadmin_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/pgadmin/data
+  redisinsight_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/redisinsight/data
 networks:
   homelab-network:
     external: true

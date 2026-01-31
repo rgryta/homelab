@@ -23,6 +23,8 @@ Main application network for all services.
 | | homelab-mongodb | 172.20.0.35 |
 | | homelab-memgraph-lab | 172.20.0.36 |
 | | homelab-mongo-express | 172.20.0.37 |
+| | homelab-pgadmin | 172.20.0.38 |
+| | homelab-redisinsight | 172.20.0.39 |
 | | postgres-exporter | 172.20.0.40 |
 | | valkey-exporter | 172.20.0.41 |
 | | mongodb-exporter | 172.20.0.42 |
