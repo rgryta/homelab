@@ -22,9 +22,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 30s
@@ -51,9 +48,6 @@ services:
         limits:
           cpus: '1'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 30s
@@ -82,9 +76,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/status"]
       interval: 30s
@@ -111,9 +102,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
       interval: 30s
@@ -140,9 +128,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 512M
     healthcheck:
       test: ["CMD-SHELL", "echo 'RETURN 0;' | mgconsole || exit 1"]
       interval: 30s
@@ -168,9 +153,6 @@ services:
         limits:
           cpus: '1'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
@@ -196,9 +178,6 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
