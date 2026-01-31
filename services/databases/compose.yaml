@@ -1,0 +1,339 @@
+networks:
+  homelab-network:
+    external: true
+  monitoring-network:
+    external: true
+
+volumes:
+  # PostgreSQL volumes
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/postgres/data
+  nvme_indexes:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_indexes
+  archive_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
+
+  # Valkey volume
+  valkey_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/valkey/data
+
+  # QuestDB volume
+  questdb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/questdb/data
+
+  # Qdrant volume
+  qdrant_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/qdrant/data
+
+  # Memgraph volumes
+  memgraph_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/memgraph/data
+  memgraph_log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/memgraph/log
+
+  # MongoDB volume
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/mongodb/data
+
+services:
+  # =============================================================================
+  # PostgreSQL - Relational database with vector extensions
+  # =============================================================================
+  # Consolidates: authentik-db, immich-postgres, openfoodfacts-db
+  # Extensions: pgvector, VectorChord, pg_trgm
+  postgres:
+    image: ghcr.io/rgryta/homelab-postgres:latest
+    container_name: homelab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - nvme_indexes:/mnt/tablespaces/nvme
+      - archive_data:/mnt/tablespaces/archive
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.30
+    shm_size: 256mb
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # Valkey - In-memory cache and message broker (Redis replacement)
+  # =============================================================================
+  # Consolidates: authentik-redis, immich-redis
+  # DB 0: Authentik | DB 1: Immich | DB 2-15: Available for future use
+  valkey:
+    image: valkey/valkey:8
+    container_name: homelab-valkey
+    restart: unless-stopped
+    command:
+      - valkey-server
+      - /etc/valkey/valkey.conf
+    volumes:
+      - valkey_data:/data
+      - ./valkey.conf:/etc/valkey/valkey.conf:ro
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.31
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # QuestDB - High-performance time-series database
+  # =============================================================================
+  # Use cases: BTX market data, metrics, IoT sensor data
+  # 40x faster than TimescaleDB for time-series queries
+  questdb:
+    image: questdb/questdb:latest
+    container_name: homelab-questdb
+    restart: unless-stopped
+    environment:
+      QDB_PG_USER: ${QUESTDB_USER:-questdb}
+      QDB_PG_PASSWORD: ${QUESTDB_PASSWORD}
+      QDB_TELEMETRY_ENABLED: "false"
+    volumes:
+      - questdb_data:/var/lib/questdb
+    ports:
+      - "9000:9000"   # Web console + REST API (for direct access if needed)
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.32
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # Qdrant - Vector similarity search engine
+  # =============================================================================
+  # Use cases: Semantic search, RAG, embeddings, ML feature storage
+  # Written in Rust, memory efficient, supports hybrid search
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: homelab-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.33
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # Memgraph - High-performance graph database (Neo4j alternative)
+  # =============================================================================
+  # Use cases: Knowledge graphs, relationships, network analysis
+  # 8-50x faster than Neo4j, Cypher compatible, written in C++
+  memgraph:
+    image: memgraph/memgraph-platform:latest
+    container_name: homelab-memgraph
+    restart: unless-stopped
+    environment:
+      MEMGRAPH: "--log-level=WARNING --memory-limit=1024"
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.34
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # MongoDB - Document database
+  # =============================================================================
+  # Use cases: Flexible schemas, document storage, raw API responses
+  # Industry standard for document-oriented workloads
+  mongodb:
+    image: mongo:8
+    container_name: homelab-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.35
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # =============================================================================
+  # Prometheus Exporters - Monitoring
+  # =============================================================================
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@homelab-postgres:5432/postgres?sslmode=disable"
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.40
+      monitoring-network:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=false"
+
+  valkey-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: valkey-exporter
+    restart: unless-stopped
+    command:
+      - '--redis.addr=redis://homelab-valkey:6379'
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.41
+      monitoring-network:
+    depends_on:
+      valkey:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=false"
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:latest
+    container_name: mongodb-exporter
+    restart: unless-stopped
+    command:
+      - '--mongodb.uri=mongodb://${MONGODB_ROOT_USER:-admin}:${MONGODB_ROOT_PASSWORD}@homelab-mongodb:27017'
+      - '--discovering-mode'
+      - '--compatible-mode'
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.42
+      monitoring-network:
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=false"
