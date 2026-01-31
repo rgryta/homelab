@@ -5,7 +5,6 @@ networks:
     external: true
 
 volumes:
-  # PostgreSQL volumes
   postgres_data:
     driver: local
     driver_opts:
@@ -24,32 +23,24 @@ volumes:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
-
-  # Valkey volume
   valkey_data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/valkey/data
-
-  # QuestDB volume
   questdb_data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/questdb/data
-
-  # Qdrant volume
   qdrant_data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/qdrant/data
-
-  # Memgraph volumes
   memgraph_data:
     driver: local
     driver_opts:
@@ -62,8 +53,6 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/memgraph/log
-
-  # MongoDB volume
   mongodb_data:
     driver: local
     driver_opts:
@@ -72,11 +61,6 @@ volumes:
       device: /mnt/quick/apps/volumes/databases/mongodb/data
 
 services:
-  # =============================================================================
-  # PostgreSQL - Relational database with vector extensions
-  # =============================================================================
-  # Consolidates: authentik-db, immich-postgres, openfoodfacts-db
-  # Extensions: pgvector, VectorChord, pg_trgm
   postgres:
     image: ghcr.io/rgryta/homelab-postgres:latest
     container_name: homelab-postgres
@@ -109,12 +93,6 @@ services:
       start_period: 30s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # Valkey - In-memory cache and message broker (Redis replacement)
-  # =============================================================================
-  # Consolidates: authentik-redis, immich-redis
-  # DB 0: Authentik | DB 1: Immich | DB 2-15: Available for future use
   valkey:
     image: valkey/valkey:8
     container_name: homelab-valkey
@@ -144,12 +122,6 @@ services:
       start_period: 10s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # QuestDB - High-performance time-series database
-  # =============================================================================
-  # Use cases: BTX market data, metrics, IoT sensor data
-  # 40x faster than TimescaleDB for time-series queries
   questdb:
     image: questdb/questdb:latest
     container_name: homelab-questdb
@@ -161,7 +133,7 @@ services:
     volumes:
       - questdb_data:/var/lib/questdb
     ports:
-      - "9000:9000"   # Web console + REST API (for direct access if needed)
+      - "9000:9000"
     networks:
       homelab-network:
         ipv4_address: 172.20.0.32
@@ -181,12 +153,6 @@ services:
       start_period: 30s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # Qdrant - Vector similarity search engine
-  # =============================================================================
-  # Use cases: Semantic search, RAG, embeddings, ML feature storage
-  # Written in Rust, memory efficient, supports hybrid search
   qdrant:
     image: qdrant/qdrant:latest
     container_name: homelab-qdrant
@@ -216,12 +182,6 @@ services:
       start_period: 20s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # Memgraph - High-performance graph database (Neo4j alternative)
-  # =============================================================================
-  # Use cases: Knowledge graphs, relationships, network analysis
-  # 8-50x faster than Neo4j, Cypher compatible, written in C++
   memgraph:
     image: memgraph/memgraph-platform:latest
     container_name: homelab-memgraph
@@ -250,12 +210,6 @@ services:
       start_period: 30s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # MongoDB - Document database
-  # =============================================================================
-  # Use cases: Flexible schemas, document storage, raw API responses
-  # Industry standard for document-oriented workloads
   mongodb:
     image: mongo:8
     container_name: homelab-mongodb
@@ -284,10 +238,6 @@ services:
       start_period: 30s
     labels:
       - "traefik.enable=false"
-
-  # =============================================================================
-  # Prometheus Exporters - Monitoring
-  # =============================================================================
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
     container_name: postgres-exporter
