@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - nvme_indexes:/mnt/tablespaces/nvme
       - archive_data:/mnt/tablespaces/archive
     networks:
