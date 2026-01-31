@@ -87,7 +87,12 @@ services:
       start_period: 30s
   qdrant:
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.http.routers.qdrant.rule=Host(`qdrant.gryta.eu`)
+      - traefik.http.routers.qdrant.entrypoints=websecure
+      - traefik.http.routers.qdrant.tls.certresolver=le
+      - traefik.http.routers.qdrant.middlewares=authentik-forward-auth@file
+      - traefik.http.services.qdrant.loadbalancer.server.port=6333
     image: qdrant/qdrant:v1.16
     container_name: homelab-qdrant
     restart: unless-stopped
