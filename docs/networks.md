@@ -15,6 +15,17 @@ Main application network for all services.
 | | authentik-server | 172.20.0.13 |
 | | authentik-worker | 172.20.0.14 |
 | Llama.cpp | llama-cpp | 172.20.0.15 |
+| Databases | homelab-postgres | 172.20.0.30 |
+| | homelab-valkey | 172.20.0.31 |
+| | homelab-questdb | 172.20.0.32 |
+| | homelab-qdrant | 172.20.0.33 |
+| | homelab-memgraph | 172.20.0.34 |
+| | homelab-mongodb | 172.20.0.35 |
+| | homelab-memgraph-lab | 172.20.0.36 |
+| | homelab-mongo-express | 172.20.0.37 |
+| | postgres-exporter | 172.20.0.40 |
+| | valkey-exporter | 172.20.0.41 |
+| | mongodb-exporter | 172.20.0.42 |
 | Whoami | whoami | 172.20.0.20 |
 | What's Up Docker | wud | 172.20.0.21 |
 | Grafana | grafana | 172.20.0.22 |

@@ -46,6 +46,7 @@ Each service has a `volume.sh` script that creates the required directories. Run
 | Arr | `/mnt/quick/apps/volumes/arr/` | `/mnt/archive/media/`<br>`/mnt/archive/apps/volumes/qbittorrent/downloads/` |
 | qBittorrent | `/mnt/quick/apps/volumes/qbittorrent/` | `/mnt/archive/apps/volumes/qbittorrent/downloads/` |
 | Immich | `/mnt/quick/apps/volumes/immich/` | - |
+| Databases | `/mnt/quick/apps/volumes/databases/` | `/mnt/archive/apps/volumes/databases/` |
 | VS Code | `/mnt/quick/apps/volumes/vscode/` | - |
 | macOS | `/mnt/quick/apps/volumes/macos/` | - |
 | OpenFoodFacts | `/mnt/quick/apps/volumes/openfoodfacts/` | - |
