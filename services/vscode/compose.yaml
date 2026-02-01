@@ -78,7 +78,7 @@ services:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - ATTACHED_DEVICES_PERMS=/var/run/docker.sock
       - HASHED_PASSWORD=${HASHED_PASSWORD}
-      - SUDO_PASSWORD_HASH=${HASHED_PASSWORD}
+      - SUDO_PASSWORD_HASH=${SUDO_HASH}
       - PROXY_DOMAIN=vscode.gryta.eu
       - DEFAULT_WORKSPACE=/config/workspace
       - PWA_APPNAME=code-server
