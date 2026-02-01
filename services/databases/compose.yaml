@@ -460,6 +460,8 @@ services:
       - "5000"
       - --workers
       - "1"
+      - --allowed-hosts
+      - mlflow.gryta.eu,localhost
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://homelab-garage:3900
       AWS_ACCESS_KEY_ID: ${GARAGE_MLFLOW_ACCESS_KEY}
