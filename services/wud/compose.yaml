@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.wud.tls.certresolver=le
       - traefik.http.services.wud.loadbalancer.server.port=3000
       - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
-    image: getwud/wud
+    image: ghcr.io/getwud/wud:8.1
     container_name: wud
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

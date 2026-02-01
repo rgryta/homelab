@@ -8,7 +8,7 @@ services:
       - traefik.http.routers.wireguard.tls.certresolver=le
       - traefik.http.routers.wireguard.middlewares=authentik-forward-auth@file
       - traefik.http.services.wireguard.loadbalancer.server.port=51821
-    image: ghcr.io/wg-easy/wg-easy
+    image: ghcr.io/wg-easy/wg-easy:14
     container_name: wireguard
     restart: unless-stopped
     cap_add:

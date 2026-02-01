@@ -25,7 +25,7 @@ services:
       # SERVICE CONFIG
       # ==========================================
       - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
-    image: filebrowser/filebrowser:latest
+    image: filebrowser/filebrowser:v2.56.0
     container_name: filebrowser
     restart: unless-stopped
     networks:

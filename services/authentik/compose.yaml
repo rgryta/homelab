@@ -25,7 +25,7 @@ services:
   authentik-redis:
     labels:
       - traefik.enable=false
-    image: redis:alpine
+    image: redis:8.4-alpine
     container_name: authentik-redis
     restart: unless-stopped
     command:
@@ -52,7 +52,7 @@ services:
       - traefik.http.routers.authentik.tls.certresolver=le
       - traefik.http.services.authentik.loadbalancer.server.port=9000
     command: server
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2025.2.4
     container_name: authentik-server
     restart: unless-stopped
     depends_on:
@@ -75,7 +75,7 @@ services:
     labels:
       - traefik.enable=false
     command: worker
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2025.2.4
     container_name: authentik-worker
     restart: unless-stopped
     depends_on:

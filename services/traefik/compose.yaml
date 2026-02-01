@@ -9,7 +9,7 @@ services:
       - traefik.http.services.traefik.loadbalancer.server.port=8080
       - prometheus.scrape=true
       - prometheus.port=8080
-    image: traefik:latest
+    image: traefik:v3.6.7
     container_name: traefik
     restart: unless-stopped
     command:

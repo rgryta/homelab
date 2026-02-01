@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.lldap.tls.certresolver=le
       - traefik.http.routers.lldap.middlewares=authentik-forward-auth@file
       - traefik.http.services.lldap.loadbalancer.server.port=17170
-    image: lldap/lldap:stable
+    image: lldap/lldap:v0.6.2-alpine
     container_name: lldap
     restart: unless-stopped
     networks:

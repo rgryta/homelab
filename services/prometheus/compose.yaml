@@ -2,7 +2,7 @@ services:
   prometheus:
     labels:
       - traefik.enable=false
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.9.1
     container_name: prometheus
     restart: unless-stopped
     depends_on:
@@ -33,7 +33,7 @@ services:
       - traefik.http.routers.grafana.entrypoints=websecure
       - traefik.http.routers.grafana.tls.certresolver=le
       - traefik.http.services.grafana.loadbalancer.server.port=3000
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.3.2
     container_name: grafana
     restart: unless-stopped
     depends_on:
@@ -62,7 +62,7 @@ services:
   cadvisor:
     labels:
       - traefik.enable=false
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
     restart: unless-stopped
     networks:
@@ -76,7 +76,7 @@ services:
   node-exporter:
     labels:
       - traefik.enable=false
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.10.2
     container_name: node-exporter
     restart: unless-stopped
     networks:
