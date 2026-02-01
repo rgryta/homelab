@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_INITDB_ARGS: --data-checksums
     volumes:
       - postgres_data:/var/lib/postgresql
       - nvme_indexes:/mnt/tablespaces/nvme
@@ -21,10 +21,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres
       interval: 30s
       timeout: 5s
       retries: 5
@@ -47,10 +49,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 512M
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test:
+        - CMD
+        - valkey-cli
+        - ping
       interval: 30s
       timeout: 5s
       retries: 5
@@ -78,10 +83,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:9000/ping"]
+      test:
+        - CMD
+        - curl
+        - -sf
+        - http://localhost:9000/ping
       interval: 30s
       timeout: 10s
       retries: 5
@@ -109,10 +118,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'cat < /dev/tcp/localhost/6333'"]
+      test:
+        - CMD-SHELL
+        - bash -c 'cat < /dev/tcp/localhost/6333'
       interval: 30s
       timeout: 10s
       retries: 5
@@ -135,10 +146,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD-SHELL", "echo 'RETURN 0;' | mgconsole || exit 1"]
+      test:
+        - CMD-SHELL
+        - echo 'RETURN 0;' | mgconsole || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
@@ -165,10 +178,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 512M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://localhost:3000
       interval: 30s
       timeout: 10s
       retries: 5
@@ -192,10 +210,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+        - CMD
+        - mongosh
+        - --eval
+        - db.adminCommand('ping')
       interval: 30s
       timeout: 10s
       retries: 5
@@ -226,10 +248,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8081"]
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://127.0.0.1:8081
       interval: 30s
       timeout: 10s
       retries: 5
@@ -261,10 +288,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/misc/ping"]
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://127.0.0.1:80/misc/ping
       interval: 30s
       timeout: 10s
       retries: 5
@@ -291,10 +323,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5540/api/health/"]
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://127.0.0.1:5540/api/health/
       interval: 30s
       timeout: 10s
       retries: 5
@@ -309,11 +346,11 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD}@homelab-postgres:5432/postgres?sslmode=disable"
+      DATA_SOURCE_NAME: postgresql://postgres:${POSTGRES_PASSWORD}@homelab-postgres:5432/postgres?sslmode=disable
     networks:
       homelab-network:
         ipv4_address: 172.20.0.40
-      monitoring-network:
+      monitoring-network: null
   valkey-exporter:
     labels:
       - traefik.enable=false
@@ -324,11 +361,11 @@ services:
       valkey:
         condition: service_healthy
     command:
-      - '--redis.addr=redis://homelab-valkey:6379'
+      - --redis.addr=redis://homelab-valkey:6379
     networks:
       homelab-network:
         ipv4_address: 172.20.0.41
-      monitoring-network:
+      monitoring-network: null
   mongodb-exporter:
     labels:
       - traefik.enable=false
@@ -339,13 +376,13 @@ services:
       mongodb:
         condition: service_healthy
     command:
-      - '--mongodb.uri=mongodb://${MONGODB_ROOT_USER:-admin}:${MONGODB_ROOT_PASSWORD}@homelab-mongodb:27017'
-      - '--discovering-mode'
-      - '--compatible-mode'
+      - --mongodb.uri=mongodb://${MONGODB_ROOT_USER:-admin}:${MONGODB_ROOT_PASSWORD}@homelab-mongodb:27017
+      - --discovering-mode
+      - --compatible-mode
     networks:
       homelab-network:
         ipv4_address: 172.20.0.42
-      monitoring-network:
+      monitoring-network: null
   redpanda:
     labels:
       - traefik.enable=false
@@ -356,9 +393,11 @@ services:
       - redpanda
       - start
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      - --advertise-kafka-addr internal://homelab-redpanda:9092,external://172.20.0.50:19092
+      - --advertise-kafka-addr
+        internal://homelab-redpanda:9092,external://172.20.0.50:19092
       - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
-      - --advertise-pandaproxy-addr internal://homelab-redpanda:8082,external://172.20.0.50:18082
+      - --advertise-pandaproxy-addr
+        internal://homelab-redpanda:8082,external://172.20.0.50:18082
       - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
       - --rpc-addr homelab-redpanda:33145
       - --advertise-rpc-addr homelab-redpanda:33145
@@ -374,10 +413,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true' || exit 1"]
+      test:
+        - CMD-SHELL
+        - rpk cluster health | grep -q 'Healthy:.*true' || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
@@ -398,7 +439,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
     healthcheck:
       disable: true
@@ -426,7 +467,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
     healthcheck:
       disable: true
@@ -472,10 +513,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request;
+          urllib.request.urlopen('http://localhost:5000/health')
       interval: 30s
       timeout: 10s
       retries: 5
@@ -508,10 +554,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/v2/"]
+      test:
+        - CMD
+        - wget
+        - -q
+        - --spider
+        - http://localhost:5000/v2/
       interval: 30s
       timeout: 10s
       retries: 5
