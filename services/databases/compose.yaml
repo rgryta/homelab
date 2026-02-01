@@ -400,11 +400,7 @@ services:
           cpus: '2'
           memory: 2G
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:3903/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      disable: true
   garage-webui:
     labels:
       - traefik.enable=true
@@ -417,8 +413,7 @@ services:
     container_name: homelab-garage-webui
     restart: unless-stopped
     depends_on:
-      garage:
-        condition: service_healthy
+      - garage
     environment:
       GARAGE_ADMIN_API_URL: http://homelab-garage:3903
       GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN}
