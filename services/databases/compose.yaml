@@ -447,21 +447,22 @@ services:
       garage:
         condition: service_started
     command:
-      - mlflow
-      - server
-      - --backend-store-uri
-      - postgresql://${MLFLOW_DB_USER:-mlflow}:${MLFLOW_DB_PASSWORD}@homelab-postgres:5432/mlflow
-      - --artifacts-destination
-      - s3://mlflow-artifacts
-      - --host
-      - 0.0.0.0
-      - --port
-      - "5000"
-      - --serve-artifacts
+      - /bin/bash
+      - -c
+      - |
+        pip install --no-cache-dir psycopg2-binary boto3 &&
+        mlflow server \
+          --backend-store-uri "postgresql://$${MLFLOW_DB_USER:-mlflow}:$${MLFLOW_DB_PASSWORD}@homelab-postgres:5432/mlflow" \
+          --artifacts-destination "s3://mlflow-artifacts" \
+          --serve-artifacts \
+          --host 0.0.0.0 \
+          --port 5000
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://homelab-garage:3900
       AWS_ACCESS_KEY_ID: ${GARAGE_MLFLOW_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${GARAGE_MLFLOW_SECRET_KEY}
+      MLFLOW_DB_USER: ${MLFLOW_DB_USER:-mlflow}
+      MLFLOW_DB_PASSWORD: ${MLFLOW_DB_PASSWORD}
     networks:
       homelab-network:
         ipv4_address: 172.20.0.51
@@ -475,7 +476,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
   registry:
     labels:
       - traefik.enable=false
