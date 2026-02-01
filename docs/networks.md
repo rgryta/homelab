@@ -29,6 +29,8 @@ Main application network for all services.
 | | valkey-exporter | 172.20.0.41 |
 | | mongodb-exporter | 172.20.0.42 |
 | | homelab-redpanda | 172.20.0.50 |
+| | homelab-mlflow | 172.20.0.51 |
+| | homelab-registry | 172.20.0.52 |
 | | homelab-garage | 172.20.0.53 |
 | | homelab-garage-webui | 172.20.0.54 |
 | Whoami | whoami | 172.20.0.20 |

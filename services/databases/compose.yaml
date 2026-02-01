@@ -430,6 +430,92 @@ services:
           memory: 256M
     healthcheck:
       disable: true
+  mlflow:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mlflow.rule=Host(`mlflow.gryta.eu`)
+      - traefik.http.routers.mlflow.entrypoints=websecure
+      - traefik.http.routers.mlflow.tls.certresolver=le
+      - traefik.http.routers.mlflow.middlewares=authentik-forward-auth@file
+      - traefik.http.services.mlflow.loadbalancer.server.port=5000
+    image: ghcr.io/mlflow/mlflow:v3.9.0
+    container_name: homelab-mlflow
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      garage:
+        condition: service_started
+    command:
+      - mlflow
+      - server
+      - --backend-store-uri
+      - postgresql://${MLFLOW_DB_USER:-mlflow}:${MLFLOW_DB_PASSWORD}@homelab-postgres:5432/mlflow
+      - --artifacts-destination
+      - s3://mlflow-artifacts
+      - --serve-artifacts
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --workers
+      - "1"
+      - --allowed-hosts
+      - mlflow.gryta.eu,localhost
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://homelab-garage:3900
+      AWS_ACCESS_KEY_ID: ${GARAGE_MLFLOW_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${GARAGE_MLFLOW_SECRET_KEY}
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.51
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+  registry:
+    labels:
+      - traefik.enable=false
+    image: registry:3.0.0
+    container_name: homelab-registry
+    restart: unless-stopped
+    depends_on:
+      garage:
+        condition: service_started
+    environment:
+      REGISTRY_HTTP_ADDR: 0.0.0.0:5000
+      REGISTRY_STORAGE: s3
+      REGISTRY_STORAGE_S3_REGIONENDPOINT: http://homelab-garage:3900
+      REGISTRY_STORAGE_S3_REGION: garage
+      REGISTRY_STORAGE_S3_BUCKET: docker-registry
+      REGISTRY_STORAGE_S3_ACCESSKEY: ${GARAGE_REGISTRY_ACCESS_KEY}
+      REGISTRY_STORAGE_S3_SECRETKEY: ${GARAGE_REGISTRY_SECRET_KEY}
+      REGISTRY_STORAGE_S3_SECURE: "false"
+      REGISTRY_STORAGE_S3_V4AUTH: "true"
+      REGISTRY_STORAGE_S3_ROOTDIRECTORY: /registry
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+      REGISTRY_HEALTH_STORAGEDRIVER_ENABLED: "false"
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.52
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/v2/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 volumes:
   postgres_data:
     driver: local
