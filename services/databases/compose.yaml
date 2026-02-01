@@ -447,22 +447,23 @@ services:
       garage:
         condition: service_started
     command:
-      - /bin/bash
-      - -c
-      - |
-        pip install --no-cache-dir psycopg2-binary boto3 &&
-        mlflow server \
-          --backend-store-uri "postgresql://$${MLFLOW_DB_USER:-mlflow}:$${MLFLOW_DB_PASSWORD}@homelab-postgres:5432/mlflow" \
-          --artifacts-destination "s3://mlflow-artifacts" \
-          --serve-artifacts \
-          --host 0.0.0.0 \
-          --port 5000
+      - mlflow
+      - server
+      - --backend-store-uri
+      - postgresql://${MLFLOW_DB_USER:-mlflow}:${MLFLOW_DB_PASSWORD}@homelab-postgres:5432/mlflow
+      - --artifacts-destination
+      - s3://mlflow-artifacts
+      - --serve-artifacts
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --workers
+      - "1"
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://homelab-garage:3900
       AWS_ACCESS_KEY_ID: ${GARAGE_MLFLOW_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${GARAGE_MLFLOW_SECRET_KEY}
-      MLFLOW_DB_USER: ${MLFLOW_DB_USER:-mlflow}
-      MLFLOW_DB_PASSWORD: ${MLFLOW_DB_PASSWORD}
     networks:
       homelab-network:
         ipv4_address: 172.20.0.51
@@ -470,7 +471,7 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: 1G
+          memory: 2G
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
