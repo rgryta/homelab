@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.immich.tls.certresolver=le
       - traefik.http.services.immich.loadbalancer.server.port=2283
     container_name: immich_server
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-server:v2
     extends:
       file: hwaccel.transcoding.yml
       service: quicksync
@@ -32,7 +32,7 @@ services:
     labels:
       - traefik.enable=false
     container_name: immich_machine_learning
-    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
+    image: ghcr.io/immich-app/immich-machine-learning:v2-openvino
     extends:
       file: hwaccel.ml.yml
       service: openvino
