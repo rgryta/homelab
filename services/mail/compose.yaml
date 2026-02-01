@@ -6,7 +6,7 @@ services:
       - traefik.http.routers.roundcube.entrypoints=websecure
       - traefik.http.routers.roundcube.tls.certresolver=le
     container_name: roundcubemail
-    image: roundcube/roundcubemail:latest
+    image: roundcube/roundcubemail@sha256:57b76bf838fe99a85e88d8d87207de7b9294a7eeba4157c10fda69ee32f4f4e4
     restart: unless-stopped
     networks:
       homelab-network:
@@ -24,7 +24,7 @@ services:
   mailserver:
     labels:
       - traefik.enable=false
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
     container_name: mailserver
     hostname: mail.gryta.eu
     depends_on:

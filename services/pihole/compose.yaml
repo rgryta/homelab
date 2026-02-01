@@ -8,7 +8,7 @@ services:
       - traefik.http.services.pihole.loadbalancer.server.port=80
       - traefik.http.routers.pihole.middlewares=authentik-forward-auth@file
     container_name: pihole
-    image: pihole/pihole:latest
+    image: pihole/pihole:2025.11.1
     restart: unless-stopped
     depends_on:
       - unbound
@@ -35,7 +35,7 @@ services:
     labels:
       - traefik.enable=false
     container_name: unbound
-    image: madnuttah/unbound:latest
+    image: madnuttah/unbound:1.24.2-1
     restart: unless-stopped
     networks:
       pihole-network:
