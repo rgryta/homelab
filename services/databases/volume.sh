@@ -4,6 +4,7 @@ set -e
 # NVMe Storage
 mkdir -p /mnt/quick/apps/volumes/databases/postgres/data
 mkdir -p /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_indexes
+mkdir -p /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_data
 mkdir -p /mnt/quick/apps/volumes/databases/postgres/backups
 mkdir -p /mnt/quick/apps/volumes/databases/valkey/data
 mkdir -p /mnt/quick/apps/volumes/databases/questdb/data
@@ -24,6 +25,7 @@ mkdir -p /mnt/archive/apps/volumes/databases/garage/data
 chown -R 70:70 /mnt/quick/apps/volumes/databases/postgres
 chown -R 70:70 /mnt/archive/apps/volumes/databases/postgres
 chmod 700 /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_indexes
+chmod 700 /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_data
 chmod 700 /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
 
 # Valkey (UID 999)

@@ -12,6 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
       - nvme_indexes:/mnt/tablespaces/nvme
+      - nvme_data:/mnt/tablespaces/nvme_data
       - archive_data:/mnt/tablespaces/archive
     networks:
       homelab-network:
@@ -442,6 +443,12 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_indexes
+  nvme_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_data
   archive_data:
     driver: local
     driver_opts:
