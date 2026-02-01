@@ -25,7 +25,7 @@ services:
   authentik-redis:
     labels:
       - traefik.enable=false
-    image: redis:alpine
+    image: redis@sha256:0804c395e634e624243387d3c3a9c45fcaca876d313c2c8b52c3fdf9a912dded
     container_name: authentik-redis
     restart: unless-stopped
     command:

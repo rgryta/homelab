@@ -2,7 +2,7 @@ services:
   vpn-client:
     labels:
       - traefik.enable=false
-    image: ghcr.io/bubuntux/nordlynx
+    image: ghcr.io/bubuntux/nordlynx@sha256:2e1444bec3f67820e04e2755a5eb9d51f2d52453aff577e8a0b52f6cbeb364f3
     container_name: vpn-client
     cap_add:
       - NET_ADMIN

@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.macos.tls.certresolver=le
       - traefik.http.routers.macos.middlewares=authentik-forward-auth@file
       - traefik.http.services.macos.loadbalancer.server.port=8006
-    image: dockurr/macos
+    image: dockurr/macos:2.29
     container_name: macos
     environment:
       VERSION: "16"
