@@ -345,6 +345,98 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.42
       monitoring-network:
+  redpanda:
+    labels:
+      - traefik.enable=false
+    image: redpandadata/redpanda:v25.3.6
+    container_name: homelab-redpanda
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://homelab-redpanda:9092,external://172.20.0.50:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://homelab-redpanda:8082,external://172.20.0.50:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr homelab-redpanda:33145
+      - --advertise-rpc-addr homelab-redpanda:33145
+      - --smp 1
+      - --memory 1G
+      - --mode dev-container
+      - --default-log-level=warn
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.50
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  garage:
+    labels:
+      - traefik.enable=false
+    image: dxflrs/garage:v1.3.1
+    container_name: homelab-garage
+    restart: unless-stopped
+    volumes:
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+      - /mnt/quick/apps/volumes/databases/garage/garage.toml:/etc/garage.toml:ro
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.53
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3903/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  garage-webui:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.garage-webui.rule=Host(`garage.gryta.eu`)
+      - traefik.http.routers.garage-webui.entrypoints=websecure
+      - traefik.http.routers.garage-webui.tls.certresolver=le
+      - traefik.http.routers.garage-webui.middlewares=authentik-forward-auth@file
+      - traefik.http.services.garage-webui.loadbalancer.server.port=3909
+    image: khairul169/garage-webui:1.1.0
+    container_name: homelab-garage-webui
+    restart: unless-stopped
+    depends_on:
+      garage:
+        condition: service_healthy
+    environment:
+      GARAGE_ADMIN_API_URL: http://homelab-garage:3903
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN}
+      GARAGE_S3_API_URL: http://homelab-garage:3900
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.54
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3909"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 volumes:
   postgres_data:
     driver: local
@@ -412,6 +504,24 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/redisinsight/data
+  redpanda_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/redpanda/data
+  garage_meta:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/garage/meta
+  garage_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/databases/garage/data
 networks:
   homelab-network:
     external: true

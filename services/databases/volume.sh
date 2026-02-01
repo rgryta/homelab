@@ -13,9 +13,12 @@ mkdir -p /mnt/quick/apps/volumes/databases/memgraph/log
 mkdir -p /mnt/quick/apps/volumes/databases/mongodb/data
 mkdir -p /mnt/quick/apps/volumes/databases/pgadmin/data
 mkdir -p /mnt/quick/apps/volumes/databases/redisinsight/data
+mkdir -p /mnt/quick/apps/volumes/databases/redpanda/data
+mkdir -p /mnt/quick/apps/volumes/databases/garage/meta
 
 # Archive Storage
 mkdir -p /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
+mkdir -p /mnt/archive/apps/volumes/databases/garage/data
 
 # PostgreSQL (UID 70 on Alpine)
 chown -R 70:70 /mnt/quick/apps/volumes/databases/postgres
@@ -43,5 +46,12 @@ chown -R 5050:5050 /mnt/quick/apps/volumes/databases/pgadmin
 
 # RedisInsight (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/redisinsight
+
+# Redpanda (UID 101)
+chown -R 101:101 /mnt/quick/apps/volumes/databases/redpanda
+
+# Garage (UID 1000)
+chown -R 1000:1000 /mnt/quick/apps/volumes/databases/garage
+chown -R 1000:1000 /mnt/archive/apps/volumes/databases/garage
 
 echo "Database volumes created"
