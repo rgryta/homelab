@@ -28,6 +28,9 @@ Main application network for all services.
 | | postgres-exporter | 172.20.0.40 |
 | | valkey-exporter | 172.20.0.41 |
 | | mongodb-exporter | 172.20.0.42 |
+| | homelab-redpanda | 172.20.0.50 |
+| | homelab-garage | 172.20.0.53 |
+| | homelab-garage-webui | 172.20.0.54 |
 | Whoami | whoami | 172.20.0.20 |
 | What's Up Docker | wud | 172.20.0.21 |
 | Grafana | grafana | 172.20.0.22 |
