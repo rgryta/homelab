@@ -6,7 +6,7 @@ services:
       - traefik.http.routers.llama.entrypoints=websecure
       - traefik.http.routers.llama.tls.certresolver=le
       - traefik.http.services.llama.loadbalancer.server.port=8000
-    image: ghcr.io/ggml-org/llama.cpp@sha256:e5325db45315e85c0292bbab77f6009fe94342a0441da979fcbc0fd0eaf1ecb4
+    image: ghcr.io/ggml-org/llama.cpp:server-intel
     container_name: llama-cpp
     devices:
       - /dev/dri:/dev/dri

@@ -7,7 +7,7 @@ services:
       - traefik.http.routers.qbittorrent.tls.certresolver=le
       - traefik.http.routers.qbittorrent.middlewares=authentik-forward-auth@file
       - traefik.http.services.qbittorrent.loadbalancer.server.url=http://172.20.2.3:8888
-    image: ghcr.io/linuxserver/qbittorrent:5.1.4-r1-ls438
+    image: ghcr.io/linuxserver/qbittorrent:5.1.4
     container_name: qbittorrent
     network_mode: container:vpn-client
     environment:
