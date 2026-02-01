@@ -384,7 +384,7 @@ services:
   garage:
     labels:
       - traefik.enable=false
-    image: dxflrs/garage:v1.3.1
+    image: dxflrs/garage:v2.2.0
     container_name: homelab-garage
     restart: unless-stopped
     volumes:
