@@ -42,8 +42,8 @@ Main application network for all services.
 | Roundcube | roundcubemail | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
 | Jellyseerr | jellyseerr | 172.20.0.106 |
-| OpenFoodFacts | openfoodfacts-db | 172.20.0.110 |
-| | openfoodfacts-api | 172.20.0.111 |
+| OpenFoodFacts | openfoodfacts-api | 172.20.0.111 |
+| | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
 | | immich_machine_learning | 172.20.0.115 |
 | WellMate | wellmateio | 172.20.0.150 |

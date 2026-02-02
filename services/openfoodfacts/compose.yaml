@@ -1,28 +1,4 @@
 services:
-  off-db:
-    image: postgres:16-alpine
-    container_name: openfoodfacts-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: openfoodfacts
-      POSTGRES_USER: offuser
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - /mnt/archive/apps/volumes/openfoodfacts/db/extensions.sql:/docker-entrypoint-initdb.d/00-extensions.sql
-      - /mnt/archive/apps/volumes/openfoodfacts/db/init.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - off-db-data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U offuser -d openfoodfacts
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.110
-    extra_hosts:
-      - off.gryta.eu:172.20.0.111
   off-api:
     labels:
       - traefik.enable=true
@@ -34,17 +10,12 @@ services:
     container_name: openfoodfacts-api
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://offuser:${POSTGRES_PASSWORD}@off-db:5432/openfoodfacts
+      DATABASE_URL: postgresql://offuser:${POSTGRES_PASSWORD}@homelab-postgres:5432/openfoodfacts
       API_KEYS: ${API_KEYS}
       LOG_LEVEL: INFO
-    depends_on:
-      off-db:
-        condition: service_healthy
     networks:
       homelab-network:
         ipv4_address: 172.20.0.111
-    extra_hosts:
-      - off-db.gryta.eu:172.20.0.110
     healthcheck:
       test:
         - CMD-SHELL
@@ -59,31 +30,17 @@ services:
     container_name: openfoodfacts-updater
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://offuser:${POSTGRES_PASSWORD}@off-db:5432/openfoodfacts
+      DATABASE_URL: postgresql://offuser:${POSTGRES_PASSWORD}@homelab-postgres:5432/openfoodfacts
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       OFF_DELTA_URL: https://static.openfoodfacts.org/data/delta
       OFF_JSONL_URL: https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz
       LOG_LEVEL: INFO
-    depends_on:
-      off-db:
-        condition: service_healthy
     volumes:
       - off-data-cache:/app/data
     networks:
       homelab-network:
         ipv4_address: 172.20.0.112
-    extra_hosts:
-      - off-db.gryta.eu:172.20.0.110
 volumes:
-  # PostgreSQL data - stored on archive (large database ~15-20GB)
-  off-db-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/archive/apps/volumes/openfoodfacts/db-data
-  # Updater cache - stores downloaded JSONL files (~7GB) for bootstrap/cleanup
-  # Using archive since we want to persist the bootstrap JSONL to avoid re-downloading
   off-data-cache:
     driver: local
     driver_opts:
