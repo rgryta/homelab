@@ -1,6 +1,6 @@
 # Network Configuration
 
-This homelab uses six isolated Docker networks for logical separation of services.
+This homelab uses five isolated Docker networks for logical separation of services.
 
 ## homelab-network (172.20.0.0/24)
 
@@ -45,6 +45,7 @@ Main application network for all services.
 | OpenFoodFacts | openfoodfacts-db | 172.20.0.110 |
 | | openfoodfacts-api | 172.20.0.111 |
 | Immich | immich_server | 172.20.0.114 |
+| | immich_machine_learning | 172.20.0.115 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
@@ -77,16 +78,6 @@ Isolated network for DNS services.
 |---------|-----------|------------|
 | PiHole | pihole | 172.21.0.2 |
 | Unbound | unbound | 172.21.0.3 |
-
-## immich-network (172.21.1.0/24)
-
-Isolated network for the photo management stack.
-
-| Service | Container | IP Address |
-|---------|-----------|------------|
-| Immich Server | immich_server | 172.21.1.2 |
-| Immich ML | immich_machine_learning | 172.21.1.5 |
-| Immich Redis | immich_redis | 172.21.1.3 |
 
 ## monitoring-network (172.22.0.0/24)
 

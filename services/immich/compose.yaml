@@ -12,8 +12,6 @@ services:
       file: hwaccel.transcoding.yml
       service: quicksync
     networks:
-      immich-network:
-        ipv4_address: 172.21.1.2
       homelab-network:
         ipv4_address: 172.20.0.114
     volumes:
@@ -22,8 +20,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
-    depends_on:
-      - redis
     restart: unless-stopped
     healthcheck:
       disable: false
@@ -38,44 +34,26 @@ services:
     volumes:
       - model_cache:/cache
     networks:
-      immich-network:
-        ipv4_address: 172.21.1.5
+      homelab-network:
+        ipv4_address: 172.20.0.115
     env_file:
       - .env
     restart: unless-stopped
     healthcheck:
       disable: false
-  redis:
-    labels:
-      - traefik.enable=false
-    container_name: immich_redis
-    image: docker.io/valkey/valkey:8@sha256:81db6d39e1bba3b3ff32bd3a1b19a6d69690f94a3954ec131277b9a26b95b3aa
-    healthcheck:
-      test: redis-cli ping || exit 1
-    networks:
-      immich-network:
-        ipv4_address: 172.21.1.3
-    restart: unless-stopped
 volumes:
   immich_upload:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${UPLOAD_LOCATION}
+      device: /mnt/quick/media
   model_cache:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${MODEL_CACHE_LOCATION}
+      device: /mnt/quick/apps/volumes/immich/cache
 networks:
-  immich-network:
-    name: immich-network
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.21.1.0/24
-          gateway: 172.21.1.1
   homelab-network:
     external: true
