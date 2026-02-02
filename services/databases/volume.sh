@@ -21,6 +21,7 @@ mkdir -p /mnt/quick/apps/volumes/databases/garage/meta
 mkdir -p /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
 mkdir -p /mnt/archive/apps/volumes/databases/garage/data
 mkdir -p /mnt/archive/apps/volumes/databases/questdb/archive
+mkdir -p /mnt/archive/apps/volumes/databases/redpanda/archive
 
 # PostgreSQL (UID 70 on Alpine)
 chown -R 70:70 /mnt/quick/apps/volumes/databases/postgres
@@ -53,6 +54,7 @@ chown -R 1000:1000 /mnt/quick/apps/volumes/databases/redisinsight
 
 # Redpanda (UID 101)
 chown -R 101:101 /mnt/quick/apps/volumes/databases/redpanda
+chown -R 101:101 /mnt/archive/apps/volumes/databases/redpanda
 
 # Garage (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/garage

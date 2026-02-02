@@ -405,10 +405,10 @@ services:
       - --advertise-rpc-addr homelab-redpanda:33145
       - --smp 1
       - --memory 1G
-      - --mode dev-container
       - --default-log-level=warn
     volumes:
       - redpanda_data:/var/lib/redpanda/data
+      - redpanda_archive:/var/lib/redpanda/archive
     networks:
       homelab-network:
         ipv4_address: 172.20.0.50
@@ -444,7 +444,10 @@ services:
           cpus: "2"
           memory: 2G
     healthcheck:
-      test: ["CMD", "/garage", "status"]
+      test:
+        - CMD
+        - /garage
+        - status
       interval: 30s
       timeout: 10s
       retries: 5
@@ -664,6 +667,12 @@ volumes:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/garage/data
+  redpanda_archive:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/databases/redpanda/archive
   questdb_archive:
     driver: local
     driver_opts:
