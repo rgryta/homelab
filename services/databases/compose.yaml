@@ -141,6 +141,8 @@ services:
       - --memory-limit=1536
     volumes:
       - memgraph_data:/var/lib/memgraph
+      - memgraph_wal:/var/lib/memgraph/wal
+      - memgraph_snapshots:/var/lib/memgraph/snapshots
       - memgraph_log:/var/log/memgraph
     networks:
       homelab-network:
@@ -625,12 +627,24 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/memgraph/data
+  memgraph_wal:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/databases/memgraph/wal
+  memgraph_snapshots:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/databases/memgraph/snapshots
   memgraph_log:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/quick/apps/volumes/databases/memgraph/log
+      device: /mnt/archive/apps/volumes/databases/memgraph/log
   mongodb_data:
     driver: local
     driver_opts:

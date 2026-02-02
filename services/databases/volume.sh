@@ -10,7 +10,7 @@ mkdir -p /mnt/quick/apps/volumes/databases/valkey/data
 mkdir -p /mnt/quick/apps/volumes/databases/questdb/data
 mkdir -p /mnt/quick/apps/volumes/databases/qdrant/data
 mkdir -p /mnt/quick/apps/volumes/databases/memgraph/data
-mkdir -p /mnt/quick/apps/volumes/databases/memgraph/log
+mkdir -p /mnt/quick/apps/volumes/databases/memgraph/wal
 mkdir -p /mnt/quick/apps/volumes/databases/mongodb/data
 mkdir -p /mnt/quick/apps/volumes/databases/pgadmin/data
 mkdir -p /mnt/quick/apps/volumes/databases/redisinsight/data
@@ -22,6 +22,8 @@ mkdir -p /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
 mkdir -p /mnt/archive/apps/volumes/databases/garage/data
 mkdir -p /mnt/archive/apps/volumes/databases/questdb/archive
 mkdir -p /mnt/archive/apps/volumes/databases/redpanda/archive
+mkdir -p /mnt/archive/apps/volumes/databases/memgraph/snapshots
+mkdir -p /mnt/archive/apps/volumes/databases/memgraph/log
 
 # PostgreSQL (UID 70 on Alpine)
 chown -R 70:70 /mnt/quick/apps/volumes/databases/postgres
@@ -40,8 +42,9 @@ chown -R 1000:1000 /mnt/archive/apps/volumes/databases/questdb
 # Qdrant (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/qdrant
 
-# Memgraph (UID 999)
-chown -R 999:999 /mnt/quick/apps/volumes/databases/memgraph
+# Memgraph (UID 101)
+chown -R 101:103 /mnt/quick/apps/volumes/databases/memgraph
+chown -R 101:103 /mnt/archive/apps/volumes/databases/memgraph
 
 # MongoDB (UID 999)
 chown -R 999:999 /mnt/quick/apps/volumes/databases/mongodb
