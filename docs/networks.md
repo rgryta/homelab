@@ -86,7 +86,6 @@ Isolated network for the photo management stack.
 |---------|-----------|------------|
 | Immich Server | immich_server | 172.21.1.2 |
 | Immich ML | immich_machine_learning | 172.21.1.5 |
-| Immich DB | immich_postgres | 172.21.1.4 |
 | Immich Redis | immich_redis | 172.21.1.3 |
 
 ## monitoring-network (172.22.0.0/24)

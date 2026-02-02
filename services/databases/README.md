@@ -8,6 +8,7 @@ Shared database infrastructure for homelab services.
 |----------|---------|
 | mlflow | MLflow tracking |
 | authentik | Authentik IdP |
+| immich | Immich photo management |
 
 ## Setup
 
