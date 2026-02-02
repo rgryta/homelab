@@ -10,9 +10,7 @@ Main application network for all services.
 |---------|-----------|------------|
 | Traefik | traefik | 172.20.0.100 |
 | LLDAP | lldap | 172.20.0.10 |
-| Authentik | authentik-db | 172.20.0.11 |
-| | authentik-redis | 172.20.0.12 |
-| | authentik-server | 172.20.0.13 |
+| Authentik | authentik-server | 172.20.0.13 |
 | | authentik-worker | 172.20.0.14 |
 | Llama.cpp | llama-cpp | 172.20.0.15 |
 | Databases | homelab-postgres | 172.20.0.30 |

@@ -37,7 +37,7 @@ Each service has a `volume.sh` script that creates the required directories. Run
 |---------|---------------|-----------------|
 | Traefik | `/mnt/quick/apps/volumes/traefik/` | - |
 | LLDAP | `/mnt/quick/apps/volumes/lldap/` | - |
-| Authentik | `/mnt/quick/apps/volumes/authentik/` | - |
+| Authentik | - | - |
 | Filebrowser | `/mnt/quick/apps/volumes/filebrowser/`<br>`/mnt/quick/media/` | `/mnt/archive/apps/volumes/filebrowser/` |
 | Mail | `/mnt/quick/apps/volumes/roundcube/`<br>`/mnt/quick/apps/volumes/mailserver/` | - |
 | Jellyfin | `/mnt/quick/apps/volumes/jellyfin/`<br>`/mnt/quick/apps/volumes/jellyseerr/` | `/mnt/archive/media/` |

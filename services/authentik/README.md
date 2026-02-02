@@ -1,3 +1,7 @@
+# Architecture
+
+Database: `homelab-postgres` (shared PostgreSQL instance in `databases` stack)
+
 # Setup
 One time setup:
 Open `<BASE_URL>/if/flow/initial-setup/` to set up the admin (akadmin) password.
