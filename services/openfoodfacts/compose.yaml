@@ -30,7 +30,7 @@ services:
       - traefik.http.routers.openfoodfacts.entrypoints=websecure
       - traefik.http.routers.openfoodfacts.tls.certresolver=le
       - traefik.http.services.openfoodfacts.loadbalancer.server.port=8000
-    image: ghcr.io/rgryta/openfoodfacts-api:${IMAGE_TAG:-latest}
+    image: ghcr.io/rgryta/openfoodfacts-api:v1.0.7
     container_name: openfoodfacts-api
     restart: unless-stopped
     environment:
@@ -55,7 +55,7 @@ services:
       retries: 3
       start_period: 10s
   off-updater:
-    image: ghcr.io/rgryta/openfoodfacts-updater:${IMAGE_TAG:-latest}
+    image: ghcr.io/rgryta/openfoodfacts-updater:v1.0.7
     container_name: openfoodfacts-updater
     restart: unless-stopped
     environment:
