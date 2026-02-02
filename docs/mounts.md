@@ -49,6 +49,6 @@ Each service has a `volume.sh` script that creates the required directories. Run
 | Databases | `/mnt/quick/apps/volumes/databases/` | `/mnt/archive/apps/volumes/databases/` |
 | VS Code | `/mnt/quick/apps/volumes/vscode/` | - |
 | macOS | `/mnt/quick/apps/volumes/macos/` | - |
-| OpenFoodFacts | `/mnt/quick/apps/volumes/openfoodfacts/` | - |
+| OpenFoodFacts | - | `/mnt/archive/apps/volumes/openfoodfacts/` |
 | GitHub Runner | - | - |
 | VPN Client | - | - |
