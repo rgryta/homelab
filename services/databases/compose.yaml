@@ -75,8 +75,10 @@ services:
       QDB_PG_USER: ${QUESTDB_USER:-questdb}
       QDB_PG_PASSWORD: ${QUESTDB_PASSWORD}
       QDB_TELEMETRY_ENABLED: "false"
+      QDB_CAIRO_SQL_BACKUP_ROOT: /var/lib/questdb/archive
     volumes:
       - questdb_data:/var/lib/questdb
+      - questdb_archive:/var/lib/questdb/archive
     networks:
       homelab-network:
         ipv4_address: 172.20.0.32
@@ -136,7 +138,7 @@ services:
     restart: unless-stopped
     command:
       - --log-level=WARNING
-      - --memory-limit=1024
+      - --memory-limit=1536
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
@@ -442,7 +444,11 @@ services:
           cpus: "2"
           memory: 2G
     healthcheck:
-      disable: true
+      test: ["CMD", "/garage", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
   garage-webui:
     labels:
       - traefik.enable=true
@@ -658,6 +664,12 @@ volumes:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/garage/data
+  questdb_archive:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/databases/questdb/archive
 networks:
   homelab-network:
     external: true

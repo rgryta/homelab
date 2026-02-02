@@ -20,6 +20,7 @@ mkdir -p /mnt/quick/apps/volumes/databases/garage/meta
 # Archive Storage
 mkdir -p /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
 mkdir -p /mnt/archive/apps/volumes/databases/garage/data
+mkdir -p /mnt/archive/apps/volumes/databases/questdb/archive
 
 # PostgreSQL (UID 70 on Alpine)
 chown -R 70:70 /mnt/quick/apps/volumes/databases/postgres
@@ -33,6 +34,7 @@ chown -R 999:999 /mnt/quick/apps/volumes/databases/valkey
 
 # QuestDB (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/questdb
+chown -R 1000:1000 /mnt/archive/apps/volumes/databases/questdb
 
 # Qdrant (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/qdrant
