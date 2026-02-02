@@ -44,6 +44,7 @@ Main application network for all services.
 | Roundcube | roundcube | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
 | Jellyseerr | jellyseerr | 172.20.0.106 |
+| Navidrome | navidrome | 172.20.0.107 |
 | OpenFoodFacts | openfoodfacts-server | 172.20.0.110 |
 | | openfoodfacts-db | 172.20.0.111 |
 | | openfoodfacts-redis | 172.20.0.112 |
