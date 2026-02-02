@@ -39,14 +39,13 @@ Main application network for all services.
 | macOS | macos | 172.20.0.26 |
 | Filebrowser | filebrowser | 172.20.0.102 |
 | Jellyfin | jellyfin | 172.20.0.103 |
-| Roundcube | roundcube | 172.20.0.104 |
+| Roundcube | roundcubemail | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
 | Jellyseerr | jellyseerr | 172.20.0.106 |
-| OpenFoodFacts | openfoodfacts-server | 172.20.0.110 |
-| | openfoodfacts-db | 172.20.0.111 |
-| | openfoodfacts-redis | 172.20.0.112 |
-| Immich | immich-server | 172.20.0.114 |
-| WellMate | wellmate | 172.20.0.150 |
+| OpenFoodFacts | openfoodfacts-db | 172.20.0.110 |
+| | openfoodfacts-api | 172.20.0.111 |
+| Immich | immich_server | 172.20.0.114 |
+| WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
 
@@ -85,10 +84,10 @@ Isolated network for the photo management stack.
 
 | Service | Container | IP Address |
 |---------|-----------|------------|
-| Immich Server | immich-server | 172.21.1.2 |
-| Immich ML | immich-machine-learning | 172.21.1.3 |
-| Immich DB | immich-postgres | 172.21.1.4 |
-| Immich Redis | immich-redis | 172.21.1.5 |
+| Immich Server | immich_server | 172.21.1.2 |
+| Immich ML | immich_machine_learning | 172.21.1.5 |
+| Immich DB | immich_postgres | 172.21.1.4 |
+| Immich Redis | immich_redis | 172.21.1.3 |
 
 ## monitoring-network (172.22.0.0/24)
 
