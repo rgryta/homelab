@@ -16,7 +16,6 @@ Main application network for all services.
 | Databases | homelab-postgres | 172.20.0.30 |
 | | homelab-valkey | 172.20.0.31 |
 | | homelab-questdb | 172.20.0.32 |
-| | homelab-qdrant | 172.20.0.33 |
 | | homelab-memgraph | 172.20.0.34 |
 | | homelab-mongodb | 172.20.0.35 |
 | | homelab-memgraph-lab | 172.20.0.36 |

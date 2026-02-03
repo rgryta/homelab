@@ -22,7 +22,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [macOS](services/macos/) | macOS virtualization |
 | [OpenFoodFacts](services/openfoodfacts/) | Food product database API |
 | [Prometheus](services/prometheus/) | Monitoring stack (Prometheus, Grafana, cAdvisor) |
-| [Databases](services/databases/) | Unified database infrastructure (PostgreSQL, Valkey, QuestDB, Qdrant, Memgraph, MongoDB) |
+| [Databases](services/databases/) | Unified database infrastructure (PostgreSQL, Valkey, QuestDB, Memgraph, MongoDB) |
 | [PiHole](services/pihole/) | DNS ad-blocking with Unbound |
 | [What's Up Docker](services/wud/) | Container update checker |
 | [Llama.cpp](services/llama.cpp/) | Local LLM inference |
