@@ -8,7 +8,6 @@ mkdir -p /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_data
 mkdir -p /mnt/quick/apps/volumes/databases/postgres/backups
 mkdir -p /mnt/quick/apps/volumes/databases/valkey/data
 mkdir -p /mnt/quick/apps/volumes/databases/questdb/data
-mkdir -p /mnt/quick/apps/volumes/databases/qdrant/data
 mkdir -p /mnt/quick/apps/volumes/databases/memgraph/data
 mkdir -p /mnt/quick/apps/volumes/databases/memgraph/wal
 mkdir -p /mnt/quick/apps/volumes/databases/mongodb/data
@@ -38,9 +37,6 @@ chown -R 999:999 /mnt/quick/apps/volumes/databases/valkey
 # QuestDB (UID 1000)
 chown -R 1000:1000 /mnt/quick/apps/volumes/databases/questdb
 chown -R 1000:1000 /mnt/archive/apps/volumes/databases/questdb
-
-# Qdrant (UID 1000)
-chown -R 1000:1000 /mnt/quick/apps/volumes/databases/qdrant
 
 # Memgraph (UID 101)
 chown -R 101:103 /mnt/quick/apps/volumes/databases/memgraph
