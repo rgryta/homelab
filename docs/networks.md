@@ -88,6 +88,9 @@ Dedicated network for the monitoring stack.
 | cAdvisor | cadvisor | 172.22.0.3 |
 | Node Exporter | node-exporter | 172.22.0.4 |
 | Grafana | grafana | 172.22.0.5 |
+| Postgres Exporter | postgres-exporter | 172.22.0.6 |
+| Valkey Exporter | valkey-exporter | 172.22.0.7 |
+| MongoDB Exporter | mongodb-exporter | 172.22.0.8 |
 
 ## wireguard-network (172.20.3.0/24)
 

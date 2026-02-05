@@ -323,7 +323,8 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.40
-      monitoring-network: null
+      monitoring-network:
+        ipv4_address: 172.22.0.6
   valkey-exporter:
     labels:
       - traefik.enable=false
@@ -338,7 +339,8 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.41
-      monitoring-network: null
+      monitoring-network:
+        ipv4_address: 172.22.0.7
   mongodb-exporter:
     labels:
       - traefik.enable=false
@@ -355,7 +357,8 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.42
-      monitoring-network: null
+      monitoring-network:
+        ipv4_address: 172.22.0.8
   redpanda:
     labels:
       - traefik.enable=false
