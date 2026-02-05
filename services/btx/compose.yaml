@@ -1,0 +1,45 @@
+services:
+  ib-gateway:
+    labels:
+      - traefik.enable=false
+    image: ghcr.io/gnzsnz/ib-gateway:10.43
+    container_name: btx-ib-gateway
+    restart: unless-stopped
+    environment:
+      TWS_USERID: ${IBKR_USERNAME}
+      TWS_PASSWORD: ${IBKR_PASSWORD}
+      TRADING_MODE: ${IBKR_TRADING_MODE:-paper}
+      TWS_SETTINGS_PATH: /home/ibgateway/tws_settings
+      READ_ONLY_API: "no"
+      TWOFA_TIMEOUT_ACTION: ${IBKR_TWOFA_TIMEOUT_ACTION:-restart}
+      RELOGIN_AFTER_TWOFA_TIMEOUT: ${IBKR_RELOGIN_AFTER_TWOFA_TIMEOUT:-yes}
+      AUTO_RESTART_TIME: ${IBKR_AUTO_RESTART_TIME:-11:59 PM}
+      EXISTING_SESSION_DETECTED_ACTION: ${IBKR_EXISTING_SESSION_DETECTED_ACTION:-primary}
+    volumes:
+      - ib_gateway_settings:/home/ibgateway/tws_settings
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.60
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - nc -z localhost 4004 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+volumes:
+  ib_gateway_settings:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/btx/ib-gateway/settings
+networks:
+  homelab-network:
+    external: true
