@@ -10,7 +10,7 @@ services:
       TWS_PASSWORD: ${IBKR_PASSWORD}
       TRADING_MODE: ${IBKR_TRADING_MODE:-paper}
       TWS_SETTINGS_PATH: /home/ibgateway/tws_settings
-      READ_ONLY_API: "no"
+      READ_ONLY_API: no
       TWOFA_TIMEOUT_ACTION: ${IBKR_TWOFA_TIMEOUT_ACTION:-restart}
       RELOGIN_AFTER_TWOFA_TIMEOUT: ${IBKR_RELOGIN_AFTER_TWOFA_TIMEOUT:-yes}
       AUTO_RESTART_TIME: ${IBKR_AUTO_RESTART_TIME:-11:59 PM}
@@ -28,7 +28,7 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - nc -z localhost 4004 || exit 1
+        - bash -c 'echo > /dev/tcp/localhost/4004'
       interval: 30s
       timeout: 10s
       retries: 5
