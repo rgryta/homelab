@@ -1,0 +1,23 @@
+services:
+  parking:
+    image: 172.20.0.52:5000/parking:latest
+    container_name: parking
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - parking_data:/app/data
+    networks:
+      - homelab-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.parking.rule=Host(`parking.gryta.eu`)
+      - traefik.http.routers.parking.entrypoints=websecure
+      - traefik.http.routers.parking.tls.certresolver=le
+
+volumes:
+  parking_data:
+
+networks:
+  homelab-network:
+    name: homelab-network
+    external: true

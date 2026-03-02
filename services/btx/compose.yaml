@@ -1,4 +1,59 @@
 services:
+  ingestion:
+    labels:
+      - traefik.enable=false
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-ingestion
+    restart: unless-stopped
+    env_file:
+      - .env
+    command:
+      - btx
+      - ingest
+    networks:
+      homelab-network: null
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import btx; print('ok')
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  backfill:
+    labels:
+      - traefik.enable=false
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-backfill
+    env_file:
+      - .env
+    environment:
+      IBKR_CLIENT_ID: 2
+    command:
+      - btx
+      - backfill
+      - --days
+      - "365"
+      - --exchange
+      - ibkr
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.61
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    restart: no
+    profiles:
+      - backfill
   ib-gateway:
     labels:
       - traefik.enable=false

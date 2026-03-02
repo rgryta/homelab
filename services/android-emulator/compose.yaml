@@ -1,0 +1,26 @@
+services:
+  android-emulator:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.emulator.rule=Host(`android.gryta.eu`)
+      - traefik.http.routers.emulator.entrypoints=websecure
+      - traefik.http.routers.emulator.tls.certresolver=le
+      - traefik.http.routers.emulator.middlewares=authentik-forward-auth@file
+      - traefik.http.services.emulator.loadbalancer.server.port=6080
+    image: budtmo/docker-android:emulator_14.0_v3.2.0-p0
+    container_name: android-emulator
+    devices:
+      - /dev/kvm
+    group_add:
+      - "106"
+    environment:
+      - EMULATOR_DEVICE=Samsung Galaxy S10
+      - WEB_VNC=true
+      - DATAPARTITION=4g
+    restart: unless-stopped
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.27
+networks:
+  homelab-network:
+    external: true

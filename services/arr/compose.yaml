@@ -164,29 +164,6 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     image: ghcr.io/cleanuparr/cleanuparr:2.5.1
-  huntarr:
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.huntarr.rule=Host(`huntarr.gryta.eu`)
-      - traefik.http.routers.huntarr.entrypoints=websecure
-      - traefik.http.routers.huntarr.tls.certresolver=le
-      - traefik.http.routers.huntarr.middlewares=authentik-forward-auth@file
-      - traefik.http.services.huntarr.loadbalancer.server.port=9705
-    image: huntarr/huntarr:9.1.5
-    container_name: huntarr
-    restart: unless-stopped
-    networks:
-      homelab-vpn-network:
-        ipv4_address: 172.20.2.11
-    extra_hosts:
-      - prowlarr.gryta.eu:172.20.2.6
-      - sonarr.gryta.eu:172.20.2.4
-      - radarr.gryta.eu:172.20.2.5
-      - lidarr.gryta.eu:172.20.2.8
-    volumes:
-      - huntarr_config:/config
-    environment:
-      - TZ=Europe/Warsaw
   tdarr:
     labels:
       - traefik.enable=true

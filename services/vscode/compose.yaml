@@ -71,6 +71,9 @@ services:
       - homelab_stack:/homelab_stack:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt:/mnt
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
     environment:
       - PUID=1000
       - PGID=1000
