@@ -6,6 +6,8 @@ services:
       - traefik.http.routers.immich.entrypoints=websecure
       - traefik.http.routers.immich.tls.certresolver=le
       - traefik.http.services.immich.loadbalancer.server.port=2283
+      - wud.watch=true
+      - wud.watch.digest=true
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:v2
     extends:
@@ -26,6 +28,8 @@ services:
   immich-machine-learning:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:v2-openvino
     extends:

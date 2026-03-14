@@ -6,6 +6,8 @@ services:
       - traefik.http.routers.authentik.entrypoints=websecure
       - traefik.http.routers.authentik.tls.certresolver=le
       - traefik.http.services.authentik.loadbalancer.server.port=9000
+      - wud.watch=true
+      - wud.tag.include=^\d{4}\.\d+\.\d+$
     command: server
     image: ghcr.io/goauthentik/server:2025.10.3
     container_name: authentik-server
@@ -23,6 +25,8 @@ services:
   authentik-worker:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d{4}\.\d+\.\d+$
     command: worker
     image: ghcr.io/goauthentik/server:2025.10.3
     container_name: authentik-worker

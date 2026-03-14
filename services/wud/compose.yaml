@@ -7,6 +7,8 @@ services:
       - traefik.http.routers.wud.tls.certresolver=le
       - traefik.http.services.wud.loadbalancer.server.port=3000
       - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+$
     image: ghcr.io/getwud/wud:8.1
     container_name: wud
     volumes:

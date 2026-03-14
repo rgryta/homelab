@@ -7,6 +7,8 @@ services:
       - traefik.http.routers.macos.tls.certresolver=le
       - traefik.http.routers.macos.middlewares=authentik-forward-auth@file
       - traefik.http.services.macos.loadbalancer.server.port=8006
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+$
     image: dockurr/macos:2.29
     container_name: macos
     environment:

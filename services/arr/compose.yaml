@@ -7,6 +7,8 @@ services:
       - traefik.http.routers.sonarr.tls.certresolver=le
       - traefik.http.routers.sonarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: ghcr.io/linuxserver/sonarr:4.0.16
     container_name: sonarr
     networks:
@@ -33,6 +35,8 @@ services:
       - traefik.http.routers.radarr.tls.certresolver=le
       - traefik.http.routers.radarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.radarr.loadbalancer.server.port=7878
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: lscr.io/linuxserver/radarr:6.0.4
     container_name: radarr
     networks:
@@ -58,6 +62,8 @@ services:
       - traefik.http.routers.prowlarr.tls.certresolver=le
       - traefik.http.routers.prowlarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: lscr.io/linuxserver/prowlarr:2.3.0
     container_name: prowlarr
     networks:
@@ -79,6 +85,8 @@ services:
   flaresolverr:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
     container_name: flaresolverr
     networks:
@@ -95,6 +103,8 @@ services:
       - traefik.http.routers.lidarr.tls.certresolver=le
       - traefik.http.routers.lidarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.lidarr.loadbalancer.server.port=8686
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: lscr.io/linuxserver/lidarr:3.1.0
     container_name: lidarr
     networks:
@@ -120,6 +130,8 @@ services:
       - traefik.http.routers.bazarr.tls.certresolver=le
       - traefik.http.routers.bazarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: lscr.io/linuxserver/bazarr:1.5.4
     container_name: bazarr
     networks:
@@ -146,6 +158,8 @@ services:
       - traefik.http.routers.cleanuparr.tls.certresolver=le
       - traefik.http.routers.cleanuparr.middlewares=authentik-forward-auth@file
       - traefik.http.services.cleanuparr.loadbalancer.server.port=11011
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     container_name: cleanuparr
     restart: unless-stopped
     networks:
@@ -172,6 +186,8 @@ services:
       - traefik.http.routers.tdarr.tls.certresolver=le
       - traefik.http.routers.tdarr.middlewares=authentik-forward-auth@file
       - traefik.http.services.tdarr.loadbalancer.server.port=8265
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: ghcr.io/haveagitgat/tdarr:2.58.02
     container_name: tdarr
     networks:

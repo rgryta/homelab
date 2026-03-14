@@ -2,6 +2,8 @@ services:
   postgres:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+-pg\d+$
     image: ghcr.io/rgryta/homelab-postgres:1.0.0-pg18
     container_name: homelab-postgres
     restart: unless-stopped
@@ -36,6 +38,8 @@ services:
   valkey:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+$
     image: valkey/valkey:9
     container_name: homelab-valkey
     restart: unless-stopped
@@ -70,6 +74,8 @@ services:
       - traefik.http.routers.questdb.tls.certresolver=le
       - traefik.http.routers.questdb.middlewares=authentik-forward-auth@file
       - traefik.http.services.questdb.loadbalancer.server.port=9000
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: questdb/questdb:9.3.2
     container_name: homelab-questdb
     restart: unless-stopped
@@ -102,6 +108,8 @@ services:
   memgraph:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: memgraph/memgraph-mage:3.7.2
     container_name: homelab-memgraph
     restart: unless-stopped
@@ -137,6 +145,8 @@ services:
       - traefik.http.routers.memlab.tls.certresolver=le
       - traefik.http.routers.memlab.middlewares=authentik-forward-auth@file
       - traefik.http.services.memlab.loadbalancer.server.port=3000
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: memgraph/lab:3.7.1
     container_name: homelab-memgraph-lab
     restart: unless-stopped
@@ -167,6 +177,8 @@ services:
   mongodb:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+$
     image: mongo:8
     container_name: homelab-mongodb
     restart: unless-stopped
@@ -203,6 +215,8 @@ services:
       - traefik.http.routers.mongo-express.tls.certresolver=le
       - traefik.http.routers.mongo-express.middlewares=authentik-forward-auth@file
       - traefik.http.services.mongo-express.loadbalancer.server.port=8081
+      - wud.watch=true
+      - wud.tag.include=^\d+$
     image: mongo-express:1
     container_name: homelab-mongo-express
     restart: unless-stopped
@@ -242,6 +256,8 @@ services:
       - traefik.http.routers.pgadmin.tls.certresolver=le
       - traefik.http.routers.pgadmin.middlewares=authentik-forward-auth@file
       - traefik.http.services.pgadmin.loadbalancer.server.port=80
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: dpage/pgadmin4:9.11.0
     container_name: homelab-pgadmin
     restart: unless-stopped
@@ -282,6 +298,8 @@ services:
       - traefik.http.routers.redisinsight.tls.certresolver=le
       - traefik.http.routers.redisinsight.middlewares=authentik-forward-auth@file
       - traefik.http.services.redisinsight.loadbalancer.server.port=5540
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: redis/redisinsight:3.0.2
     container_name: homelab-redisinsight
     restart: unless-stopped
@@ -312,6 +330,8 @@ services:
   postgres-exporter:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: prometheuscommunity/postgres-exporter:v0.18.1
     container_name: postgres-exporter
     restart: unless-stopped
@@ -328,6 +348,8 @@ services:
   valkey-exporter:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+-alpine$
     image: oliver006/redis_exporter:v1.80.2-alpine
     container_name: valkey-exporter
     restart: unless-stopped
@@ -344,6 +366,8 @@ services:
   mongodb-exporter:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: percona/mongodb_exporter:0.47.2
     container_name: mongodb-exporter
     restart: unless-stopped
@@ -362,6 +386,8 @@ services:
   redpanda:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: redpandadata/redpanda:v25.3.6
     container_name: homelab-redpanda
     restart: unless-stopped
@@ -402,6 +428,8 @@ services:
   garage:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: dxflrs/garage:v2.2.0
     container_name: homelab-garage
     restart: unless-stopped
@@ -434,6 +462,8 @@ services:
       - traefik.http.routers.garage-webui.tls.certresolver=le
       - traefik.http.routers.garage-webui.middlewares=authentik-forward-auth@file
       - traefik.http.services.garage-webui.loadbalancer.server.port=3909
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: khairul169/garage-webui:1.1.0
     container_name: homelab-garage-webui
     restart: unless-stopped
@@ -462,6 +492,8 @@ services:
       - traefik.http.routers.mlflow.tls.certresolver=le
       - traefik.http.routers.mlflow.middlewares=authentik-forward-auth@file
       - traefik.http.services.mlflow.loadbalancer.server.port=5000
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: ghcr.io/mlflow/mlflow:v3.9.0
     container_name: homelab-mlflow
     restart: unless-stopped
@@ -512,6 +544,8 @@ services:
   registry:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: registry:3.0.0
     container_name: homelab-registry
     restart: unless-stopped

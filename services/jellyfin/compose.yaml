@@ -7,6 +7,8 @@ services:
       - traefik.http.routers.jellyfin.entrypoints=websecure
       - traefik.http.routers.jellyfin.tls.certresolver=le
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: jellyfin/jellyfin:10.11.6
     container_name: jellyfin
     volumes:
@@ -31,6 +33,8 @@ services:
       - traefik.http.routers.jellyseerr.tls.certresolver=le
       - traefik.http.services.jellyseerr.loadbalancer.server.port=5055
       - traefik.http.routers.jellyseerr.middlewares=authentik-forward-auth@file
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: ghcr.io/fallenbagel/jellyseerr:2.7.3
     init: true
     container_name: jellyseerr

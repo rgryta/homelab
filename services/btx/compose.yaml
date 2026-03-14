@@ -2,6 +2,8 @@ services:
   ingestion:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-ingestion
     restart: unless-stopped
@@ -28,6 +30,8 @@ services:
   backfill:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-backfill
     env_file:
@@ -49,6 +53,8 @@ services:
   dedupe:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-dedupe
     env_file:
@@ -68,7 +74,9 @@ services:
   ib-gateway:
     labels:
       - traefik.enable=false
-    image: ghcr.io/gnzsnz/ib-gateway:10.43
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+[a-z]?$
+    image: ghcr.io/gnzsnz/ib-gateway:10.43.1c
     container_name: btx-ib-gateway
     restart: unless-stopped
     environment:

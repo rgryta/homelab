@@ -7,6 +7,8 @@ services:
       - traefik.http.routers.emulator.tls.certresolver=le
       - traefik.http.routers.emulator.middlewares=authentik-forward-auth@file
       - traefik.http.services.emulator.loadbalancer.server.port=6080
+      - wud.watch=true
+      - wud.tag.include=^emulator_\d+\.\d+_v\d+\.\d+\.\d+.*$
     image: budtmo/docker-android:emulator_14.0_v3.2.0-p0
     container_name: android-emulator
     devices:
