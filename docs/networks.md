@@ -45,6 +45,7 @@ Main application network for all services.
 | | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
 | | immich_machine_learning | 172.20.0.115 |
+| Autoheal | autoheal | 172.20.0.70 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |

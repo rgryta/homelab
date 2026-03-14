@@ -7,11 +7,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command:
-      - btx
-      - ingest
+    command: ["btx", "ingest"]
     networks:
-      homelab-network: null
+      homelab-network:
     deploy:
       resources:
         limits:
@@ -36,13 +34,7 @@ services:
       - .env
     environment:
       IBKR_CLIENT_ID: 2
-    command:
-      - btx
-      - backfill
-      - --days
-      - "365"
-      - --exchange
-      - ibkr
+    command: ["btx", "backfill", "--days", "365"]
     networks:
       homelab-network:
         ipv4_address: 172.20.0.61
@@ -50,10 +42,29 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 512M
-    restart: no
+          memory: 2G
+    restart: "no"
     profiles:
       - backfill
+  dedupe:
+    labels:
+      - traefik.enable=false
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-dedupe
+    env_file:
+      - .env
+    command: ["btx", "dedupe"]
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.62
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 2G
+    restart: "no"
+    profiles:
+      - dedupe
   ib-gateway:
     labels:
       - traefik.enable=false
@@ -72,6 +83,7 @@ services:
       EXISTING_SESSION_DETECTED_ACTION: ${IBKR_EXISTING_SESSION_DETECTED_ACTION:-primary}
     volumes:
       - ib_gateway_settings:/home/ibgateway/tws_settings
+      - ib_ibc_state:/home/ibgateway/ibc
     networks:
       homelab-network:
         ipv4_address: 172.20.0.60
@@ -83,11 +95,11 @@ services:
     healthcheck:
       test:
         - CMD-SHELL
-        - bash -c 'echo > /dev/tcp/localhost/4004'
+        - bash -c 'echo > /dev/tcp/localhost/4002'
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 120s
 volumes:
   ib_gateway_settings:
     driver: local
@@ -95,6 +107,12 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/btx/ib-gateway/settings
+  ib_ibc_state:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/btx/ib-gateway/ibc
 networks:
   homelab-network:
     external: true
