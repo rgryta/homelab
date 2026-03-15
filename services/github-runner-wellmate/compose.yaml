@@ -1,11 +1,11 @@
 version: "3.8"
 services:
   github-runner:
-    image: myoung34/github-runner:ubuntu-noble
-    container_name: wellmate-github-runner
     labels:
       - wud.watch=true
       - wud.watch.digest=true
+    image: myoung34/github-runner:ubuntu-noble
+    container_name: wellmate-github-runner
     restart: unless-stopped
     network_mode: host
     privileged: true

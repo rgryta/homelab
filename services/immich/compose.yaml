@@ -9,7 +9,7 @@ services:
       - wud.watch=true
       - wud.watch.digest=true
     container_name: immich_server
-    image: ghcr.io/immich-app/immich-server:v2
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     extends:
       file: hwaccel.transcoding.yml
       service: quicksync
@@ -31,7 +31,7 @@ services:
       - wud.watch=true
       - wud.watch.digest=true
     container_name: immich_machine_learning
-    image: ghcr.io/immich-app/immich-machine-learning:v2-openvino
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
     extends:
       file: hwaccel.ml.yml
       service: openvino

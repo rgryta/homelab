@@ -1,6 +1,7 @@
 services:
   autoheal:
     labels:
+      - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
     image: willfarrell/autoheal:1.2.0
@@ -15,7 +16,6 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.70
-
 networks:
   homelab-network:
     external: true
