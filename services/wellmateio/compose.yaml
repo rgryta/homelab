@@ -6,6 +6,8 @@ services:
       - traefik.http.routers.wellmateio.entrypoints=websecure
       - traefik.http.routers.wellmateio.tls.certresolver=le
       - traefik.http.services.wellmateio.loadbalancer.server.port=3000
+      - wud.watch=true
+      - wud.watch.digest=true
     image: ghcr.io/wellmateio/wellmate.io:main
     container_name: wellmateio
     networks:

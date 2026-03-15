@@ -25,6 +25,8 @@ services:
       # SERVICE CONFIG
       # ==========================================
       - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: filebrowser/filebrowser:v2.56.0
     container_name: filebrowser
     restart: unless-stopped

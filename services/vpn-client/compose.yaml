@@ -2,6 +2,8 @@ services:
   vpn-client:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d{4}-\d{2}-\d{2}$
     image: ghcr.io/bubuntux/nordlynx:2025-11-22
     container_name: vpn-client
     cap_add:

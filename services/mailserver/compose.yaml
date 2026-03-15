@@ -5,6 +5,8 @@ services:
       - traefik.http.routers.roundcube.rule=Host(`mail.gryta.eu`)
       - traefik.http.routers.roundcube.entrypoints=websecure
       - traefik.http.routers.roundcube.tls.certresolver=le
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+-apache$
     container_name: roundcubemail
     image: roundcube/roundcubemail:1.6.12-apache
     restart: unless-stopped
@@ -24,6 +26,8 @@ services:
   mailserver:
     labels:
       - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
     container_name: mailserver
     hostname: mail.gryta.eu

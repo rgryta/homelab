@@ -6,6 +6,8 @@ services:
       - traefik.http.routers.openfoodfacts.entrypoints=websecure
       - traefik.http.routers.openfoodfacts.tls.certresolver=le
       - traefik.http.services.openfoodfacts.loadbalancer.server.port=8000
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: ghcr.io/rgryta/openfoodfacts-api:v1.1.0
     container_name: openfoodfacts-api
     restart: unless-stopped
@@ -26,6 +28,9 @@ services:
       retries: 3
       start_period: 10s
   off-updater:
+    labels:
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
     image: ghcr.io/rgryta/openfoodfacts-updater:v1.1.0
     container_name: openfoodfacts-updater
     restart: unless-stopped

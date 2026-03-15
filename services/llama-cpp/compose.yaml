@@ -6,6 +6,8 @@ services:
       - traefik.http.routers.llama.entrypoints=websecure
       - traefik.http.routers.llama.tls.certresolver=le
       - traefik.http.services.llama.loadbalancer.server.port=8000
+      - wud.watch=true
+      - wud.watch.digest=true
     image: ghcr.io/ggml-org/llama.cpp:server-intel
     container_name: llama-cpp
     devices:

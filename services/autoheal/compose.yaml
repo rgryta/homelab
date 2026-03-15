@@ -1,5 +1,8 @@
 services:
   autoheal:
+    labels:
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
     image: willfarrell/autoheal:1.2.0
     container_name: autoheal
     restart: unless-stopped
