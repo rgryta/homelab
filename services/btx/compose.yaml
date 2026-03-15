@@ -9,9 +9,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command: ["btx", "ingest"]
+    command:
+      - btx
+      - ingest
     networks:
-      homelab-network:
+      homelab-network: null
     deploy:
       resources:
         limits:
@@ -27,50 +29,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-  backfill:
-    labels:
-      - traefik.enable=false
-      - wud.watch=true
-      - wud.watch.digest=true
-    image: 172.20.0.52:5000/btx:latest
-    container_name: btx-backfill
-    env_file:
-      - .env
-    environment:
-      IBKR_CLIENT_ID: 2
-    command: ["btx", "backfill", "--days", "365"]
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.61
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 2G
-    restart: "no"
-    profiles:
-      - backfill
-  dedupe:
-    labels:
-      - traefik.enable=false
-      - wud.watch=true
-      - wud.watch.digest=true
-    image: 172.20.0.52:5000/btx:latest
-    container_name: btx-dedupe
-    env_file:
-      - .env
-    command: ["btx", "dedupe"]
-    networks:
-      homelab-network:
-        ipv4_address: 172.20.0.62
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 2G
-    restart: "no"
-    profiles:
-      - dedupe
   ib-gateway:
     labels:
       - traefik.enable=false
