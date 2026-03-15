@@ -368,6 +368,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.tag.exclude=^2\.
     image: percona/mongodb_exporter:0.47.2
     container_name: mongodb-exporter
     restart: unless-stopped

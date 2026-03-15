@@ -8,6 +8,7 @@ services:
       - traefik.http.services.immich.loadbalancer.server.port=2283
       - wud.watch=true
       - wud.watch.digest=true
+      - wud.tag.include=^v\d+$
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     extends:
@@ -30,6 +31,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.watch.digest=true
+      - wud.tag.include=^v\d+-openvino$
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
     extends:
