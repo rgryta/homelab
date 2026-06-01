@@ -29,11 +29,33 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+  train:
+    labels:
+      - traefik.enable=false
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-train
+    env_file:
+      - .env
+    command:
+      - btx
+      - train
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.63
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    restart: no
+    profiles:
+      - train
   ib-gateway:
     labels:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+[a-z]?$
+      - autoheal=true
     image: ghcr.io/gnzsnz/ib-gateway:10.43.1c
     container_name: btx-ib-gateway
     restart: unless-stopped

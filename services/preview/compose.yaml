@@ -1,0 +1,20 @@
+services:
+  airborn-scout:
+    image: 172.20.0.52:5000/airborn-scout:latest
+    container_name: airborn-scout
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.71
+    labels:
+      - traefik.enable=true
+      - wud.watch=true
+      - wud.watch.digest=true
+      - traefik.http.routers.airborn-scout.rule=Host(`preview.gryta.eu`)
+      - traefik.http.routers.airborn-scout.entrypoints=websecure
+      - traefik.http.routers.airborn-scout.tls.certresolver=le
+networks:
+  homelab-network:
+    name: homelab-network
+    external: true

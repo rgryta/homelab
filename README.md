@@ -28,6 +28,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Llama.cpp](services/llama.cpp/) | Local LLM inference |
 | [Whoami](services/whoami/) | Debug service |
 | [WellMate](services/wellmate.io/) | Wellness tracking |
+| [Preview](services/preview/) | Airborn Scout preview/discovery service |
 
 ## Documentation
 

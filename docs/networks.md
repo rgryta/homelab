@@ -36,6 +36,7 @@ Main application network for all services.
 | Prometheus | prometheus | 172.20.0.23 |
 | VS Code | code-server | 172.20.0.25 |
 | macOS | macos | 172.20.0.26 |
+| Android | android | 172.20.0.27 |
 | Filebrowser | filebrowser | 172.20.0.102 |
 | Jellyfin | jellyfin | 172.20.0.103 |
 | Roundcube | roundcubemail | 172.20.0.104 |
@@ -45,7 +46,10 @@ Main application network for all services.
 | | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
 | | immich_machine_learning | 172.20.0.115 |
+| BTX | btx-ib-gateway | 172.20.0.60 |
+| | btx-train | 172.20.0.63 |
 | Autoheal | autoheal | 172.20.0.70 |
+| Preview | airborn-scout | 172.20.0.71 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
