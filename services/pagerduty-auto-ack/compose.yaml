@@ -1,0 +1,31 @@
+services:
+  pagerduty-auto-ack:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+    image: 172.20.0.52:5000/pagerduty-auto-ack:latest
+    container_name: pagerduty-auto-ack
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      homelab-network: null
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import pagerduty_auto_ack; print('ok')
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+networks:
+  homelab-network:
+    external: true
