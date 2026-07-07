@@ -26,6 +26,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [PiHole](services/pihole/) | DNS ad-blocking with Unbound |
 | [What's Up Docker](services/wud/) | Container update checker |
 | [Llama.cpp](services/llama.cpp/) | Local LLM inference |
+| [Helmsman](services/helmsman/) | Claude Code steering daemon (Postgres/VectorChord) |
 | [Whoami](services/whoami/) | Debug service |
 | [WellMate](services/wellmate.io/) | Wellness tracking |
 | [Preview](services/preview/) | Airborn Scout preview/discovery service |
