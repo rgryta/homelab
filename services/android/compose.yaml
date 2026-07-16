@@ -20,6 +20,10 @@ services:
       - WEB_VNC=true
       - DATAPARTITION=4g
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
     networks:
       homelab-network:
         ipv4_address: 172.20.0.27

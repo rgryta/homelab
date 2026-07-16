@@ -108,6 +108,12 @@ services:
       - node
       - tools
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+        reservations:
+          memory: 4G
     networks:
       homelab-network:
         ipv4_address: 172.20.0.25

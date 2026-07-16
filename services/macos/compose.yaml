@@ -24,6 +24,12 @@ services:
     cap_add:
       - NET_ADMIN
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 20G
+        reservations:
+          memory: 12G
     stop_grace_period: 2m
     networks:
       homelab-network:
