@@ -1,0 +1,48 @@
+services:
+  helmsman:
+    labels:
+      - traefik.enable=true
+      # Machine API + hooks + MCP: bearer-token auth at the app, no authentik.
+      - traefik.http.routers.helmsman.rule=Host(`helmsman.gryta.eu`)
+      - traefik.http.routers.helmsman.entrypoints=websecure
+      - traefik.http.routers.helmsman.tls.certresolver=le
+      - traefik.http.services.helmsman.loadbalancer.server.port=8787
+      # Control panel (/ui) + its backend (/api): human SSO via authentik, then a
+      # service bearer token injected for the app's own auth. See README.
+      - traefik.http.routers.helmsman-ui.rule=Host(`helmsman.gryta.eu`) && (PathPrefix(`/ui`) || PathPrefix(`/api`))
+      - traefik.http.routers.helmsman-ui.entrypoints=websecure
+      - traefik.http.routers.helmsman-ui.tls.certresolver=le
+      - traefik.http.routers.helmsman-ui.service=helmsman
+      - traefik.http.routers.helmsman-ui.middlewares=authentik-forward-auth@file,helmsman-ui-token@file
+      - wud.watch=true
+      - wud.watch.digest=true
+    image: 172.20.0.52:5000/helmsman:latest
+    container_name: helmsman
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      HELMSMAN_AUTH_ENABLED: "on"
+      HELMSMAN_PG_DSN: postgresql://helmsman:${HELMSMAN_DB_PASSWORD}@homelab-postgres:5432/helmsman
+      HELMSMAN_EMBED_API_KEY: ${HELMSMAN_EMBED_API_KEY}
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.16
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8787/health')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+networks:
+  homelab-network:
+    external: true

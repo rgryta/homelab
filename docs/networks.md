@@ -13,6 +13,7 @@ Main application network for all services.
 | Authentik | authentik-server | 172.20.0.13 |
 | | authentik-worker | 172.20.0.14 |
 | Llama.cpp | llama-cpp | 172.20.0.15 |
+| Helmsman | helmsman | 172.20.0.16 |
 | Databases | homelab-postgres | 172.20.0.30 |
 | | homelab-valkey | 172.20.0.31 |
 | | homelab-questdb | 172.20.0.32 |
