@@ -30,8 +30,10 @@ Scope of interest is deliberately narrow: **all DMs and group DMs**, **`#stevie`
 | Mention discovery | **Crawl all member channels, filter** | No dependency on `search.messages` availability. |
 | Retention | **In-scope only** | Non-matching messages are read and discarded, never stored. |
 | Build shape | **Own ingester + own MCP server** | Credentials isolated from the tool-serving process. |
-| Content | **Messages only** | No files, no attachments, no blocks. |
+| Content | **Messages + reactions** | No files, no attachments, no blocks. |
 | Accounts | **Multi-account from day one** | Several Slack accounts feed one MCP surface. |
+| Workspace | **First-class, separate from account** | An account is a credential; a workspace is a team. Slack Connect means one account sees channels owned by other teams, so workspace must be filterable independently. |
+| Aliases | **User-settable, stored locally** | `ted` is a better search handle than `U01AB2CD3`. |
 
 ### Rejected alternatives
 
@@ -68,8 +70,10 @@ One image, two entrypoints: `slack-sync ingest` and `slack-sync mcp`.
 **One ingester container per Slack account; exactly one MCP container.**
 
 The MCP container holds no Slack credentials and has no code path that calls
-Slack. Read-only is therefore a property of the deployment, not a policy to trust.
-A dead token degrades the system to "data is stale" — never to "tools are broken".
+Slack. Read-only *toward Slack* is therefore a property of the deployment, not a
+policy to trust. Its one write privilege is the local alias tables, granted at the
+role level — it cannot modify a message, a conversation, or any sync state. A dead
+token degrades the system to "data is stale" — never to "tools are broken".
 
 ### Ingester
 
@@ -77,8 +81,9 @@ Two loops sharing one global rate limiter per process (conservative token bucket
 honours `Retry-After` on 429; limits are per-token, so per-process is the correct
 granularity).
 
-- **Boot**: `auth.test` → resolves `team_id`, `team_name`, `my_user_id`; upserts the
-  `account` row. `my_user_id` is required for the mention filter.
+- **Boot**: `auth.test` → resolves `team_id` and `my_user_id`; `team.info` fills the
+  `workspace` row; `emoji.list` syncs custom emoji. Upserts the `account` row.
+  `my_user_id` is required for the mention filter.
 - **Poll loop (priority)**: every `SLACK_POLL_INTERVAL` (default 5 min),
   `conversations.list` to pick up membership drift, then forward-fetch each
   conversation from its stored cursor.
@@ -108,19 +113,25 @@ not just the mentioning message.
 
 ### Storage
 
-Database `slack` on `homelab-postgres`. Two roles: `slack_ingest` (read/write),
-`slack_mcp` (`SELECT` only, granted to the MCP container).
+Database `slack` on `homelab-postgres`. Two roles: `slack_ingest` (read/write on
+everything), `slack_mcp` (`SELECT` on everything, plus `INSERT`/`UPDATE`/`DELETE` on
+`user_alias` and nothing else).
 
 Slack IDs are unique only within a workspace, so `account_id` is the leading column
 of every key.
 
 | Table | Key | Columns |
 |---|---|---|
-| `account` | `id` (short label, e.g. `work`) | `team_id`, `team_name`, `my_user_id`, `enabled`, `last_auth_error`, `last_auth_error_at` |
-| `conversation` | `(account_id, id)` | `type` (`im`/`mpim`/`channel`/`group`), `name`, `is_member`, `in_scope`, `scope_reason`, `backfill_cursor`, `backfill_done`, `poll_cursor`, `last_polled_at` |
+| `workspace` | `team_id` | `name`, `domain`, `is_external`, `first_seen` |
+| `account` | `id` (short label, e.g. `work`) | `team_id` → `workspace`, `my_user_id`, `enabled`, `last_auth_error`, `last_auth_error_at` |
+| `conversation` | `(account_id, id)` | `team_id` (owning workspace), `shared_team_ids text[]`, `type` (`im`/`mpim`/`channel`/`group`), `name`, `is_member`, `in_scope`, `scope_reason`, `backfill_cursor`, `backfill_done`, `poll_cursor`, `last_polled_at`, `reactions_fresh_until` |
 | `message` | `(account_id, conversation_id, ts)` | `thread_ts`, `user_id`, `text`, `subtype`, `edited_at`, `deleted_at`, `raw jsonb` |
+| `reaction` | `(account_id, conversation_id, message_ts, name)` | `user_ids text[]`, `count`, `observed_at` |
+| `emoji` | `(team_id, name)` | `url`, `alias_for`, `updated_at` |
 | `mention_thread` | `(account_id, conversation_id, thread_ts)` | `first_seen`, `mention_ts` |
-| `workspace_user` | `(account_id, user_id)` | `name`, `real_name`, `is_bot`, `updated_at` |
+| `workspace_user` | `(account_id, user_id)` | `team_id`, `name`, `real_name`, `is_bot`, `updated_at` |
+| `user_alias` | `alias` | `note`, `created_at`, `updated_at` |
+| `user_alias_member` | `(account_id, user_id)` | `alias` → `user_alias` |
 | `sync_state` | `(account_id, loop)` | `current_conversation_id`, `last_run_at`, `last_error`, `last_error_at` |
 
 Per-conversation paging cursors live on `conversation` (`poll_cursor`,
@@ -128,6 +139,52 @@ Per-conversation paging cursors live on `conversation` (`poll_cursor`,
 backfill loop is currently working through, and each loop's last run and last error.
 `conversation.scope_reason` is one of `dm`, `group_dm`, `named_channel`,
 `mention_thread`.
+
+#### Workspace vs account
+
+An **account** is a credential (one `xoxc`/`xoxd` pair, one ingester container). A
+**workspace** is a Slack team. They are not the same axis: two accounts can live in
+one workspace, and — through Slack Connect — one account sees channels *owned by*
+other teams. So `conversation.team_id` records the owning workspace and
+`shared_team_ids` the teams a shared channel spans, both independent of which account
+ingested the row. `workspace.is_external` marks teams known only as the far side of a
+Connect channel. Filtering by workspace is therefore a real filter, not a synonym for
+filtering by account.
+
+The ingester populates `workspace` from `auth.test` and `team.info` on boot, and adds
+external teams lazily as shared channels are encountered.
+
+#### Reactions and emoji
+
+`reaction` rows are derived from the `reactions` array Slack returns on each message
+fetch — they are a snapshot at fetch time, not an event stream. Without an app there
+is no reaction event to subscribe to, so **a reaction added to a message we already
+fetched is invisible until that message is fetched again.**
+
+Mitigation: on each poll, in-scope conversations re-fetch a rolling recency window
+(`SLACK_REACTION_WINDOW`, default 7 days) so reactions on recent messages stay
+current; `conversation.reactions_fresh_until` records how far back that guarantee
+extends. Older messages keep whatever reactions they had when last read. Reaction
+counts on old history are therefore a floor, never authoritative — tools surface
+`reactions_fresh_until` so the distinction is visible rather than assumed.
+
+Custom emoji are synced from `emoji.list` per workspace into `emoji` (with
+`alias_for` resolved for Slack's `alias:` entries), so `:shipit:` in message text can
+be named and linked rather than left an opaque token. Standard Unicode emoji need no
+table; they are already literal in `text`.
+
+#### Aliases
+
+An alias is a local, human-chosen handle for a person — `ted`, `stevie-pm` — and it
+maps to **many Slack identities**: `user_alias` holds the name, `user_alias_member`
+attaches `(account_id, user_id)` pairs to it. That structure is the point. The same
+colleague in two workspaces is two different Slack user IDs; one alias covers both,
+so `author: ted` in a search means "Ted anywhere" without you knowing either ID.
+
+Each Slack identity belongs to at most one alias. Aliases are stored only here and
+never written back to Slack.
+
+Rendering precedence in tool output: alias → `real_name` → `name` → raw ID.
 
 `raw jsonb` is stored with `files` and `blocks` **stripped before insert** — it
 exists as a reprocess-locally escape hatch for schema mistakes, not as an archive
@@ -142,25 +199,30 @@ than removing rows.
 
 ### MCP tool surface
 
-Read-only, Postgres-backed. Every tool takes an optional `account` filter; omitted
-means all accounts, and every result is labelled with its account so two workspaces
-are never conflated.
+Postgres-backed. Read-only toward Slack throughout; the only writes any tool performs
+are to `user_alias` / `user_alias_member`. Every read tool takes optional `account`
+**and** `workspace` filters; omitted means all, and every result is labelled with both
+so two teams are never conflated.
 
 | Tool | Purpose |
 |---|---|
-| `slack_list_conversations` | In-scope conversations: account, type, name, message count, last activity. The entry point — IDs come from here. |
-| `slack_history` | Messages in a conversation by time range / limit, cursor-paged. |
+| `slack_list_conversations` | In-scope conversations: account, workspace, type, name, message count, last activity. The entry point — IDs come from here. |
+| `slack_history` | Messages in a conversation by time range / limit, cursor-paged, with reactions. |
 | `slack_thread` | Full thread by `(account, conversation, thread_ts)`. |
-| `slack_search` | Full-text search over the persisted corpus; filters for account, conversation, author, date range. Returns snippets plus `thread_ts` for drill-in. |
+| `slack_search` | Full-text search over the persisted corpus; filters for account, workspace, conversation, author (alias or ID), date range, and `has_reaction`. Returns snippets plus `thread_ts` for drill-in. |
 | `slack_my_mentions` | The `mention_thread` set, newest first, with the mentioning message. |
 | `slack_unread_since` | Everything in scope after a timestamp — the "catch me up" call. |
-| `slack_sync_status` | Per-account, per-conversation freshness and backfill progress, plus the last auth error. This is how a dead token is discovered. |
+| `slack_list_workspaces` | Known teams, whether external, and how many in-scope conversations each holds. |
+| `slack_set_alias` | Attach an alias to one or more Slack identities, or move/rename one. Writes `user_alias*` only. |
+| `slack_list_aliases` | Aliases with their member identities, for checking what `ted` currently resolves to. |
+| `slack_sync_status` | Per-account, per-conversation freshness, backfill progress, `reactions_fresh_until`, and the last auth error. This is how a dead token is discovered. |
 
-`slack_search` defaults to **all accounts**; labels disambiguate.
+`slack_search` defaults to **all accounts and all workspaces**; labels disambiguate.
 
-Output is compact rendered text, not raw JSON: `<@U…>` resolved to display names via
-`workspace_user`, timestamps as local time. Raw Slack payloads are large enough to
-consume the context window for no benefit.
+Output is compact rendered text, not raw JSON: user references resolved by the
+alias → `real_name` → `name` → ID precedence, custom emoji named from `emoji`,
+timestamps as local time. Reactions render inline as `:name: ×3`. Raw Slack payloads
+are large enough to consume the context window for no benefit.
 
 ## Deployment
 
@@ -199,10 +261,16 @@ mention, unscoped channel without one, a reply arriving on an already-registered
 mention thread, a mention inside a thread whose parent has no mention, and a
 message mentioning a *different* user.
 
+Two further areas need tests of their own: **reaction reconciliation** — a re-fetch
+must add new reactions, drop removed ones, and update counts without duplicating rows
+or resurrecting reactions on messages outside the window — and **alias resolution**,
+where one alias spans two accounts, an identity is moved between aliases, and an
+alias is deleted while messages referencing it remain.
+
 ## Out of scope for v1
 
-Files and attachments, reactions and emoji, real-time push (impossible without an
-app), any write path, Traefik exposure, automated token refresh, egress via the mac.
+Files and attachments, real-time push (impossible without an app), any write path
+toward Slack, Traefik exposure, automated token refresh, egress via the mac.
 
 ## Risks
 
@@ -212,3 +280,9 @@ app), any write path, Traefik exposure, automated token refresh, egress via the 
   one's own account; the tokens grant nothing the user cannot already see.
 - **Manual refresh means silent staleness** between the token dying and being
   noticed. `slack_sync_status` is the only detector; check it when results look old.
+- **Reaction counts on old messages are a floor, not a truth.** No app means no
+  reaction events; only the rolling re-fetch window keeps them current. Anything
+  older than `reactions_fresh_until` reflects the last time that message was read.
+- **The re-fetch window costs API calls on every poll**, proportional to in-scope
+  message volume rather than to new messages. If it proves expensive, shrink
+  `SLACK_REACTION_WINDOW` before touching the poll interval.
