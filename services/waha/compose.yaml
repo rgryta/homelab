@@ -8,12 +8,10 @@ services:
       - traefik.http.routers.waha.tls.certresolver=le
       - traefik.http.routers.waha.middlewares=authentik-forward-auth@file
       - traefik.http.services.waha.loadbalancer.server.port=3000
-      # MCP endpoint: machine clients authenticate with X-Api-Key at the app,
-      # so this route must bypass authentik (same split as the helmsman stack).
-      - traefik.http.routers.waha-mcp.rule=Host(`waha.gryta.eu`) && PathPrefix(`/mcp`)
-      - traefik.http.routers.waha-mcp.entrypoints=websecure
-      - traefik.http.routers.waha-mcp.tls.certresolver=le
-      - traefik.http.routers.waha-mcp.service=waha
+      # No public /mcp route. MCPHub reaches WAHA in-network at http://waha:3000/mcp
+      # (and now the waha-mcp proxy below instead), so an internet-facing MCP endpoint
+      # guarded only by a static API key was exposure with no consumer: Traefik's
+      # router metrics recorded zero requests to it in the 14 days before removal.
       - wud.watch=true
       - wud.tag.include=^noweb-\d+\.\d+\.\d+$
     image: devlikeapro/waha:noweb-2026.7.2
