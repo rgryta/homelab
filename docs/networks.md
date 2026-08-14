@@ -55,6 +55,7 @@ Main application network for all services.
 | MCPHub | mcphub | 172.20.0.81 |
 | Slack | slack-mcp | 172.20.0.82 |
 | | slack-ingest-work | 172.20.0.83 |
+| WAHA MCP | waha-mcp | 172.20.0.84 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
