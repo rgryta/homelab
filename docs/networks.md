@@ -51,6 +51,10 @@ Main application network for all services.
 | | btx-train | 172.20.0.63 |
 | Autoheal | autoheal | 172.20.0.70 |
 | Preview | airborn-scout | 172.20.0.71 |
+| WAHA | waha | 172.20.0.80 |
+| MCPHub | mcphub | 172.20.0.81 |
+| Slack | slack-mcp | 172.20.0.82 |
+| | slack-ingest-work | 172.20.0.83 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |

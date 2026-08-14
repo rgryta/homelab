@@ -31,6 +31,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [WellMate](services/wellmate.io/) | Wellness tracking |
 | [Preview](services/preview/) | Airborn Scout preview/discovery service |
 | [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
+| [Slack](services/slack/) | Slack ingester + read-only MCP server backed by PostgreSQL |
 
 ## Documentation
 

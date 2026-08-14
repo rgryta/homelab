@@ -10,6 +10,7 @@ Shared database infrastructure for homelab services.
 | authentik | Authentik IdP |
 | immich | Immich photo management |
 | openfoodfacts | OpenFoodFacts API |
+| slack | Slack ingest + MCP (roles: slack_ingest owns it, slack_mcp reads it) |
 
 ## Setup
 
