@@ -32,7 +32,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Preview](services/preview/) | Airborn Scout preview/discovery service |
 | [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
 | [Slack](services/slack/) | Slack ingester + read-only MCP server backed by PostgreSQL |
-| [WAHA MCP](services/waha-mcp/) | Normalizing MCP proxy in front of WAHA (WhatsApp) |
+| [WAHA](services/waha/) | WhatsApp HTTP gateway + normalizing MCP proxy |
 
 ## Documentation
 

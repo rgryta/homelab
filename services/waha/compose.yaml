@@ -1,0 +1,118 @@
+services:
+  waha:
+    labels:
+      - traefik.enable=true
+      # Dashboard + Swagger: human SSO via authentik.
+      - traefik.http.routers.waha.rule=Host(`waha.gryta.eu`)
+      - traefik.http.routers.waha.entrypoints=websecure
+      - traefik.http.routers.waha.tls.certresolver=le
+      - traefik.http.routers.waha.middlewares=authentik-forward-auth@file
+      - traefik.http.services.waha.loadbalancer.server.port=3000
+      # MCP endpoint: machine clients authenticate with X-Api-Key at the app,
+      # so this route must bypass authentik (same split as the helmsman stack).
+      - traefik.http.routers.waha-mcp.rule=Host(`waha.gryta.eu`) && PathPrefix(`/mcp`)
+      - traefik.http.routers.waha-mcp.entrypoints=websecure
+      - traefik.http.routers.waha-mcp.tls.certresolver=le
+      - traefik.http.routers.waha-mcp.service=waha
+      - wud.watch=true
+      - wud.tag.include=^noweb-\d+\.\d+\.\d+$
+    image: devlikeapro/waha:noweb-2026.7.2
+    container_name: waha
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Apps provide the MCP server. They require BOTH key forms (hashed for the
+      # API, plain for the apps subsystem) and a Redis/Valkey backend for BullMQ
+      # -- WAHA crashloops on startup without them.
+      WAHA_APPS_ENABLED: "True"
+      WAHA_API_KEY: sha512:${WAHA_API_KEY_SHA512}
+      WAHA_API_KEY_PLAIN: ${WAHA_API_KEY_PLAIN}
+      REDIS_URL: redis://homelab-valkey:6379/3
+      WAHA_DASHBOARD_USERNAME: ${WAHA_DASHBOARD_USERNAME}
+      WAHA_DASHBOARD_PASSWORD: ${WAHA_DASHBOARD_PASSWORD}
+      WHATSAPP_SWAGGER_USERNAME: ${WAHA_DASHBOARD_USERNAME}
+      WHATSAPP_SWAGGER_PASSWORD: ${WAHA_DASHBOARD_PASSWORD}
+      WHATSAPP_DEFAULT_ENGINE: NOWEB
+      WAHA_NAMESPACE: all
+      WAHA_BASE_URL: https://waha.gryta.eu
+      WAHA_MEDIA_STORAGE: LOCAL
+      WHATSAPP_FILES_FOLDER: /app/.media
+      WHATSAPP_FILES_LIFETIME: 0
+      WAHA_LOG_FORMAT: JSON
+      WAHA_LOG_LEVEL: info
+      TZ: Europe/Warsaw
+    volumes:
+      - waha_sessions:/app/.sessions
+      - waha_media:/app/.media
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.80
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/ping', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  waha-mcp:
+    labels:
+      # No Traefik route. It carries WAHA's API key and has no authentication of its
+      # own, so exposing it would hand the key's authority to the internet. MCPHub
+      # reaches it in-network at http://waha-mcp:8000/mcp.
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    image: 172.20.0.52:5000/waha-mcp:latest
+    container_name: waha-mcp
+    restart: unless-stopped
+    depends_on:
+      - waha
+    env_file:
+      - .env
+    environment:
+      WAHA_MCP_URL: http://waha:3000
+      WAHA_MCP_API_KEY: ${WAHA_API_KEY_PLAIN}
+      # WAHA_MCP_SESSION is deliberately unset: with one session the proxy infers it.
+      WAHA_MCP_HOST: 0.0.0.0
+      WAHA_MCP_PORT: "8000"
+      TZ: Europe/Warsaw
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.84
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 256M
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+volumes:
+  waha_sessions:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/waha/sessions
+  waha_media:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/waha/media
+networks:
+  homelab-network:
+    external: true
