@@ -9,7 +9,7 @@ services:
       - traefik.http.routers.waha.middlewares=authentik-forward-auth@file
       - traefik.http.services.waha.loadbalancer.server.port=3000
       # No public /mcp route. MCPHub reaches WAHA in-network at http://waha:3000/mcp
-      # (and now the waha-mcp proxy below instead), so an internet-facing MCP endpoint
+      # (and now the whatsapp-mcp server below instead), so an internet-facing MCP endpoint
       # guarded only by a static API key was exposure with no consumer: Traefik's
       # router metrics recorded zero requests to it in the 14 days before removal.
       - wud.watch=true
@@ -57,28 +57,66 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-  waha-mcp:
+  whatsapp-ingest:
     labels:
-      # No Traefik route. It carries WAHA's API key and has no authentication of its
-      # own, so exposing it would hand the key's authority to the internet. MCPHub
-      # reaches it in-network at http://waha-mcp:8000/mcp.
       - traefik.enable=false
       - wud.watch=true
       - wud.watch.digest=true
-      - autoheal=true
-    image: 172.20.0.52:5000/waha-mcp:latest
-    container_name: waha-mcp
+    image: 172.20.0.52:5000/whatsapp-sync:latest
+    container_name: whatsapp-ingest
     restart: unless-stopped
     depends_on:
       - waha
     env_file:
       - .env
     environment:
-      WAHA_MCP_URL: http://waha:3000
-      WAHA_MCP_API_KEY: ${WAHA_API_KEY_PLAIN}
-      # WAHA_MCP_SESSION is deliberately unset: with one session the proxy infers it.
-      WAHA_MCP_HOST: 0.0.0.0
-      WAHA_MCP_PORT: "8000"
+      WHATSAPP_WAHA_URL: http://waha:3000
+      WHATSAPP_WAHA_API_KEY: ${WAHA_API_KEY_PLAIN}
+      # The only process with DDL rights. It applies the migrations at boot.
+      WHATSAPP_DSN: postgresql://whatsapp_ingest:${WHATSAPP_INGEST_PASSWORD}@homelab-postgres:5432/whatsapp
+      WHATSAPP_INTERVAL: "120"
+      WHATSAPP_WHISPER_MODEL: small
+      TZ: Europe/Warsaw
+    volumes:
+      # The whisper model is ~460MB and downloaded on first use. Without this it is
+      # re-downloaded on every container recreate.
+      - whisper_models:/app/.cache/huggingface
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.85
+    command: ["whatsapp-ingest"]
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          # Transcription is the only thing here that wants memory; the sweep itself
+          # holds one page of messages at a time.
+          memory: 2G
+
+  whatsapp-mcp:
+    labels:
+      # No Traefik route. It carries WAHA's API key and has no authentication of its
+      # own, so exposing it would hand that key's authority to the internet. MCPHub
+      # reaches it in-network at http://whatsapp-mcp:8000/mcp.
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    image: 172.20.0.52:5000/whatsapp-sync:latest
+    container_name: whatsapp-mcp
+    restart: unless-stopped
+    depends_on:
+      - waha
+    env_file:
+      - .env
+    environment:
+      WHATSAPP_WAHA_URL: http://waha:3000
+      WHATSAPP_WAHA_API_KEY: ${WAHA_API_KEY_PLAIN}
+      # Read-only role. It cannot create or alter anything, by design.
+      WHATSAPP_DSN: postgresql://whatsapp_mcp:${WHATSAPP_MCP_PASSWORD}@homelab-postgres:5432/whatsapp
+      # WHATSAPP_SESSION is deliberately unset: with one session the server infers it.
+      WHATSAPP_HOST: 0.0.0.0
+      WHATSAPP_PORT: "8000"
       TZ: Europe/Warsaw
     networks:
       homelab-network:
@@ -87,7 +125,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 256M
+          memory: 512M
     healthcheck:
       test:
         - CMD
@@ -98,6 +136,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+
 volumes:
   waha_sessions:
     driver: local
@@ -111,6 +150,12 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/waha/media
+  whisper_models:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/waha/whisper
 networks:
   homelab-network:
     external: true
