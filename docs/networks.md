@@ -52,7 +52,8 @@ Main application network for all services.
 | Autoheal | autoheal | 172.20.0.70 |
 | Preview | airborn-scout | 172.20.0.71 |
 | WAHA | waha | 172.20.0.80 |
-| | waha-mcp | 172.20.0.84 |
+| | whatsapp-mcp | 172.20.0.84 |
+| | whatsapp-ingest | 172.20.0.85 |
 | MCPHub | mcphub | 172.20.0.81 |
 | Slack | slack-mcp | 172.20.0.82 |
 | | slack-ingest-work | 172.20.0.83 |
