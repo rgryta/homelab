@@ -9,16 +9,30 @@ services:
       # homelab-network for anyone who finds the hostname, and it holds logged-in
       # sessions for whatever has been signed into it.
       - traefik.http.routers.firefox.middlewares=authentik-forward-auth@file
-      - traefik.http.services.firefox.loadbalancer.server.port=3000
+      - traefik.http.services.firefox.loadbalancer.server.port=5800
       - wud.watch=true
-      - wud.tag.include=^\d+\.\d+\.\d+build\d+-\d+xtradeb\d+\.\d+\.\d+-ls\d+$
-    image: lscr.io/linuxserver/firefox:1153.0.3build1-1xtradeb1.2404.1-ls114
+      - wud.tag.include=^v\d+\.\d+\.\d+$
+    # noVNC, not the linuxserver image. linuxserver's GUI images moved to selkies,
+    # which streams over WebRTC and hard-requires the WebCodecs API — that rules out
+    # release Firefox for Android, which is the browser this actually gets used from.
+    # noVNC is a canvas over a websocket and works anywhere.
+    image: jlesage/firefox:v26.08.1
     container_name: firefox
     environment:
-      - PUID=1000
-      - PGID=1000
+      - USER_ID=1000
+      - GROUP_ID=1000
       - TZ=Europe/Warsaw
-      - TITLE=Firefox
+      - APP_NAME=Firefox
+      # Authentik is the front door; a second password on the noVNC canvas would only
+      # be another thing to lose. Access control lives in the Traefik middleware.
+      - VNC_PASSWORD=
+      # Sized for a phone in landscape. The canvas scales, so this only sets the
+      # backing resolution the pages are laid out at.
+      - DISPLAY_WIDTH=1280
+      - DISPLAY_HEIGHT=768
+      # Firefox restarts instead of taking the container down with it, so a crashed
+      # tab does not cost the session.
+      - KEEP_APP_RUNNING=1
     volumes:
       # The whole point of this container is that the profile outlives it: cookies,
       # logins and 2FA trust survive a restart, so signing in is a once-per-service
