@@ -1,0 +1,51 @@
+services:
+  firefox:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.firefox.rule=Host(`firefox.gryta.eu`)
+      - traefik.http.routers.firefox.entrypoints=websecure
+      - traefik.http.routers.firefox.tls.certresolver=le
+      # Non-negotiable. A browser reachable without auth is an open proxy into
+      # homelab-network for anyone who finds the hostname, and it holds logged-in
+      # sessions for whatever has been signed into it.
+      - traefik.http.routers.firefox.middlewares=authentik-forward-auth@file
+      - traefik.http.services.firefox.loadbalancer.server.port=3000
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+build\d+-\d+xtradeb\d+\.\d+\.\d+-ls\d+$
+    image: lscr.io/linuxserver/firefox:1153.0.3build1-1xtradeb1.2404.1-ls114
+    container_name: firefox
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - TITLE=Firefox
+    volumes:
+      # The whole point of this container is that the profile outlives it: cookies,
+      # logins and 2FA trust survive a restart, so signing in is a once-per-service
+      # job rather than a once-per-deploy one.
+      - firefox_config:/config
+    # Firefox allocates its renderer shared memory here; the 64M Docker default makes
+    # tabs crash on real pages rather than fail in any way that names the cause.
+    shm_size: 2gb
+    security_opt:
+      # The browser's own sandbox uses syscalls Docker's default seccomp profile
+      # blocks. Without this Firefox starts and then dies opening a content process.
+      - seccomp:unconfined
+    restart: unless-stopped
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.107
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+volumes:
+  firefox_config:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/firefox/config
+networks:
+  homelab-network:
+    external: true
