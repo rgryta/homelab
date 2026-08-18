@@ -35,14 +35,17 @@ Main application network for all services.
 | What's Up Docker | wud | 172.20.0.21 |
 | Grafana | grafana | 172.20.0.22 |
 | Prometheus | prometheus | 172.20.0.23 |
+| Bemol | bemol-api | 172.20.0.24 |
 | VS Code | code-server | 172.20.0.25 |
 | macOS | macos | 172.20.0.26 |
-| Android | android | 172.20.0.27 |
+| Android | android-emulator | 172.20.0.27 |
 | Filebrowser | filebrowser | 172.20.0.102 |
 | Jellyfin | jellyfin | 172.20.0.103 |
 | Roundcube | roundcubemail | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
 | Jellyseerr | jellyseerr | 172.20.0.106 |
+| Firefox | firefox | 172.20.0.107 |
+| Syncthing | syncthing | 172.20.0.108 |
 | OpenFoodFacts | openfoodfacts-api | 172.20.0.111 |
 | | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
@@ -57,6 +60,10 @@ Main application network for all services.
 | MCPHub | mcphub | 172.20.0.81 |
 | Slack | slack-mcp | 172.20.0.82 |
 | | slack-ingest-work | 172.20.0.83 |
+| Instagram | instagram-mcp | 172.20.0.86 |
+| | instagram-ingest | 172.20.0.87 |
+| Messenger | messenger-mcp | 172.20.0.88 |
+| | messenger-harvest | 172.20.0.89 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |
@@ -76,7 +83,6 @@ VPN-tunneled network for services requiring privacy/anonymity.
 | Lidarr | lidarr | 172.20.2.8 |
 | Bazarr | bazarr | 172.20.2.9 |
 | Cleanuparr | cleanuparr | 172.20.2.10 |
-| Huntarr | huntarr | 172.20.2.11 |
 | Tdarr | tdarr | 172.20.2.12 |
 | PiHole | pihole | 172.20.2.13 |
 | Jellyseerr | jellyseerr | 172.20.2.14 |

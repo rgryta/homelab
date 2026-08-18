@@ -8,8 +8,12 @@ services:
       - traefik.http.routers.helmsman.tls.certresolver=le
       - traefik.http.services.helmsman.loadbalancer.server.port=8787
       # Control panel (/ui) + its backend (/api): human SSO via authentik, then a
-      # service bearer token injected for the app's own auth. See README.
-      - traefik.http.routers.helmsman-ui.rule=Host(`helmsman.gryta.eu`) && (PathPrefix(`/ui`) || PathPrefix(`/api`))
+      # service bearer token injected for the app's own auth. The authentik outpost
+      # callback (/outpost.goauthentik.io/) must go through this router too, else it
+      # falls through to the bearer-only machine router and 401s mid-handshake.
+      - traefik.http.routers.helmsman-ui.rule=Host(`helmsman.gryta.eu`) &&
+        (PathPrefix(`/ui`) || PathPrefix(`/api`) ||
+        PathPrefix(`/outpost.goauthentik.io/`))
       - traefik.http.routers.helmsman-ui.entrypoints=websecure
       - traefik.http.routers.helmsman-ui.tls.certresolver=le
       - traefik.http.routers.helmsman-ui.service=helmsman
@@ -22,7 +26,7 @@ services:
     env_file:
       - .env
     environment:
-      HELMSMAN_AUTH_ENABLED: "on"
+      HELMSMAN_AUTH_ENABLED: on
       HELMSMAN_PG_DSN: postgresql://helmsman:${HELMSMAN_DB_PASSWORD}@homelab-postgres:5432/helmsman
       HELMSMAN_EMBED_API_KEY: ${HELMSMAN_EMBED_API_KEY}
     networks:
@@ -32,13 +36,14 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 1G
+          memory: 2G
     healthcheck:
       test:
         - CMD
         - python
         - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:8787/health')
+        - import urllib.request;
+          urllib.request.urlopen('http://localhost:8787/health')
       interval: 30s
       timeout: 10s
       retries: 5

@@ -4,7 +4,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+-pg\d+$
-    image: ghcr.io/rgryta/homelab-postgres:1.0.0-pg18
+    image: ghcr.io/rgryta/homelab-postgres:1.1.0-pg18
     container_name: homelab-postgres
     restart: unless-stopped
     environment:
@@ -76,7 +76,7 @@ services:
       - traefik.http.services.questdb.loadbalancer.server.port=9000
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: questdb/questdb:9.3.2
+    image: questdb/questdb:9.4.3
     container_name: homelab-questdb
     restart: unless-stopped
     environment:
@@ -110,7 +110,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: memgraph/memgraph-mage:3.7.2
+    image: memgraph/memgraph-mage:3.12.0
     container_name: homelab-memgraph
     restart: unless-stopped
     command:
@@ -147,7 +147,7 @@ services:
       - traefik.http.services.memlab.loadbalancer.server.port=3000
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: memgraph/lab:3.7.1
+    image: memgraph/lab:3.12.0
     container_name: homelab-memgraph-lab
     restart: unless-stopped
     depends_on:
@@ -258,7 +258,7 @@ services:
       - traefik.http.services.pgadmin.loadbalancer.server.port=80
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: dpage/pgadmin4:9.11.0
+    image: dpage/pgadmin4:9.15.0
     container_name: homelab-pgadmin
     restart: unless-stopped
     depends_on:
@@ -300,7 +300,7 @@ services:
       - traefik.http.services.redisinsight.loadbalancer.server.port=5540
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: redis/redisinsight:3.0.2
+    image: redis/redisinsight:3.8.0
     container_name: homelab-redisinsight
     restart: unless-stopped
     depends_on:
@@ -332,7 +332,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: prometheuscommunity/postgres-exporter:v0.18.1
+    image: prometheuscommunity/postgres-exporter:v0.20.1
     container_name: postgres-exporter
     restart: unless-stopped
     depends_on:
@@ -350,7 +350,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+-alpine$
-    image: oliver006/redis_exporter:v1.80.2-alpine
+    image: oliver006/redis_exporter:v1.88.0-alpine
     container_name: valkey-exporter
     restart: unless-stopped
     depends_on:
@@ -369,7 +369,7 @@ services:
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
       - wud.tag.exclude=^2\.
-    image: percona/mongodb_exporter:0.47.2
+    image: percona/mongodb_exporter:0.52.0
     container_name: mongodb-exporter
     restart: unless-stopped
     depends_on:
@@ -389,7 +389,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: redpandadata/redpanda:v25.3.6
+    image: redpandadata/redpanda:v26.1.14
     container_name: homelab-redpanda
     restart: unless-stopped
     command:
@@ -431,7 +431,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: dxflrs/garage:v2.2.0
+    image: dxflrs/garage:v2.3.0
     container_name: homelab-garage
     restart: unless-stopped
     volumes:
@@ -494,8 +494,8 @@ services:
       - traefik.http.routers.mlflow.middlewares=authentik-forward-auth@file
       - traefik.http.services.mlflow.loadbalancer.server.port=5000
       - wud.watch=true
-      - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: ghcr.io/mlflow/mlflow:v3.9.0
+      - wud.tag.include=^v\d+\.\d+\.\d+-full$
+    image: ghcr.io/mlflow/mlflow:v3.15.0-full
     container_name: homelab-mlflow
     restart: unless-stopped
     depends_on:
@@ -547,7 +547,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: registry:3.0.0
+    image: registry:3.1.1
     container_name: homelab-registry
     restart: unless-stopped
     depends_on:

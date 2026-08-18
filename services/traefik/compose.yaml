@@ -11,18 +11,24 @@ services:
       - prometheus.port=8080
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: traefik:v3.6.7
+    image: traefik:v3.7.9
     container_name: traefik
     restart: unless-stopped
     command:
       - --log.level=DEBUG
       - --api.insecure=true
       - --api.dashboard=true
+      - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.filters.statuscodes=400-599
+      - --accesslog.fields.headers.names.User-Agent=keep
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entryPoint.to=websecure
       - --entrypoints.web.http.redirections.entryPoint.scheme=https
       - --entrypoints.websecure.address=:443
+      # Responding timeouts (default readTimeout is 60s, which kills large/slow uploads e.g. Immich)
+      - --entrypoints.websecure.transport.respondingtimeouts.readtimeout=0
       #Providers
       - --providers.docker=true
       - --providers.file.directory=/traefik/data

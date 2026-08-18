@@ -9,7 +9,7 @@ services:
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/linuxserver/sonarr:4.0.16
+    image: ghcr.io/linuxserver/sonarr:4.0.19
     container_name: sonarr
     networks:
       homelab-vpn-network:
@@ -87,7 +87,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
+    image: ghcr.io/flaresolverr/flaresolverr:v3.5.0
     container_name: flaresolverr
     networks:
       homelab-vpn-network:
@@ -177,7 +177,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-    image: ghcr.io/cleanuparr/cleanuparr:2.5.1
+    image: ghcr.io/cleanuparr/cleanuparr:2.10.2
   tdarr:
     labels:
       - traefik.enable=true
@@ -188,7 +188,7 @@ services:
       - traefik.http.services.tdarr.loadbalancer.server.port=8265
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/haveagitgat/tdarr:2.58.02
+    image: ghcr.io/haveagitgat/tdarr:2.85.01
     container_name: tdarr
     networks:
       homelab-vpn-network:
@@ -261,12 +261,6 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/cleanuparr/config
-  huntarr_config:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/quick/apps/volumes/arr/huntarr/config
   # Tdarr
   tdarr_server:
     driver: local
@@ -305,31 +299,31 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/media/All/Shows
+      device: /mnt/archive/media/Shows
   movies:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/media/All/Movies
+      device: /mnt/archive/media/Movies
   anime:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/media/All/Anime
+      device: /mnt/archive/media/Anime
   music:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/media/All/Music
+      device: /mnt/archive/media/Music
   books:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/media/All/Books
+      device: /mnt/archive/media/Books
 networks:
   homelab-vpn-network:
     external: true

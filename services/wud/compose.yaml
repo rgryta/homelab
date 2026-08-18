@@ -9,10 +9,14 @@ services:
       - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+$
-    image: ghcr.io/getwud/wud:8.1
+    image: ghcr.io/getwud/wud:8.3
     container_name: wud
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      # Self-destructing service worker. The stock one caches the app shell, so an
+      # expired authentik session produces a white screen instead of a login redirect
+      # (the SPAs XHR gets 302d cross-origin, which XHR cannot follow).
+      - /mnt/quick/apps/volumes/wud/service-worker.js:/home/node/app/ui/service-worker.js:ro
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - TZ=Europe/Warsaw

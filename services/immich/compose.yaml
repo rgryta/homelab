@@ -19,7 +19,8 @@ services:
         ipv4_address: 172.20.0.114
     volumes:
       - /mnt/quick/immich:/data
-      - immich_upload:/data2
+      - /mnt/archive/gallery/library:/data/library
+      - /mnt/archive/gallery/encoded-video:/data/encoded-video
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
@@ -48,12 +49,6 @@ services:
     healthcheck:
       disable: false
 volumes:
-  immich_upload:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/quick/media
   model_cache:
     driver: local
     driver_opts:

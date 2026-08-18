@@ -1,0 +1,83 @@
+services:
+  instagram-mcp:
+    labels:
+      # No Traefik route. The server has no authentication of its own; network
+      # isolation inside homelab-network is the whole of its access control.
+      # MCPHub reaches it at http://instagram-mcp:8000/mcp.
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    image: 172.20.0.52:5000/instagram-sync:latest
+    container_name: instagram-mcp
+    restart: unless-stopped
+    # No `env_file` here, unlike the siblings. `.env` beside this file carries the
+    # Instagram session cookie, and env_file would inject it into this container even
+    # though McpSettings has no field for it. Compose still reads that same `.env` for
+    # the ${...} interpolation below, so nothing is lost but the credential.
+    environment:
+      # Read-only role. It cannot create or alter anything, by design.
+      INSTAGRAM_MCP_DSN: postgresql://instagram_mcp:${INSTAGRAM_MCP_DB_PASSWORD}@homelab-postgres:5432/instagram
+      INSTAGRAM_MCP_HOST: 0.0.0.0
+      INSTAGRAM_MCP_PORT: "8000"
+      TZ: Europe/Warsaw
+    command:
+      - instagram-sync
+      - mcp
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.86
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  # The only process holding an Instagram credential, and the only one with DDL
+  # rights: it applies the migrations at boot. Exposes no port — nothing calls it.
+  #
+  # No healthcheck: this ingester sleeps ~15 minutes between polls by design, which
+  # no HTTP probe can distinguish from wedged. Use the MCP status tool instead.
+  instagram-ingest:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+    image: 172.20.0.52:5000/instagram-sync:latest
+    container_name: instagram-ingest
+    restart: unless-stopped
+    # This is the container the credentials belong to, so it takes the whole file:
+    # INSTAGRAM_ACCOUNT, INSTAGRAM_SESSIONID, INSTAGRAM_CSRFTOKEN and any of the
+    # optional INSTAGRAM_* tuning vars arrive by name, with no mapping to keep in sync.
+    env_file:
+      - .env
+    environment:
+      INSTAGRAM_DSN: postgresql://instagram_ingest:${INSTAGRAM_INGEST_DB_PASSWORD}@homelab-postgres:5432/instagram
+      TZ: Europe/Warsaw
+    command:
+      - instagram-sync
+      - ingest
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.87
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          # A poll pass holds one page of one thread at a time. Nothing here
+          # transcribes or decodes media, so 512M is generous.
+          memory: 512M
+
+networks:
+  homelab-network:
+    external: true

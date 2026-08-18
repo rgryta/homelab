@@ -9,30 +9,40 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Traefik](services/traefik/) | Reverse proxy with Let's Encrypt SSL |
 | [Authentik](services/authentik/) | OAuth2/OIDC authentication provider |
 | [LLDAP](services/lldap/) | LDAP directory service |
-| [Filebrowser](services/filebrowser/) | Web-based file manager |
-| [Mail](services/mail/) | Roundcube + docker-mailserver |
+| [Filebrowser](services/filebrowser/) | Filebrowser Quantum, web-based file manager with its own OIDC |
+| [Mailserver](services/mailserver/) | Roundcube + docker-mailserver |
 | [Jellyfin](services/jellyfin/) | Media server with Jellyseerr |
-| [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Tdarr) |
+| [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Cleanuparr, Tdarr) |
 | [qBittorrent](services/qbittorrent/) | Torrent client (via VPN) |
-| [VPN Client](services/vpn-client/) | NordVPN container for tunneled services |
-| [WireGuard](services/wireguard/) | VPN server for external client access |
+| [VPN Client](services/vpn-client/) | Gluetun/AirVPN container for tunneled services |
+| [WireGuard](services/wireguard/) | VPN server for external client access (wg-easy, OIDC) |
 | [Immich](services/immich/) | Photo and video management |
+| [Syncthing](services/syncthing/) | File sync from phone, wireguard-only GUI |
 | [VS Code](services/vscode/) | Web-based code editor |
-| [GitHub Runner](services/github-runner/) | Self-hosted GitHub Actions runner |
-| [macOS](services/macos/) | macOS virtualization |
-| [OpenFoodFacts](services/openfoodfacts/) | Food product database API |
+| [Firefox](services/firefox/) | Standalone browser behind Authentik |
+| [macOS](services/macos/) | macOS virtualization (not deployed) |
+| [Android](services/android/) | Android emulator (not deployed) |
+| [OpenFoodFacts](services/openfoodfacts/) | Food product database API (not deployed) |
 | [Prometheus](services/prometheus/) | Monitoring stack (Prometheus, Grafana, cAdvisor) |
-| [Databases](services/databases/) | Unified database infrastructure (PostgreSQL, Valkey, QuestDB, Memgraph, MongoDB) |
+| [Databases](services/databases/) | Unified database infrastructure (PostgreSQL, Valkey, QuestDB, Memgraph, MongoDB, Redpanda, MLflow, Garage) |
 | [PiHole](services/pihole/) | DNS ad-blocking with Unbound |
 | [What's Up Docker](services/wud/) | Container update checker |
-| [Llama.cpp](services/llama.cpp/) | Local LLM inference |
+| [Autoheal](services/autoheal/) | Restarts containers failing their healthcheck |
+| [Llama.cpp](services/llama-cpp/) | Local LLM inference |
 | [Helmsman](services/helmsman/) | Claude Code steering daemon (Postgres/VectorChord) |
-| [Whoami](services/whoami/) | Debug service |
-| [WellMate](services/wellmate.io/) | Wellness tracking |
-| [Preview](services/preview/) | Airborn Scout preview/discovery service |
-| [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
+| [Bemol](services/bemol/) | Lyrics alignment and karaoke pipeline |
+| [BTX](services/btx/) | IBKR gateway and training stack |
+| [MCPHub](services/mcphub/) | MCP server aggregator |
 | [Slack](services/slack/) | Slack ingester + read-only MCP server backed by PostgreSQL |
-| [WAHA](services/waha/) | WhatsApp HTTP gateway + normalizing MCP proxy |
+| [WAHA](services/waha/) | WhatsApp HTTP gateway + whatsapp-sync ingester and MCP |
+| [Instagram](services/instagram/) | Instagram ingester + MCP server |
+| [Messenger](services/messenger-sync/) | Messenger harvester + MCP server |
+| [Act Parking](services/act-parking/) | Parking automation |
+| [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
+| [Preview](services/preview/) | Airborn Scout preview/discovery service (not deployed) |
+| [WellMate](services/wellmateio/) | Wellness tracking (not deployed) |
+| [GitHub Runner](services/github-runner-wellmate/) | Self-hosted GitHub Actions runner (not deployed) |
+| [Whoami](services/whoami/) | Debug service |
 
 ## Documentation
 

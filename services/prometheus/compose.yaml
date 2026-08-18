@@ -4,7 +4,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: prom/prometheus:v3.9.1
+    image: prom/prometheus:v3.13.2
     container_name: prometheus
     restart: unless-stopped
     depends_on:
@@ -37,7 +37,7 @@ services:
       - traefik.http.services.grafana.loadbalancer.server.port=3000
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: grafana/grafana:12.3.2
+    image: grafana/grafana:13.1.1
     container_name: grafana
     restart: unless-stopped
     depends_on:
@@ -84,7 +84,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: prom/node-exporter:v1.10.2
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter
     restart: unless-stopped
     networks:

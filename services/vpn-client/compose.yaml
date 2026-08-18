@@ -3,26 +3,36 @@ services:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.tag.include=^\d{4}-\d{2}-\d{2}$
-    image: ghcr.io/bubuntux/nordlynx:2025-11-22
+      - wud.tag.include=^v\d+\.\d+\.\d+$
+    image: qmcgaw/gluetun:v3.41.3
     container_name: vpn-client
     cap_add:
       - NET_ADMIN
+    devices:
+      - /dev/net/tun
     environment:
-      - PRIVATE_KEY=${NORD_PK}
-      - COUNTRY_CODE=PL
-      - NET_LOCAL=192.168.0.0/16,172.16.0.0/12
-      - DNS=172.20.2.13
+      - VPN_SERVICE_PROVIDER=airvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${AIRVPN_PRIVATE_KEY}
+      - WIREGUARD_PRESHARED_KEY=${AIRVPN_PRESHARED_KEY}
+      - WIREGUARD_ADDRESSES=${AIRVPN_ADDRESSES}
+      - WIREGUARD_MTU=${AIRVPN_MTU}
+      - SERVER_COUNTRIES=Germany
+      # qBittorrent WebUI (shares this netns) must be reachable from traefik
+      - FIREWALL_INPUT_PORTS=8888
+      # inbound BitTorrent peers arrive through the tunnel on the reserved port
+      - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORT}
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12
+      # keep pihole as resolver instead of gluetun's built-in DoT
+      - DOT=off
+      - DNS_ADDRESS=172.20.2.13
+      - TZ=Europe/Warsaw
+      - UPDATER_PERIOD=24h
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1
     networks:
       homelab-vpn-network:
         ipv4_address: 172.20.2.3
-    devices:
-      - /dev/net/tun
-    ports:
-      # Ports for services that use vpn network
-      - 51820:51820/udp
     restart: unless-stopped
 networks:
   homelab-network:

@@ -12,11 +12,19 @@ services:
       - sh
       - -c
       - |
-        uv python install 3.12 --install-dir /opt/python_tmp &&
-        rm -rf /opt/python/* &&
-        cp -a /opt/python_tmp/cpython-*/* /opt/python/ &&
-        rm -rf /opt/python_tmp &&
-        chown -R 1000:1000 /opt/python &&
+        set -e
+        rm -rf /opt/python_tmp /opt/python_stage
+        uv python install 3.12 --install-dir /opt/python_tmp
+        SRC="$$(find /opt/python_tmp -maxdepth 1 -type d -name 'cpython-*' | head -1)"
+        [ -n "$$SRC" ] || { echo "no cpython dir under /opt/python_tmp" >&2; exit 1; }
+        echo "installing from $$SRC"
+        mkdir -p /opt/python_stage
+        cp -a "$$SRC/." /opt/python_stage/
+        chown -R 1000:1000 /opt/python_stage
+        rm -rf /opt/python/* /opt/python/.[!.]*
+        cp -a /opt/python_stage/. /opt/python/
+        rm -rf /opt/python_tmp /opt/python_stage
+        /opt/python/bin/python3 --version
         tail -f /dev/null
     restart: unless-stopped
   android:
@@ -35,7 +43,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+-bullseye-slim$
-    image: node:24.14.0-bullseye-slim
+    image: node:26.5.1-bullseye-slim
     container_name: node
     volumes:
       - /opt/node

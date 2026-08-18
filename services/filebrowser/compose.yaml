@@ -2,51 +2,36 @@ services:
   filebrowser:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.filebrowser-public.priority=100
-      - traefik.http.routers.filebrowser.priority=10
-      # ==========================================
-      # SECURE ROUTER (Requires Authentik)
-      # ==========================================
+      # Single router: Quantum handles OIDC itself, so no forward-auth middleware.
       - traefik.http.routers.filebrowser.rule=Host(`filebrowser.gryta.eu`)
       - traefik.http.routers.filebrowser.entrypoints=websecure
       - traefik.http.routers.filebrowser.tls.certresolver=le
       - traefik.http.routers.filebrowser.service=filebrowser
-      - traefik.http.routers.filebrowser.middlewares=authentik-forward-auth@file
-      # ==========================================
-      # PUBLIC ROUTER (/share/* bypasses Auth)
-      # ==========================================
-      - traefik.http.routers.filebrowser-public.rule=Host(`filebrowser.gryta.eu`)
-        && (PathPrefix(`/share`) || PathPrefix(`/static`) ||
-        PathPrefix(`/api/public`))
-      - traefik.http.routers.filebrowser-public.entrypoints=websecure
-      - traefik.http.routers.filebrowser-public.tls.certresolver=le
-      - traefik.http.routers.filebrowser-public.service=filebrowser
-      # ==========================================
-      # SERVICE CONFIG
-      # ==========================================
+      - traefik.http.services.filebrowser.loadbalancer.server.port=80
       - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
       - wud.watch=true
-      - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: filebrowser/filebrowser:v2.56.0
+      - wud.watch.digest=true
+      - wud.tag.include=^2\.\d+\.\d+-beta$
+    image: gtstef/filebrowser:2.0.0-beta
     container_name: filebrowser
     restart: unless-stopped
     networks:
       homelab-network:
         ipv4_address: 172.20.0.102
     volumes:
-      - filebrowser_db:/database
+      - filebrowser_quantum:/home/filebrowser/data
       - filebrowser_data:/srv/Data
       - filebrowser_slow:/srv/Slow
-      - filebrowser_media:/srv/Media
-      - filebrowser_qmedia:/srv/QMedia
+    env_file:
+      - .env
     user: 1000:1000
 volumes:
-  filebrowser_db:
+  filebrowser_quantum:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/quick/apps/volumes/filebrowser/db
+      device: /mnt/quick/apps/volumes/filebrowser-quantum/data
   filebrowser_data:
     driver: local
     driver_opts:
@@ -58,19 +43,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/archive/apps/volumes/filebrowser/slow
-  filebrowser_media:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/archive/media
-  filebrowser_qmedia:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/quick/media
+      device: /mnt/archive/files
 networks:
   homelab-network:
     external: true

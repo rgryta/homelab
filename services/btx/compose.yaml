@@ -1,9 +1,10 @@
 services:
-  ingestion:
+  btx-ingestion:
     labels:
       - traefik.enable=false
       - wud.watch=true
       - wud.watch.digest=true
+      - autoheal=true
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-ingestion
     restart: unless-stopped
@@ -18,27 +19,33 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 1G
+          memory: 1536M
     healthcheck:
       test:
         - CMD
         - python
-        - -c
-        - import btx; print('ok')
+        - /app/scripts/healthcheck_ingestion.py
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
-  train:
+      start_period: 180s
+    volumes:
+      - health:/health
+  btx-train:
     labels:
       - traefik.enable=false
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-train
     env_file:
       - .env
+    # Run training once (recency gate skips if models are fresh), then hang so
+    # the container stays "Up" cleanly in dockge instead of an exited one-off.
     command:
-      - btx
-      - train
+      - sh
+      - -c
+      - btx train; sleep infinity
+    environment:
+      BTX_USE_MLFLOW_TRACKING: "true"
     networks:
       homelab-network:
         ipv4_address: 172.20.0.63
@@ -46,17 +53,15 @@ services:
       resources:
         limits:
           cpus: "2"
-          memory: 4G
-    restart: no
-    profiles:
-      - train
+          memory: 8G
+    restart: unless-stopped
   ib-gateway:
     labels:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+[a-z]?$
       - autoheal=true
-    image: ghcr.io/gnzsnz/ib-gateway:10.43.1c
+    image: ghcr.io/gnzsnz/ib-gateway:10.49.1c
     container_name: btx-ib-gateway
     restart: unless-stopped
     environment:
@@ -72,6 +77,7 @@ services:
     volumes:
       - ib_gateway_settings:/home/ibgateway/tws_settings
       - ib_ibc_state:/home/ibgateway/ibc
+      - health:/health
     networks:
       homelab-network:
         ipv4_address: 172.20.0.60
@@ -81,14 +87,155 @@ services:
           cpus: "1"
           memory: 1G
     healthcheck:
+      # Healthy ONLY on a fresh "ok" verdict. A missing/unreadable/stale verdict
+      # (ingestion writer down) or any non-ok state (logged_out/unknown) is
+      # UNHEALTHY -- previously all of these silently reported healthy, hiding a
+      # logged-out gateway. 300s staleness tolerates brief ingestion restarts.
       test:
         - CMD-SHELL
-        - bash -c 'echo > /dev/tcp/localhost/4002'
+        - f=/health/gateway.verdict; [ -r "$$f" ] || exit 1; set -- $$(cat "$$f"
+          2>/dev/null); s=$$1; ts=$$2; case "$$ts" in (''|*[!0-9]*) exit 1;;
+          esac; now=$$(date +%s); [ $$((now-ts)) -gt 300 ] && exit 1; [ "$$s" =
+          ok ] && exit 0; exit 1
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 120s
+      retries: 3
+      start_period: 150s
+  btx-feature:
+    labels:
+      - traefik.enable=false
+      - autoheal=true
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-feature
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BTX_USE_MLFLOW_TRACKING: "true"
+      HEALTH_HEARTBEAT_PATH: /health/feature.heartbeat
+      HEALTH_HEARTBEAT_STALE_SECONDS: "120"
+    command:
+      - btx
+      - features
+      - --mode
+      - event
+      - --timeframes
+      - 1m
+    networks:
+      homelab-network: null
+    volumes:
+      - health:/health
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - /app/scripts/healthcheck_ingestion.py
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+  btx-inference:
+    labels:
+      - traefik.enable=false
+      - autoheal=true
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-inference
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BTX_USE_MLFLOW_TRACKING: "true"
+      HEALTH_HEARTBEAT_PATH: /health/inference.heartbeat
+      HEALTH_HEARTBEAT_STALE_SECONDS: "120"
+    command:
+      - btx
+      - inference
+      - --model-source
+      - auto
+    networks:
+      homelab-network: null
+    volumes:
+      - health:/health
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - /app/scripts/healthcheck_ingestion.py
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+  btx-trading:
+    labels:
+      - traefik.enable=false
+      - autoheal=true
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-trading
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BTX_USE_MLFLOW_TRACKING: "true"
+      HEALTH_HEARTBEAT_PATH: /health/trading.heartbeat
+      HEALTH_HEARTBEAT_STALE_SECONDS: "120"
+    command:
+      - btx
+      - run
+      - --signal-mode
+      - event
+      - --connector
+      - kraken
+    networks:
+      homelab-network: null
+    volumes:
+      - health:/health
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - /app/scripts/healthcheck_ingestion.py
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+  btx-forwardtest:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    image: 172.20.0.52:5000/btx:latest
+    container_name: btx-forwardtest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BTX_USE_MLFLOW_TRACKING: "true"
+      HEALTH_VERDICT_PATH: /health/forwardtest.verdict
+      HEALTH_VERDICT_STALE_SECONDS: "2400"
+    command:
+      - btx
+      - forwardtest
+    networks:
+      homelab-network: null
+    volumes:
+      - health:/health
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - /app/scripts/healthcheck_forwardtest.py
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 volumes:
+  health:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/btx/health
   ib_gateway_settings:
     driver: local
     driver_opts:

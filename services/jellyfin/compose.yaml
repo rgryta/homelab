@@ -9,7 +9,7 @@ services:
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: jellyfin/jellyfin:10.11.6
+    image: jellyfin/jellyfin:10.11.11
     container_name: jellyfin
     volumes:
       - jf_config:/config

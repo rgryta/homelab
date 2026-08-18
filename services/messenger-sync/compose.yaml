@@ -1,0 +1,93 @@
+services:
+  messenger-mcp:
+    labels:
+      # No Traefik route. The server has no authentication of its own; network
+      # isolation inside homelab-network is the whole of its access control.
+      # MCPHub reaches it at http://messenger-mcp:8000/mcp.
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    image: 172.20.0.52:5000/messenger-sync:latest
+    container_name: messenger-mcp
+    restart: unless-stopped
+    # No `env_file` and, deliberately, no profile volume. This container has no way
+    # to reach Messenger even if the code were wrong: there is no browser profile
+    # mounted into it.
+    environment:
+      MESSENGER_DSN: postgresql://messenger_mcp:${MESSENGER_MCP_DB_PASSWORD}@homelab-postgres:5432/messenger
+      MESSENGER_HOST: 0.0.0.0
+      MESSENGER_PORT: "8000"
+      TZ: Europe/Warsaw
+    command:
+      - messenger-sync
+      - mcp
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.88
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  # The only container with a browser profile, and the only one with DDL rights: it
+  # applies the migrations at boot. Exposes no port — nothing calls it.
+  #
+  # No healthcheck: this harvester sleeps ~15 minutes between passes by design, which
+  # no probe can distinguish from wedged. Use the MCP status tool instead.
+  messenger-harvest:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+    image: 172.20.0.52:5000/messenger-sync:latest
+    container_name: messenger-harvest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MESSENGER_DSN: postgresql://messenger_ingest:${MESSENGER_INGEST_DB_PASSWORD}@homelab-postgres:5432/messenger
+      TZ: Europe/Warsaw
+    command:
+      - messenger-sync
+      - harvest
+    volumes:
+      # `quick/apps`, which is where every other stack keeps its data. The previous
+      # path here named a dataset that does not exist; Docker answers a missing bind
+      # source by creating it, so the deploy would have succeeded and quietly kept
+      # the credential on the boot pool.
+      #
+      # This directory IS the Messenger credential: cookies, the Signal identity key
+      # and the device registration. Meta rotates the session cookie while the browser
+      # runs, so it must persist across passes — a fresh profile every time would mean
+      # a fresh device registration every time, which is the loudest possible signal.
+      - /mnt/quick/apps/volumes/messenger-sync/profile:/profile
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.89
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          # Measured: 718 MiB peak during a pass, settling to ~450 MiB. 1 GiB is that
+          # peak plus headroom, and it is a cap rather than a reservation — the
+          # container only holds it while a pass is running.
+          memory: 1G
+    # Chromium needs more than the default 64 MB of shared memory or it crashes
+    # rendering tabs, in a way that surfaces as an unexplained page-load timeout.
+    shm_size: 1gb
+
+networks:
+  homelab-network:
+    external: true

@@ -1,0 +1,66 @@
+services:
+  bemol-api:
+    image: 172.20.0.52:5000/bemol/api:dev
+    container_name: bemol-api
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bemol.rule=Host(`bemol.gryta.eu`)
+      - traefik.http.routers.bemol.entrypoints=websecure
+      - traefik.http.routers.bemol.tls.certresolver=le
+      - traefik.http.routers.bemol.middlewares=authentik-forward-auth@file,bemol-gateway@docker
+      - traefik.http.middlewares.bemol-gateway.headers.customrequestheaders.X-Bemol-Gateway-Secret=${BEMOL_GATEWAY_SECRET}
+      - traefik.http.services.bemol.loadbalancer.server.port=8000
+      - wud.watch=true
+      - wud.watch.digest=true
+      - autoheal=true
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.24
+    # DB + broker live in the shared `databases` stack (homelab-postgres / homelab-valkey),
+    # reached over homelab-network via BEMOL_DATABASE_URL / BEMOL_REDIS_URL in .env.
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request;
+          urllib.request.urlopen('http://localhost:8000/healthz')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+  bemol-worker:
+    image: 172.20.0.52:5000/bemol/api:dev
+    container_name: bemol-worker
+    command: celery -A bemol.worker worker --concurrency=1 --loglevel=info
+    env_file: .env
+    labels:
+      - traefik.enable=false
+      - autoheal=true
+    networks:
+      - homelab-network
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 10G
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - celery -A bemol.worker inspect ping -d celery@$$HOSTNAME --timeout 10
+          | grep -q pong
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+networks:
+  homelab-network:
+    external: true

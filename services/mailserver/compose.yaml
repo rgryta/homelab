@@ -8,7 +8,7 @@ services:
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+-apache$
     container_name: roundcubemail
-    image: roundcube/roundcubemail:1.6.12-apache
+    image: roundcube/roundcubemail:1.7.2-apache
     restart: unless-stopped
     networks:
       homelab-network:
@@ -70,9 +70,14 @@ services:
       - 587:587
       - 993:993
     healthcheck:
-      test: ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
-      timeout: 3s
-      retries: 0
+      # Keep the LDAP-gated changedetector running on every probe so renewed
+      # Let's Encrypt certs in acme.json are extracted after ANY restart/reboot
+      # (DMS skips _setup on restart, so user-patches.sh cannot cover that).
+      # See user-patches.sh / docker-mailserver issue #4528.
+      test: supervisorctl start changedetector >/dev/null 2>&1; ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
 volumes:
   roundcube_www:
     driver_opts:

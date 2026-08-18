@@ -1,0 +1,74 @@
+services:
+  mcphub:
+    labels:
+      - traefik.enable=true
+      # Deliberately NO authentik forward-auth on this host: MCPHub owns its own
+      # auth (admin login + Better Auth OIDC federated to authentik), and it must
+      # serve /.well-known/*, /oauth/* and /mcp unauthenticated so claude.ai can
+      # run the OAuth handshake against it.
+      - traefik.http.routers.mcphub.rule=Host(`mcp.gryta.eu`)
+      - traefik.http.routers.mcphub.entrypoints=websecure
+      - traefik.http.routers.mcphub.tls.certresolver=le
+      - traefik.http.services.mcphub.loadbalancer.server.port=3000
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+    image: samanhappy/mcphub:1.0.26
+    container_name: mcphub
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Setting DB_URL switches MCPHub from file mode to database mode.
+      DB_URL: postgresql://mcphub:${MCPHUB_DB_PASSWORD}@homelab-postgres:5432/mcphub
+      JWT_SECRET: ${MCPHUB_JWT_SECRET}
+      ADMIN_PASSWORD: ${MCPHUB_ADMIN_PASSWORD}
+      MCPHUB_SETTING_PATH: /app/data/mcp_settings.json
+      MCPHUB_APP_URL: https://mcp.gryta.eu
+      BETTER_AUTH_URL: https://mcp.gryta.eu
+      BETTER_AUTH_TRUSTED_ORIGINS: https://mcp.gryta.eu
+      # SSO login federated to authentik. This governs who may log in to MCPHub;
+      # it is NOT the OAuth that claude.ai speaks -- MCPHub is its own authorization
+      # server for that, which is what keeps authentik's path-bearing issuer out of
+      # the connector handshake. Callback: /api/auth/better/oauth2/callback/oidc
+      BETTER_AUTH_ENABLED: "true"
+      # Required: the better-auth library refuses to run on its default secret.
+      BETTER_AUTH_SECRET: ${MCPHUB_BETTER_AUTH_SECRET}
+      BETTER_AUTH_OIDC_ENABLED: "true"
+      BETTER_AUTH_OIDC_PROVIDER_ID: oidc
+      BETTER_AUTH_OIDC_DISCOVERY_URL: https://authentik.gryta.eu/application/o/mcphub/.well-known/openid-configuration
+      BETTER_AUTH_OIDC_TRUST_EMAIL: "true"
+      OIDC_CLIENT_ID: ${MCPHUB_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${MCPHUB_OIDC_CLIENT_SECRET}
+      # BASE_PATH is deliberately NOT set. MCPHub registers the discovery route at
+      # the absolute path /.well-known/oauth-protected-resource, but builds the
+      # advertised URL with BASE_PATH prepended -- a non-empty value makes the URL
+      # it advertises 404, which silently breaks claude.ai OAuth discovery.
+      TZ: Europe/Warsaw
+    volumes:
+      - mcphub_data:/app/data
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.81
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+volumes:
+  mcphub_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/mcphub/data
+networks:
+  homelab-network:
+    external: true

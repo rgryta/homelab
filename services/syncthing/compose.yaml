@@ -1,0 +1,41 @@
+services:
+  syncthing:
+    labels:
+      # GUI is not published through Traefik: it is reached over wireguard at
+      # http://172.20.0.108:8384. Publishing it would need an authentik
+      # application for syncthing.gryta.eu, which does not exist.
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.watch.digest=true
+      - wud.tag.include=^2\.\d+\.\d+$
+    image: syncthing/syncthing:2.1.3
+    container_name: syncthing
+    hostname: homelab
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - STGUIADDRESS=0.0.0.0:8384
+    volumes:
+      - syncthing_config:/var/syncthing/config
+      - syncthing_phone:/var/syncthing/Phone
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.108
+volumes:
+  syncthing_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/syncthing/config
+  syncthing_phone:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/files/rgryta/Phone
+networks:
+  homelab-network:
+    external: true

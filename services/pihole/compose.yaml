@@ -10,7 +10,7 @@ services:
       - wud.watch=true
       - wud.tag.include=^\d{4}\.\d+\.\d+$
     container_name: pihole
-    image: pihole/pihole:2025.11.1
+    image: pihole/pihole:2026.07.2
     restart: unless-stopped
     depends_on:
       - unbound
@@ -39,7 +39,7 @@ services:
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+-\d+$
     container_name: unbound
-    image: madnuttah/unbound:1.24.2-1
+    image: madnuttah/unbound:1.25.2-0
     restart: unless-stopped
     networks:
       pihole-network:
