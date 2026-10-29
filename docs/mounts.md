@@ -40,14 +40,15 @@ Each service has a `volume.sh` script that creates the required directories. Run
 | Authentik | - | - |
 | Filebrowser | `/mnt/quick/apps/volumes/filebrowser/`<br>`/mnt/quick/media/` | `/mnt/archive/apps/volumes/filebrowser/` |
 | Mail | `/mnt/quick/apps/volumes/roundcube/`<br>`/mnt/quick/apps/volumes/mailserver/` | - |
-| Jellyfin | `/mnt/quick/apps/volumes/jellyfin/`<br>`/mnt/quick/apps/volumes/jellyseerr/` | `/mnt/archive/media/` |
+| Jellyfin | `/mnt/quick/apps/volumes/jellyfin/`<br>`/mnt/quick/apps/volumes/seerr/` | `/mnt/archive/media/` |
 | PiHole | `/mnt/quick/apps/volumes/pihole/` | - |
 | Prometheus | `/mnt/quick/apps/volumes/prometheus/`<br>`/mnt/quick/apps/volumes/grafana/` | - |
-| Arr | `/mnt/quick/apps/volumes/arr/` | `/mnt/archive/media/`<br>`/mnt/archive/apps/volumes/qbittorrent/downloads/` |
+| Arr | `/mnt/quick/apps/volumes/arr/`<br>`/mnt/quick/apps/volumes/slskd/` | `/mnt/archive/media/`<br>`/mnt/archive/apps/volumes/qbittorrent/downloads/`<br>`/mnt/archive/apps/volumes/slskd/downloads/` |
 | qBittorrent | `/mnt/quick/apps/volumes/qbittorrent/` | `/mnt/archive/apps/volumes/qbittorrent/downloads/` |
 | Immich | `/mnt/quick/apps/volumes/immich/` | - |
 | Databases | `/mnt/quick/apps/volumes/databases/` | `/mnt/archive/apps/volumes/databases/` |
 | VS Code | `/mnt/quick/apps/volumes/vscode/` | - |
+| Moonlight Web | `/mnt/quick/apps/volumes/moonlight-web/` | - |
 | macOS | `/mnt/quick/apps/volumes/macos/` | - |
 | OpenFoodFacts | - | `/mnt/archive/apps/volumes/openfoodfacts/` |
 | GitHub Runner | - | - |

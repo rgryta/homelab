@@ -22,24 +22,34 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.103
     extra_hosts:
-      - jellyseerr.gryta.eu:172.20.0.106
+      - seerr.gryta.eu:172.20.0.106
     environment:
       - JELLYFIN_PublishedServerUrl=https://jellyfin.gryta.eu
-  jellyseerr:
+  seerr:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.gryta.eu`)
-      - traefik.http.routers.jellyseerr.entrypoints=websecure
-      - traefik.http.routers.jellyseerr.tls.certresolver=le
-      - traefik.http.services.jellyseerr.loadbalancer.server.port=5055
-      - traefik.http.routers.jellyseerr.middlewares=authentik-forward-auth@file
+      - traefik.http.routers.seerr.rule=Host(`seerr.gryta.eu`)
+      - traefik.http.routers.seerr.entrypoints=websecure
+      - traefik.http.routers.seerr.tls.certresolver=le
+      - traefik.http.routers.seerr.middlewares=authentik-forward-auth@file
+      - traefik.http.routers.seerr.service=seerr
+      - traefik.http.services.seerr.loadbalancer.server.port=5055
+      # Old hostname: redirect before forward-auth so bookmarks keep working
+      - traefik.http.routers.jellyseerr-legacy.rule=Host(`jellyseerr.gryta.eu`)
+      - traefik.http.routers.jellyseerr-legacy.entrypoints=websecure
+      - traefik.http.routers.jellyseerr-legacy.tls.certresolver=le
+      - traefik.http.routers.jellyseerr-legacy.middlewares=seerr-redirect
+      - traefik.http.routers.jellyseerr-legacy.service=seerr
+      - traefik.http.middlewares.seerr-redirect.redirectregex.regex=^https://jellyseerr\.gryta\.eu/(.*)
+      - traefik.http.middlewares.seerr-redirect.redirectregex.replacement=https://seerr.gryta.eu/$${1}
+      - traefik.http.middlewares.seerr-redirect.redirectregex.permanent=true
       - wud.watch=true
-      - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/fallenbagel/jellyseerr:2.7.3
+      - wud.tag.include=^v\d+\.\d+\.\d+$
+    image: ghcr.io/seerr-team/seerr:v3.5.1
     init: true
-    container_name: jellyseerr
+    container_name: seerr
     environment:
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=info
       - TZ=Europe/Warsaw
     networks:
       homelab-network:
@@ -51,9 +61,9 @@ services:
       - sonarr.gryta.eu:172.20.2.4
       - radarr.gryta.eu:172.20.2.5
     volumes:
-      - js_config:/app/config
+      - seerr_config:/app/config
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public
         || exit 1
       start_period: 20s
       timeout: 3s
@@ -79,12 +89,12 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/jellyfin/cache
-  js_config:
+  seerr_config:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /mnt/quick/apps/volumes/jellyseerr/config
+      device: /mnt/quick/apps/volumes/seerr/config
 networks:
   homelab-network:
     external: true

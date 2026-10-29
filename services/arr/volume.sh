@@ -21,6 +21,11 @@ mkdir -p "$QUICK/arr/tdarr/logs"
 mkdir -p "$QUICK/arr/tdarr/transcode_cache"
 chown -R 1000:1000 "$QUICK/arr/tdarr"
 
+# Soulseek (slskd)
+mkdir -p "$QUICK/slskd/config"
+mkdir -p "$ARCHIVE/slskd/downloads"
+chown -R 1000:1000 "$QUICK/slskd" "$ARCHIVE/slskd"
+
 # Media directories (archive)
 mkdir -p /mnt/archive/media/All/Shows
 mkdir -p /mnt/archive/media/All/Movies

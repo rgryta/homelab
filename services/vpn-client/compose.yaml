@@ -18,10 +18,10 @@ services:
       - WIREGUARD_ADDRESSES=${AIRVPN_ADDRESSES}
       - WIREGUARD_MTU=${AIRVPN_MTU}
       - SERVER_COUNTRIES=Germany
-      # qBittorrent WebUI (shares this netns) must be reachable from traefik
-      - FIREWALL_INPUT_PORTS=8888
-      # inbound BitTorrent peers arrive through the tunnel on the reserved port
-      - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORT}
+      # qBittorrent (8888) and slskd (5030) WebUIs (share this netns) must be reachable from traefik
+      - FIREWALL_INPUT_PORTS=8888,5030
+      # inbound peers (BitTorrent, Soulseek) arrive through the tunnel on the reserved ports
+      - FIREWALL_VPN_INPUT_PORTS=${AIRVPN_FORWARDED_PORT},${AIRVPN_SLSK_PORT}
       - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16,172.16.0.0/12
       # keep pihole as resolver instead of gluetun's built-in DoT
       - DOT=off

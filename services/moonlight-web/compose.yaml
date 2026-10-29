@@ -1,0 +1,40 @@
+services:
+  moonlight-web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.desk.rule=Host(`desk.gryta.eu`)
+      - traefik.http.routers.desk.entrypoints=websecure
+      - traefik.http.routers.desk.tls.certresolver=le
+      - traefik.http.routers.desk.middlewares=authentik-forward-auth@file
+      - traefik.http.services.desk.loadbalancer.server.port=8080
+      - wud.watch=true
+      - wud.tag.include=^v\d+\.\d+\.\d+$
+    image: mrcreativ3001/moonlight-web-stream:v3.0.1
+    container_name: moonlight-web
+    environment:
+      - TZ=Europe/Warsaw
+      # No header-based SSO on purpose: anything on homelab-network could send that header and drive the PC.
+      # Access = authentik forward-auth (lldap_admin) + the app's own login, like code-server.
+      # WebRTC media: advertise the NAS LAN address, reachable on the LAN and through WireGuard.
+      # Away from both, pick "Web Sockets" as data transport in the player (goes over Traefik/443).
+      - WEBRTC_PORT_RANGE=40000:40010
+      - WEBRTC_NAT_1TO1_HOST=192.168.1.100
+      - DISABLE_DEFAULT_WEBRTC_ICE_SERVERS=true
+    ports:
+      - 192.168.1.100:40000-40010:40000-40010/udp
+    volumes:
+      - mw_server:/moonlight-web/server
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.109
+    restart: unless-stopped
+volumes:
+  mw_server:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/moonlight-web/server
+networks:
+  homelab-network:
+    external: true

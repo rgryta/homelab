@@ -14,7 +14,7 @@ services:
       # router metrics recorded zero requests to it in the 14 days before removal.
       - wud.watch=true
       - wud.tag.include=^noweb-\d+\.\d+\.\d+$
-    image: devlikeapro/waha:noweb-2026.7.2
+    image: devlikeapro/waha:noweb-2026.10.1
     container_name: waha
     restart: unless-stopped
     env_file:

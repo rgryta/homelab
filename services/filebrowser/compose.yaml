@@ -11,8 +11,8 @@ services:
       - traefik.http.services.filebrowser.loadbalancer.passhostheader=true
       - wud.watch=true
       - wud.watch.digest=true
-      - wud.tag.include=^2\.\d+\.\d+-beta$
-    image: gtstef/filebrowser:2.0.0-beta
+      - wud.tag.include=^2\.\d+\.\d+-stable$
+    image: gtstef/filebrowser:2.0.2-stable
     container_name: filebrowser
     restart: unless-stopped
     networks:

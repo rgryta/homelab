@@ -1,5 +1,5 @@
 #!/bin/bash
-# Volume setup for Jellyfin and Jellyseerr
+# Volume setup for Jellyfin and Seerr
 
 QUICK="/mnt/quick/apps/volumes"
 ARCHIVE="/mnt/archive"
@@ -9,9 +9,9 @@ mkdir -p "$QUICK/jellyfin/config"
 mkdir -p "$QUICK/jellyfin/cache"
 chown -R 1000:1000 "$QUICK/jellyfin"
 
-# Jellyseerr config
-mkdir -p "$QUICK/jellyseerr/config"
-chown -R 1000:1000 "$QUICK/jellyseerr"
+# Seerr config (runs as uid 1000)
+mkdir -p "$QUICK/seerr/config"
+chown -R 1000:1000 "$QUICK/seerr"
 
 # Archive mount for media
 mkdir -p "$ARCHIVE/media"

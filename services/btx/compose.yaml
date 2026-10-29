@@ -59,9 +59,10 @@ services:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.tag.include=^\d+\.\d+\.\d+[a-z]?$
+      - wud.tag.include=^stable$
+      - wud.watch.digest=true
       - autoheal=true
-    image: ghcr.io/gnzsnz/ib-gateway:10.49.1c
+    image: ghcr.io/gnzsnz/ib-gateway:stable
     container_name: btx-ib-gateway
     restart: unless-stopped
     environment:

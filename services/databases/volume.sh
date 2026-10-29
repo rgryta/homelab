@@ -10,7 +10,7 @@ mkdir -p /mnt/quick/apps/volumes/databases/valkey/data
 mkdir -p /mnt/quick/apps/volumes/databases/questdb/data
 mkdir -p /mnt/quick/apps/volumes/databases/memgraph/data
 mkdir -p /mnt/quick/apps/volumes/databases/memgraph/wal
-mkdir -p /mnt/quick/apps/volumes/databases/mongodb/data
+mkdir -p /mnt/quick/apps/volumes/databases/mongodb/data9
 mkdir -p /mnt/quick/apps/volumes/databases/pgadmin/data
 mkdir -p /mnt/quick/apps/volumes/databases/redisinsight/data
 mkdir -p /mnt/quick/apps/volumes/databases/redpanda/data

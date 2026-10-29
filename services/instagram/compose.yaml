@@ -37,12 +37,12 @@ services:
         - CMD
         - python
         - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+        - import urllib.request;
+          urllib.request.urlopen('http://localhost:8000/healthz')
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
-
   # The only process holding an Instagram credential, and the only one with DDL
   # rights: it applies the migrations at boot. Exposes no port — nothing calls it.
   #
@@ -55,7 +55,7 @@ services:
       - wud.watch.digest=true
     image: 172.20.0.52:5000/instagram-sync:latest
     container_name: instagram-ingest
-    restart: unless-stopped
+    restart: "on-failure:5"
     # This is the container the credentials belong to, so it takes the whole file:
     # INSTAGRAM_ACCOUNT, INSTAGRAM_SESSIONID, INSTAGRAM_CSRFTOKEN and any of the
     # optional INSTAGRAM_* tuning vars arrive by name, with no mapping to keep in sync.
@@ -77,7 +77,6 @@ services:
           # A poll pass holds one page of one thread at a time. Nothing here
           # transcribes or decodes media, so 512M is generous.
           memory: 512M
-
 networks:
   homelab-network:
     external: true

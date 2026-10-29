@@ -16,7 +16,7 @@ services:
     # which streams over WebRTC and hard-requires the WebCodecs API — that rules out
     # release Firefox for Android, which is the browser this actually gets used from.
     # noVNC is a canvas over a websocket and works anywhere.
-    image: jlesage/firefox:v26.08.1
+    image: jlesage/firefox:v26.09.1
     container_name: firefox
     environment:
       - USER_ID=1000

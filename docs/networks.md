@@ -1,6 +1,6 @@
 # Network Configuration
 
-This homelab uses five isolated Docker networks for logical separation of services.
+This homelab uses six isolated Docker networks for logical separation of services.
 
 ## homelab-network (172.20.0.0/24)
 
@@ -43,9 +43,10 @@ Main application network for all services.
 | Jellyfin | jellyfin | 172.20.0.103 |
 | Roundcube | roundcubemail | 172.20.0.104 |
 | Mailserver | mailserver | 172.20.0.105 |
-| Jellyseerr | jellyseerr | 172.20.0.106 |
+| Seerr | seerr | 172.20.0.106 |
 | Firefox | firefox | 172.20.0.107 |
 | Syncthing | syncthing | 172.20.0.108 |
+| Moonlight Web | moonlight-web | 172.20.0.109 |
 | OpenFoodFacts | openfoodfacts-api | 172.20.0.111 |
 | | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
@@ -76,6 +77,7 @@ VPN-tunneled network for services requiring privacy/anonymity.
 |---------|-----------|------------|
 | Traefik | traefik | 172.20.2.2 |
 | VPN Client | vpn-client | 172.20.2.3 |
+| Slskd | slskd | shares vpn-client (172.20.2.3, UI on :5030) |
 | Sonarr | sonarr | 172.20.2.4 |
 | Radarr | radarr | 172.20.2.5 |
 | Prowlarr | prowlarr | 172.20.2.6 |
@@ -85,7 +87,7 @@ VPN-tunneled network for services requiring privacy/anonymity.
 | Cleanuparr | cleanuparr | 172.20.2.10 |
 | Tdarr | tdarr | 172.20.2.12 |
 | PiHole | pihole | 172.20.2.13 |
-| Jellyseerr | jellyseerr | 172.20.2.14 |
+| Seerr | seerr | 172.20.2.14 |
 
 ## pihole-network (172.21.0.0/24)
 
@@ -119,3 +121,12 @@ Docker bridge network for WireGuard container.
 | WireGuard | wireguard | 172.20.3.254 |
 
 **Note**: WireGuard container also has IP 172.20.0.200 on homelab-network. VPN clients use separate tunnel subnet 10.8.0.0/24.
+
+## unsafe-network (172.20.1.0/24)
+
+Network for public-facing apps that must not share homelab-network. Traefik is the only peer with a fixed IP.
+
+| Service | Container | IP Address |
+|---------|-----------|------------|
+| Traefik | traefik | 172.20.1.2 |
+| Complexio | complexio | dynamic |

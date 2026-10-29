@@ -11,14 +11,15 @@ TrueNAS Dockge-based homelab with containerized services.
 | [LLDAP](services/lldap/) | LDAP directory service |
 | [Filebrowser](services/filebrowser/) | Filebrowser Quantum, web-based file manager with its own OIDC |
 | [Mailserver](services/mailserver/) | Roundcube + docker-mailserver |
-| [Jellyfin](services/jellyfin/) | Media server with Jellyseerr |
-| [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Cleanuparr, Tdarr) |
+| [Jellyfin](services/jellyfin/) | Media server with Seerr |
+| [Arr](services/arr/) | Media automation (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Cleanuparr, Tdarr, Slskd) |
 | [qBittorrent](services/qbittorrent/) | Torrent client (via VPN) |
 | [VPN Client](services/vpn-client/) | Gluetun/AirVPN container for tunneled services |
 | [WireGuard](services/wireguard/) | VPN server for external client access (wg-easy, OIDC) |
 | [Immich](services/immich/) | Photo and video management |
 | [Syncthing](services/syncthing/) | File sync from phone, wireguard-only GUI |
 | [VS Code](services/vscode/) | Web-based code editor |
+| [Moonlight Web](services/moonlight-web/) | Browser client for the Sunshine remote desktop |
 | [Firefox](services/firefox/) | Standalone browser behind Authentik |
 | [macOS](services/macos/) | macOS virtualization (not deployed) |
 | [Android](services/android/) | Android emulator (not deployed) |
@@ -38,6 +39,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Instagram](services/instagram/) | Instagram ingester + MCP server |
 | [Messenger](services/messenger-sync/) | Messenger harvester + MCP server |
 | [Act Parking](services/act-parking/) | Parking automation |
+| [Complexio](services/complexio/) | The Act of Complexio game (public, own network) |
 | [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
 | [Preview](services/preview/) | Airborn Scout preview/discovery service (not deployed) |
 | [WellMate](services/wellmateio/) | Wellness tracking (not deployed) |

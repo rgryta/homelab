@@ -6,17 +6,18 @@ services:
       - traefik.http.routers.traefik.entrypoints=websecure
       - traefik.http.routers.traefik.tls.certresolver=le
       - traefik.http.routers.traefik.middlewares=authentik-forward-auth@file
-      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - traefik.http.routers.traefik.service=api@internal
       - prometheus.scrape=true
       - prometheus.port=8080
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: traefik:v3.7.9
+    image: traefik:v3.7.16
     container_name: traefik
     restart: unless-stopped
     command:
-      - --log.level=DEBUG
-      - --api.insecure=true
+      - --log.level=INFO
+      # Dashboard only through the authentik router (api@internal); :8080 serves metrics on homelab-network only
+      - --entrypoints.traefik.address=172.20.0.100:8080
       - --api.dashboard=true
       - --accesslog=true
       - --accesslog.format=json
@@ -54,6 +55,8 @@ services:
       homelab-vpn-network:
         ipv4_address: 172.20.2.2
       ix-dockge_default: {}
+      unsafe-network:
+        ipv4_address: 172.20.1.2
 volumes:
   traefik_data:
     driver_opts:
@@ -82,3 +85,10 @@ networks:
           gateway: 172.20.2.1
   ix-dockge_default:
     external: true
+  unsafe-network:
+    name: unsafe-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+          gateway: 172.20.1.1

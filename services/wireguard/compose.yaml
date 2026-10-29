@@ -8,8 +8,8 @@ services:
       - traefik.http.routers.wireguard.tls.certresolver=le
       - traefik.http.services.wireguard.loadbalancer.server.port=51821
       - wud.watch=true
-      - wud.tag.include=^15\.\d+\.\d+-beta\.\d+$
-    image: ghcr.io/wg-easy/wg-easy:15.4.0-beta.2
+      - wud.tag.include=^15\.\d+\.\d+$
+    image: ghcr.io/wg-easy/wg-easy:15.5.0
     container_name: wireguard
     restart: unless-stopped
     cap_add:
@@ -45,6 +45,7 @@ services:
       wireguard-network:
         ipv4_address: 172.20.3.254
         priority: 10
+        gw_priority: 1
 volumes:
   wireguard_config:
     driver: local

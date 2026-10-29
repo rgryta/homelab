@@ -9,7 +9,7 @@ services:
       - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+$
-    image: ghcr.io/getwud/wud:8.3
+    image: ghcr.io/getwud/wud:8.4
     container_name: wud
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -17,9 +17,20 @@ services:
       # expired authentik session produces a white screen instead of a login redirect
       # (the SPAs XHR gets 302d cross-origin, which XHR cannot follow).
       - /mnt/quick/apps/volumes/wud/service-worker.js:/home/node/app/ui/service-worker.js:ro
+      # complexio auto-deploys new releases: wud rewrites its compose file (opt-in trigger below).
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/complexio:/mnt/.ix-apps/app_mounts/dockge/stacks/complexio
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - TZ=Europe/Warsaw
+      - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_BACKUP=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_PRUNE=true
+      - WUD_REGISTRY_HUB_PUBLIC_LOGIN=${DOCKERHUB_LOGIN}
+      - WUD_REGISTRY_HUB_PUBLIC_PASSWORD=${DOCKERHUB_TOKEN}
+      - WUD_REGISTRY_LSCR_PUBLIC_USERNAME=${GITHUB_LOGIN}
+      - WUD_REGISTRY_LSCR_PUBLIC_TOKEN=${GITHUB_TOKEN}
+      - WUD_REGISTRY_GHCR_PUBLIC_USERNAME=${GITHUB_LOGIN}
+      - WUD_REGISTRY_GHCR_PUBLIC_TOKEN=${GITHUB_TOKEN}
     networks:
       homelab-network:
         ipv4_address: 172.20.0.21

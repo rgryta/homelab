@@ -1,0 +1,36 @@
+services:
+  complexio:
+    image: ghcr.io/rgryta/the-act-of-complexio:0.6.0
+    container_name: complexio
+    restart: unless-stopped
+    environment:
+      - CONSOLE=true
+      - TABLET_KEY=${TABLET_KEY}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - unsafe-network
+    labels:
+      - traefik.enable=true
+      - autoheal=true
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.complexio
+      - traefik.http.routers.complexio.rule=Host(`complexio.gryta.eu`)
+      - traefik.http.routers.complexio.entrypoints=websecure
+      - traefik.http.routers.complexio.tls.certresolver=le
+      - traefik.http.routers.complexio.middlewares=complexio-per-ip
+      - traefik.http.middlewares.complexio-per-ip.inFlightReq.amount=50
+      - traefik.http.middlewares.complexio-per-ip.inFlightReq.sourceCriterion.ipStrategy.depth=0
+      - traefik.http.services.complexio.loadbalancer.server.port=8080
+networks:
+  unsafe-network:
+    name: unsafe-network
+    external: true

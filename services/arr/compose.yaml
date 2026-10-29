@@ -9,7 +9,7 @@ services:
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/linuxserver/sonarr:4.0.19
+    image: ghcr.io/linuxserver/sonarr:4.0.20
     container_name: sonarr
     networks:
       homelab-vpn-network:
@@ -21,6 +21,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - SONARR__SERVER__ALLOWEDHOSTS=sonarr.gryta.eu
     volumes:
       - sonarr_config:/config
       - qb_downloads:/downloads
@@ -37,7 +38,7 @@ services:
       - traefik.http.services.radarr.loadbalancer.server.port=7878
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: lscr.io/linuxserver/radarr:6.0.4
+    image: lscr.io/linuxserver/radarr:6.4.4
     container_name: radarr
     networks:
       homelab-vpn-network:
@@ -49,6 +50,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - RADARR__SERVER__TRUSTEDNETWORKS=172.20.2.2/32
     volumes:
       - radarr_config:/config
       - qb_downloads:/downloads
@@ -64,7 +66,7 @@ services:
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: lscr.io/linuxserver/prowlarr:2.3.0
+    image: lscr.io/linuxserver/prowlarr:2.7.0
     container_name: prowlarr
     networks:
       homelab-vpn-network:
@@ -78,6 +80,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - PROWLARR__SERVER__TRUSTEDNETWORKS=172.20.2.2/32
     volumes:
       - prowlarr_config:/config
       - qb_downloads:/downloads
@@ -87,7 +90,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
-    image: ghcr.io/flaresolverr/flaresolverr:v3.5.0
+    image: ghcr.io/flaresolverr/flaresolverr:v3.5.2
     container_name: flaresolverr
     networks:
       homelab-vpn-network:
@@ -105,7 +108,8 @@ services:
       - traefik.http.services.lidarr.loadbalancer.server.port=8686
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: lscr.io/linuxserver/lidarr:3.1.0
+      - wud.tag.exclude=^8\.1\.2135$
+    image: lscr.io/linuxserver/lidarr:3.1.6
     container_name: lidarr
     networks:
       homelab-vpn-network:
@@ -132,7 +136,7 @@ services:
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: lscr.io/linuxserver/bazarr:1.5.4
+    image: lscr.io/linuxserver/bazarr:1.6.2
     container_name: bazarr
     networks:
       homelab-vpn-network:
@@ -177,7 +181,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-    image: ghcr.io/cleanuparr/cleanuparr:2.10.2
+    image: ghcr.io/cleanuparr/cleanuparr:2.10.12
   tdarr:
     labels:
       - traefik.enable=true
@@ -188,7 +192,7 @@ services:
       - traefik.http.services.tdarr.loadbalancer.server.port=8265
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/haveagitgat/tdarr:2.85.01
+    image: ghcr.io/haveagitgat/tdarr:3.04.00
     container_name: tdarr
     networks:
       homelab-vpn-network:
@@ -222,6 +226,37 @@ services:
       - anime:/media/anime
     devices:
       - /dev/dri:/dev/dri
+    restart: unless-stopped
+  slskd:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.slskd.rule=Host(`slskd.gryta.eu`)
+      - traefik.http.routers.slskd.entrypoints=websecure
+      - traefik.http.routers.slskd.tls.certresolver=le
+      - traefik.http.routers.slskd.middlewares=authentik-forward-auth@file
+      - traefik.http.services.slskd.loadbalancer.server.url=http://172.20.2.3:5030
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+    image: slskd/slskd:0.26.2
+    container_name: slskd
+    # Shares the VPN container's netns (like qBittorrent): all Soulseek traffic leaves via AirVPN.
+    # After a vpn-client recreate this must be force-recreated too (same as qbittorrent).
+    network_mode: container:vpn-client
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      # authentik forward-auth gates the UI; slskd's own login is off (same exposure as qBittorrent's WebUI)
+      - SLSKD_NO_AUTH=true
+      - SLSKD_SLSK_USERNAME=${SLSK_USERNAME}
+      - SLSKD_SLSK_PASSWORD=${SLSK_PASSWORD}
+      # reserved AirVPN port; keep local == remote (see vpn-client)
+      - SLSKD_SLSK_LISTEN_PORT=${AIRVPN_SLSK_PORT}
+      - SLSKD_DOWNLOADS_DIR=/downloads/complete
+      - SLSKD_INCOMPLETE_DIR=/downloads/incomplete
+    volumes:
+      - slskd_config:/app
+      - slskd_downloads:/downloads
     restart: unless-stopped
 volumes:
   # *Arr's configs
@@ -324,6 +359,19 @@ volumes:
       type: none
       o: bind
       device: /mnt/archive/media/Books
+  # Soulseek
+  slskd_config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/slskd/config
+  slskd_downloads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/apps/volumes/slskd/downloads
 networks:
   homelab-vpn-network:
     external: true

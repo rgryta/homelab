@@ -45,6 +45,8 @@ services:
         ipv4_address: 172.20.0.115
     env_file:
       - .env
+    environment:
+      - MACHINE_LEARNING_MODEL_REVISION=v2
     restart: unless-stopped
     healthcheck:
       disable: false

@@ -8,7 +8,7 @@ services:
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+-apache$
     container_name: roundcubemail
-    image: roundcube/roundcubemail:1.7.2-apache
+    image: roundcube/roundcubemail:1.7.5-apache
     restart: unless-stopped
     networks:
       homelab-network:
@@ -28,7 +28,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
-    image: ghcr.io/docker-mailserver/docker-mailserver:15.1.0
+    image: ghcr.io/docker-mailserver/docker-mailserver:16.0.1
     container_name: mailserver
     hostname: mail.gryta.eu
     depends_on:
@@ -49,8 +49,10 @@ services:
       LDAP_QUERY_FILTER_DOMAIN: (mail=*@%s)
       ENABLE_QUOTAS: 0
       DOVECOT_AUTH_BIND: yes
-      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%u))
+      DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%{user}))
       DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
+      # Dovecot 2.4 (DMS v16) errors on missing LDAP attributes; lldap has no uniqueIdentifier (the DMS default). Map user from mail.
+      DOVECOT_PASS_ATTRS: mail=user
       SPOOF_PROTECTION: 1
       ENABLE_OAUTH2: 1
       OAUTH2_INTROSPECTION_URL: https://${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}@authentik.gryta.eu/application/o/introspect/
@@ -58,7 +60,6 @@ services:
       - dms_data:/var/mail/
       - dms_state:/var/mail-state/
       - dms_config:/tmp/docker-mailserver/
-      - dovecot_config:/etc/dovecot/
       - /mnt/quick/apps/volumes/traefik/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro
     networks:
       homelab-network:
@@ -69,15 +70,6 @@ services:
       - 465:465
       - 587:587
       - 993:993
-    healthcheck:
-      # Keep the LDAP-gated changedetector running on every probe so renewed
-      # Let's Encrypt certs in acme.json are extracted after ANY restart/reboot
-      # (DMS skips _setup on restart, so user-patches.sh cannot cover that).
-      # See user-patches.sh / docker-mailserver issue #4528.
-      test: supervisorctl start changedetector >/dev/null 2>&1; ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1
-      interval: 30s
-      timeout: 5s
-      retries: 3
 volumes:
   roundcube_www:
     driver_opts:
@@ -104,11 +96,6 @@ volumes:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/mailserver/config
-  dovecot_config:
-    driver_opts:
-      o: bind
-      type: none
-      device: /mnt/quick/apps/volumes/mailserver/dovecot
 networks:
   homelab-network:
     external: true
