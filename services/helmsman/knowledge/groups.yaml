@@ -1,0 +1,6 @@
+# Durable group membership, seeded once onto an empty DB (see groups.seed_if_empty).
+# Group name -> member remote keys (canonical: lowercase host/path, no scheme).
+complexio:
+  - github.com/quintessential-ai/ansible
+  - github.com/quintessential-ai/complexio
+  - github.com/quintessential-ai/pulumi

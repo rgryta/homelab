@@ -2,7 +2,7 @@
 
 Local steering layer for Claude Code, deployed remotely. Watches Claude Code sessions
 through hooks and warns/blocks on house-rule violations or resemblance to past corrections.
-Source + image build: `rgryta/helmsman`.
+Source + image build: `rgryta/helmsman-server` (Rust), mirrored to `172.20.0.52:5000/helmsman-server:<version>`.
 
 ## Storage
 
@@ -12,22 +12,16 @@ state live there too, so the container is stateless.
 
 ## First-time provisioning
 
-1. Create the role, database and extensions (run once, as `postgres`):
+Create the role, database and extensions once (as `postgres`); the server applies its own
+migrations on start:
 
-   ```bash
-   psql -h homelab-postgres -U postgres \
-     -v helmsman_pw="'$HELMSMAN_DB_PASSWORD'" \
-     -f provision-helmsman-db.sql
-   ```
+```bash
+psql -h homelab-postgres -U postgres \
+  -v helmsman_pw="'$HELMSMAN_DB_PASSWORD'" \
+  -f provision-helmsman-db.sql
+```
 
-   (`provision-helmsman-db.sql` ships in the `rgryta/helmsman` repo under `deploy/`.)
-
-2. Migrate the existing corpus (one-off, from a machine holding the sqlite corpus):
-
-   ```bash
-   HELMSMAN_PG_DSN=postgresql://helmsman:$HELMSMAN_DB_PASSWORD@homelab-postgres:5432/helmsman \
-     python -m helmsman.migrate_to_pg
-   ```
+Rules, groups and hints are mounted from `knowledge/` (mode 644, the image runs as uid 65532).
 
 ## Auth model
 
@@ -36,36 +30,23 @@ state live there too, so the container is stateless.
   Mint one per machine:
 
   ```bash
-  helmsmanctl token mint <machine>   # prints the secret once
+  helmsman-server token mint <machine>   # prints the secret once
   ```
 
-  or use the **Tokens** page in the control panel. `/health` is open.
+  `/health` is open.
 
-- **Control panel** (`/ui`) and its backend (`/api`) sit behind **authentik** (human SSO). Because
-  the app still bearer-gates `/api`, Traefik injects a service token after authentik. Add a
-  headers middleware to Traefik's file provider (`/traefik/data/`):
+- **`/api`** is bearer-gated too. The Rust server serves no `/ui` dashboard, so the Authentik
+  `helmsman-ui` router is gone.
 
-  ```yaml
-  http:
-    middlewares:
-      helmsman-ui-token:
-        headers:
-          customRequestHeaders:
-            Authorization: "Bearer <UI_TOKEN>"
-  ```
+## LLM
 
-  Bootstrap `<UI_TOKEN>` once on the server: `helmsmanctl token mint ui`. The `helmsman-ui`
-  router (see `compose.yaml`) chains `authentik-forward-auth@file` then `helmsman-ui-token@file`,
-  so a browser is authenticated by authentik and the app sees a valid token; direct
-  docker-network access without a token is still rejected.
+`HELMSMAN_LLM_URL` and `HELMSMAN_LLM_MODEL` (in `.env`) point at the chat model backing the stop
+council/gate; embeddings use `HELMSMAN_EMBED_URL` (default `https://llama.gryta.eu`).
 
-## Qwen-dependent features (degraded)
+## Rollback
 
-The stop **council/gate** and **stop-question** accelerator need a local Qwen chat model. The
-homelab `llama-cpp` service is embeddings-only (nomic), so those features **fail open** (the gate
-falls back to its keyword path) until a chat model is provisioned and `HELMSMAN_STOP_QWEN_URL` is
-pointed at it. Rules, the learned-correction advisor, and anti-patterns are unaffected — they only
-need embeddings (`llama.gryta.eu`).
+The previous Python image was `172.20.0.52:5000/helmsman@sha256:67ad1a0e3b0c7196e316dfce3e48aea7876ebd22fe75d76f2df43a88bdeda7bf`.
+Same database, no schema change: restore the old compose with that image and recreate.
 
 ## Client setup (per machine)
 

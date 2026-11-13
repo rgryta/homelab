@@ -1,0 +1,73 @@
+- id: no-coauthor-commit
+  description: Commit messages must not include a Co-Authored-By trailer
+  tier: block
+  tools: [Bash]
+  command_regex: 'git\s+commit[\s\S]*Co-Authored-By'
+  message: "House rule: no coauthoring. Remove the Co-Authored-By trailer from the commit message."
+
+- id: no-sudo-podman
+  description: Never run podman with sudo
+  tier: block
+  tools: [Bash]
+  command_regex: '\bsudo\s+podman\b'
+  message: "House rule: never run podman with sudo. Re-run without sudo."
+
+- id: gh-close-with-comment
+  description: Closing a PR/issue must not attach a comment
+  tier: block
+  tools: [Bash]
+  command_regex: 'gh\s+(pr|issue)\s+close[\s\S]*--comment'
+  message: "House rule: close means close. Drop the --comment; do not leave a closing comment."
+
+- id: ci-rerun-all
+  description: Re-run only failed CI jobs
+  tier: warn
+  tools: [Bash]
+  command_regex: 'gh\s+run\s+rerun'
+  command_absent_regex: '--failed'
+  message: "When CI fails partially, re-run only failed jobs: gh run rerun --failed."
+
+- id: emoji-in-commit
+  description: No emojis in commit messages
+  tier: warn
+  tools: [Bash]
+  command_regex: 'git\s+commit[\s\S]*[\U0001F300-\U0001FAFF☀-➿←-⇿]'
+  message: "House rule: no emojis in commit or PR messages."
+
+- id: migration-immutable
+  description: Editing an existing migration file
+  tier: warn
+  tools: [Edit]
+  path_regex: 'db-migrations/.*\.(up|down)\.sql$'
+  message: "Merged migrations are immutable. Write a NEW migration instead of editing this one."
+
+- id: migration-schema-prefix
+  description: Migrations must reference tables by bare name
+  tier: warn
+  tools: [Write, Edit]
+  path_regex: 'db-migrations/.*\.sql$'
+  content_regex: '\b(public|stevie|app)\.\w+'
+  message: "House rule: migrations reference tables by bare name — drop the schema prefix."
+
+- id: bulk-pkill
+  description: Bulk-killing processes by name
+  tier: warn
+  tools: [Bash]
+  command_regex: '\bpkill\b|kill\s+\$\((?:[^)]*\b(pgrep|lsof)\b)'
+  message: "Inspect each PID before killing — don't bulk-kill from pgrep/lsof; browsers hold dev ports."
+
+- id: spec-md-into-repo
+  description: Spec/plan/design markdown must not be written inside a repo
+  scope: complexio
+  tier: block
+  tools: [Write, Edit]
+  predicate: 'event.get("remote") != None and matches(r"(?i)/([^/]*(spec|plan|design|review|brainstorm|STE-\d)[^/]*|(facts|context|findings)-\d[^/]*)\.md$", event.get("file_path") or "")'
+  message: "House rule: never put spec/plan docs inside a repo. Keep them in the project root."
+
+- id: unscoped-find
+  description: Filesystem-wide find without a scope
+  tier: warn
+  tools: [Bash]
+  command_regex: '\bfind\s+(/|\$HOME/?|~/?)(\s|$)'
+  command_absent_regex: '-maxdepth\b'
+  message: "House rule: scope find to a specific directory or add -maxdepth -- a filesystem-wide search can eat the Bash tool's 120s timeout. Use a more targeted lookup instead."
