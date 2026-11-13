@@ -2,33 +2,34 @@ services:
   helmsman:
     labels:
       - traefik.enable=true
-      # Machine API + hooks + MCP: bearer-token auth at the app, no authentik.
       - traefik.http.routers.helmsman.rule=Host(`helmsman.gryta.eu`)
       - traefik.http.routers.helmsman.entrypoints=websecure
       - traefik.http.routers.helmsman.tls.certresolver=le
       - traefik.http.services.helmsman.loadbalancer.server.port=8787
-      # Control panel (/ui) + its backend (/api): human SSO via authentik, then a
-      # service bearer token injected for the app's own auth. The authentik outpost
-      # callback (/outpost.goauthentik.io/) must go through this router too, else it
-      # falls through to the bearer-only machine router and 401s mid-handshake.
-      - traefik.http.routers.helmsman-ui.rule=Host(`helmsman.gryta.eu`) &&
-        (PathPrefix(`/ui`) || PathPrefix(`/api`) ||
-        PathPrefix(`/outpost.goauthentik.io/`))
-      - traefik.http.routers.helmsman-ui.entrypoints=websecure
-      - traefik.http.routers.helmsman-ui.tls.certresolver=le
-      - traefik.http.routers.helmsman-ui.service=helmsman
-      - traefik.http.routers.helmsman-ui.middlewares=authentik-forward-auth@file,helmsman-ui-token@file
       - wud.watch=true
       - wud.watch.digest=true
-    image: 172.20.0.52:5000/helmsman:latest
+    image: 172.20.0.52:5000/helmsman-server:0.1.0
     container_name: helmsman
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
       HELMSMAN_AUTH_ENABLED: on
       HELMSMAN_PG_DSN: postgresql://helmsman:${HELMSMAN_DB_PASSWORD}@homelab-postgres:5432/helmsman
       HELMSMAN_EMBED_API_KEY: ${HELMSMAN_EMBED_API_KEY}
+      # The Python server defaulted these four; helmsman-server leaves them unset or empty.
+      HELMSMAN_EMBED_URL: ${HELMSMAN_EMBED_URL:-https://llama.gryta.eu}
+      HELMSMAN_LLM_MODEL: ${HELMSMAN_LLM_MODEL:-unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL}
+      HELMSMAN_MCP_ALLOWED_HOSTS: ${HELMSMAN_MCP_ALLOWED_HOSTS:-helmsman.gryta.eu}
+      HELMSMAN_RULES: /knowledge/seed.yaml
+      HELMSMAN_GROUPS: /knowledge/groups.yaml
+      HELMSMAN_HINTS: /knowledge/hints.yaml
+    volumes:
+      - helmsman_knowledge:/knowledge:ro
     networks:
       homelab-network:
         ipv4_address: 172.20.0.16
@@ -36,18 +37,22 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 3G
+          memory: 1G
     healthcheck:
       test:
         - CMD
-        - python
-        - -c
-        - import urllib.request;
-          urllib.request.urlopen('http://localhost:8787/health')
+        - helmsman-server
+        - health-check
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
+volumes:
+  helmsman_knowledge:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/helmsman/knowledge
 networks:
   homelab-network:
     external: true
