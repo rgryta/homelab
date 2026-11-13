@@ -21,7 +21,7 @@ psql -h homelab-postgres -U postgres \
   -f provision-helmsman-db.sql
 ```
 
-Rules, groups and hints are inline compose `configs:` mounted read-only at `/knowledge/` (mode 0444), so no host files or volumes are involved. They originate in `rgryta/helmsman-private` under `knowledge/`; `$` is escaped as `$$` in compose.
+Rules, groups and hints are private and live only in `rgryta/helmsman-private` (`knowledge/`). Run `volume.sh`, then copy `hints.yaml`, `seed.yaml` and `groups.yaml` into `/mnt/quick/apps/volumes/helmsman/knowledge/` (mounted read-only at `/knowledge`).
 
 ## Auth model
 

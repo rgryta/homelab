@@ -28,16 +28,8 @@ services:
       HELMSMAN_RULES: /knowledge/seed.yaml
       HELMSMAN_GROUPS: /knowledge/groups.yaml
       HELMSMAN_HINTS: /knowledge/hints.yaml
-    configs:
-      - source: helmsman_hints
-        target: /knowledge/hints.yaml
-        mode: 0444
-      - source: helmsman_seed
-        target: /knowledge/seed.yaml
-        mode: 0444
-      - source: helmsman_groups
-        target: /knowledge/groups.yaml
-        mode: 0444
+    volumes:
+      - helmsman_knowledge:/knowledge:ro
     networks:
       homelab-network:
         ipv4_address: 172.20.0.16
@@ -55,116 +47,12 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
-configs:
-  helmsman_hints:
-    content: |
-      # HELMSMAN_HINTS for helmsman-server: the vocabulary this deployment's Python server had built in.
-      # Domain names are stored with every anti-pattern row, so keep names and order unchanged.
-      anti_pattern_domains:
-        - name: frontend
-          pattern: '\.(?:tsx|jsx|scss)\b|\bfrontend/|\bstevie-frontend\b|\buseLayoutEffect\b|\bcss\b'
-        - name: customer-ops
-          pattern: '\bneo4j\b|\bingestion\b|\bgraph writer\b|\bgitops\b|\bhelm\b|\bkubectl\b|\bpodman\b|\bansible\b|\bprod(?:uction)?\b|\bcustomer\b|\bdeploy\b|\bssh\b'
-        - name: helmsman
-          pattern: '\bhelmsman\b|\bcouncil\b|\banti-pattern\b|\bstop hook\b|\bdaemon\b'
-      council:
-        frontend_pattern: '(?:\b[\w./-]+\.(?:tsx|jsx|scss)\b)|(?:[\w./-]*\.(?:ts|css)(?:\b|[):,]))|(?:\bfrontend/)|(?:\bstevie-frontend\b)|(?:\buseLayoutEffect\b)'
-        frontend_cwd_markers: [stevie-frontend]
-      style:
-        greeting_tokens: [morning, hi, hello, hey, heyo, yo, siema, hej, hejka, elo, cześć, czesc]
-        greeting_phrases: [morning morning, good morning, morning all, dzień dobry, dzien dobry]
-        affect_keywords:
-          [
-            dying, mind, argh, ugh, omg, wtf, yay, ouch, amazing, awful, frustrating, thanks, thank,
-            thx, appreciate, lol, haha, lmao, broken, fail, fucked, fucking, fuck, shit, sucks, love,
-            hate, finally, stupid, crazy, wild, insane, ridiculous, annoying, weird, great, heyo, yo,
-            later, bye, cheers, dziękuję, dzięki, kurde, kurwa, cholera, fajne, fajnie, super, ekstra,
-            zabawne, śmiech, smutno, dziwne, głupi, głupota, zajebiście, spoko, bzdura
-          ]
-        second_language: {code: pl, letters: "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ"}
-  helmsman_seed:
-    content: |
-      - id: no-coauthor-commit
-        description: Commit messages must not include a Co-Authored-By trailer
-        tier: block
-        tools: [Bash]
-        command_regex: 'git\s+commit[\s\S]*Co-Authored-By'
-        message: "House rule: no coauthoring. Remove the Co-Authored-By trailer from the commit message."
-
-      - id: no-sudo-podman
-        description: Never run podman with sudo
-        tier: block
-        tools: [Bash]
-        command_regex: '\bsudo\s+podman\b'
-        message: "House rule: never run podman with sudo. Re-run without sudo."
-
-      - id: gh-close-with-comment
-        description: Closing a PR/issue must not attach a comment
-        tier: block
-        tools: [Bash]
-        command_regex: 'gh\s+(pr|issue)\s+close[\s\S]*--comment'
-        message: "House rule: close means close. Drop the --comment; do not leave a closing comment."
-
-      - id: ci-rerun-all
-        description: Re-run only failed CI jobs
-        tier: warn
-        tools: [Bash]
-        command_regex: 'gh\s+run\s+rerun'
-        command_absent_regex: '--failed'
-        message: "When CI fails partially, re-run only failed jobs: gh run rerun --failed."
-
-      - id: emoji-in-commit
-        description: No emojis in commit messages
-        tier: warn
-        tools: [Bash]
-        command_regex: 'git\s+commit[\s\S]*[\U0001F300-\U0001FAFF☀-➿←-⇿]'
-        message: "House rule: no emojis in commit or PR messages."
-
-      - id: migration-immutable
-        description: Editing an existing migration file
-        tier: warn
-        tools: [Edit]
-        path_regex: 'db-migrations/.*\.(up|down)\.sql$$'
-        message: "Merged migrations are immutable. Write a NEW migration instead of editing this one."
-
-      - id: migration-schema-prefix
-        description: Migrations must reference tables by bare name
-        tier: warn
-        tools: [Write, Edit]
-        path_regex: 'db-migrations/.*\.sql$$'
-        content_regex: '\b(public|stevie|app)\.\w+'
-        message: "House rule: migrations reference tables by bare name — drop the schema prefix."
-
-      - id: bulk-pkill
-        description: Bulk-killing processes by name
-        tier: warn
-        tools: [Bash]
-        command_regex: '\bpkill\b|kill\s+\$$\((?:[^)]*\b(pgrep|lsof)\b)'
-        message: "Inspect each PID before killing — don't bulk-kill from pgrep/lsof; browsers hold dev ports."
-
-      - id: spec-md-into-repo
-        description: Spec/plan/design markdown must not be written inside a repo
-        scope: complexio
-        tier: block
-        tools: [Write, Edit]
-        predicate: 'event.get("remote") != None and matches(r"(?i)/([^/]*(spec|plan|design|review|brainstorm|STE-\d)[^/]*|(facts|context|findings)-\d[^/]*)\.md$$", event.get("file_path") or "")'
-        message: "House rule: never put spec/plan docs inside a repo. Keep them in the project root."
-
-      - id: unscoped-find
-        description: Filesystem-wide find without a scope
-        tier: warn
-        tools: [Bash]
-        command_regex: '\bfind\s+(/|\$$HOME/?|~/?)(\s|$$)'
-        command_absent_regex: '-maxdepth\b'
-        message: "House rule: scope find to a specific directory or add -maxdepth -- a filesystem-wide search can eat the Bash tool's 120s timeout. Use a more targeted lookup instead."
-  helmsman_groups:
-    content: |
-      # Durable group membership, seeded once onto an empty DB (see groups.seed_if_empty).
-      # Group name -> member remote keys (canonical: lowercase host/path, no scheme).
-      complexio:
-        - github.com/quintessential-ai/ansible
-        - github.com/quintessential-ai/complexio
-        - github.com/quintessential-ai/pulumi
+volumes:
+  helmsman_knowledge:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/helmsman/knowledge
 networks:
   homelab-network:
     external: true
