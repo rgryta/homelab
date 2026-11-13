@@ -29,7 +29,7 @@ TrueNAS Dockge-based homelab with containerized services.
 | [PiHole](services/pihole/) | DNS ad-blocking with Unbound |
 | [What's Up Docker](services/wud/) | Container update checker |
 | [Autoheal](services/autoheal/) | Restarts containers failing their healthcheck |
-| [Llama.cpp](services/llama-cpp/) | Local LLM inference |
+| [AI (llama.cpp, whisper.cpp)](services/ai-cpp/) | Local embeddings and speech-to-text |
 | [Helmsman](services/helmsman/) | Claude Code steering daemon (Postgres/VectorChord) |
 | [Bemol](services/bemol/) | Lyrics alignment and karaoke pipeline |
 | [BTX](services/btx/) | IBKR gateway and training stack |

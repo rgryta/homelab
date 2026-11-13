@@ -12,7 +12,8 @@ Main application network for all services.
 | LLDAP | lldap | 172.20.0.10 |
 | Authentik | authentik-server | 172.20.0.13 |
 | | authentik-worker | 172.20.0.14 |
-| Llama.cpp | llama-cpp | 172.20.0.15 |
+| Llama.cpp | ai-cpp (llama-cpp) | 172.20.0.15 |
+| Whisper.cpp | ai-cpp (whisper-cpp) | 172.20.0.9 |
 | Helmsman | helmsman | 172.20.0.16 |
 | Databases | homelab-postgres | 172.20.0.30 |
 | | homelab-valkey | 172.20.0.31 |
