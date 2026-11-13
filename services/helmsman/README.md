@@ -21,7 +21,7 @@ psql -h homelab-postgres -U postgres \
   -f provision-helmsman-db.sql
 ```
 
-Rules, groups and hints are mounted from `knowledge/` (mode 644, the image runs as uid 65532).
+Rules, groups and hints are inline compose `configs:` mounted read-only at `/knowledge/` (mode 0444), so no host files or volumes are involved. They originate in `rgryta/helmsman-private` under `knowledge/`; `$` is escaped as `$$` in compose.
 
 ## Auth model
 
