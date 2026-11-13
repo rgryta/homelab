@@ -1,6 +1,3 @@
-# helmsman-server (Rust) drop-in for compose.yaml; see deploy/CUTOVER.md before switching.
-# Expects knowledge/{hints,seed,groups}.yaml beside this file, world-readable (the image runs as 65532).
-# No /ui router: helmsman-server serves no dashboard, so /api is reachable only with a bearer token.
 services:
   helmsman:
     labels:
@@ -21,7 +18,7 @@ services:
     env_file:
       - .env
     environment:
-      HELMSMAN_AUTH_ENABLED: "on"
+      HELMSMAN_AUTH_ENABLED: on
       HELMSMAN_PG_DSN: postgresql://helmsman:${HELMSMAN_DB_PASSWORD}@homelab-postgres:5432/helmsman
       HELMSMAN_EMBED_API_KEY: ${HELMSMAN_EMBED_API_KEY}
       # The Python server defaulted these four; helmsman-server leaves them unset or empty.
@@ -44,7 +41,10 @@ services:
           cpus: "1"
           memory: 1G
     healthcheck:
-      test: ["CMD", "helmsman-server", "health-check"]
+      test:
+        - CMD
+        - helmsman-server
+        - health-check
       interval: 30s
       timeout: 10s
       retries: 5
