@@ -19,7 +19,6 @@ services:
       - PORT=51821
       - DISABLE_IPV6=true
       - TZ=Europe/Warsaw
-      # --- OIDC via authentik (access gated by lldap_admin binding) ---
       - OAUTH_PROVIDERS=oidc
       - OAUTH_OIDC_NAME=Authentik
       - OAUTH_OIDC_SERVER=https://authentik.gryta.eu/application/o/wireguard/

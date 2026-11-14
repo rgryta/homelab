@@ -34,7 +34,6 @@ services:
       - traefik.http.routers.seerr.middlewares=authentik-forward-auth@file
       - traefik.http.routers.seerr.service=seerr
       - traefik.http.services.seerr.loadbalancer.server.port=5055
-      # Old hostname: redirect before forward-auth so bookmarks keep working
       - traefik.http.routers.jellyseerr-legacy.rule=Host(`jellyseerr.gryta.eu`)
       - traefik.http.routers.jellyseerr-legacy.entrypoints=websecure
       - traefik.http.routers.jellyseerr-legacy.tls.certresolver=le

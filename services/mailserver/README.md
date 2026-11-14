@@ -49,3 +49,7 @@ Then restart both services.
  - https://github.com/roundcube/roundcubemail/wiki/Configuration:-OAuth2
  - https://docker-mailserver.github.io/docker-mailserver/latest/config/account-management/supplementary/oauth2/#1-docker-mailserver
  
+
+## Design notes
+
+- `DOVECOT_PASS_ATTRS: mail=user`: Dovecot 2.4 (docker-mailserver v16) errors on missing LDAP attributes. lldap has no `uniqueIdentifier`, which is the docker-mailserver default, so the user is mapped from `mail`.

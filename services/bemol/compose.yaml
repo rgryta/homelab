@@ -17,8 +17,6 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.24
-    # DB + broker live in the shared `databases` stack (homelab-postgres / homelab-valkey),
-    # reached over homelab-network via BEMOL_DATABASE_URL / BEMOL_REDIS_URL in .env.
     deploy:
       resources:
         limits:

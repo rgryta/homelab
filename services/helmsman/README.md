@@ -55,3 +55,7 @@ helmsmanctl token set <token>                    # writes ~/.helmsman/token (600
 export HELMSMAN_URL=https://helmsman.gryta.eu     # hooks
 export HELMSMAN_DAEMON_URL=https://helmsman.gryta.eu   # MCP shim
 ```
+
+## Design notes
+
+- The Python server defaulted `HELMSMAN_EMBED_URL`, `HELMSMAN_LLM_MODEL`, `HELMSMAN_MCP_ALLOWED_HOSTS` and the other values compose now sets explicitly. `helmsman-server` leaves them unset or empty.

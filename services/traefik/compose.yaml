@@ -16,29 +16,23 @@ services:
     restart: unless-stopped
     command:
       - --log.level=INFO
-      # Dashboard only through the authentik router (api@internal); :8080 serves metrics on homelab-network only
       - --entrypoints.traefik.address=172.20.0.100:8080
       - --api.dashboard=true
       - --accesslog=true
       - --accesslog.format=json
       - --accesslog.filters.statuscodes=400-599
       - --accesslog.fields.headers.names.User-Agent=keep
-      # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entryPoint.to=websecure
       - --entrypoints.web.http.redirections.entryPoint.scheme=https
       - --entrypoints.websecure.address=:443
-      # Responding timeouts (default readTimeout is 60s, which kills large/slow uploads e.g. Immich)
       - --entrypoints.websecure.transport.respondingtimeouts.readtimeout=0
-      #Providers
       - --providers.docker=true
       - --providers.file.directory=/traefik/data
       - --providers.file.watch=true
-      # ACME
       - --certificatesresolvers.le.acme.email=radek.gryta@gmail.com
       - --certificatesresolvers.le.acme.storage=/traefik/letsencrypt/acme.json
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      # Metrics
       - --metrics.prometheus=true
       - --metrics.prometheus.addEntryPointsLabels=true
       - --metrics.prometheus.addRoutersLabels=true

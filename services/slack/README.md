@@ -1,0 +1,11 @@
+# slack
+
+## Design notes
+
+- Both services drop all capabilities and set `no-new-privileges`. They already run unprivileged, this stops the process gaining anything either, and nothing in here needs a capability.
+- `slack-mcp` has no `env_file`, on purpose. `.env` carries `SLACK_WORK_XOXC` and `SLACK_WORK_XOXD`, the browser session credential that can read and send as the account, and the ingest role's database password. `env_file` injects all of it whatever `environment:` lists, so this process held credentials that the design exists to deny it: the binary cannot even link the Slack client. Compose interpolates `${SLACK_MCP_DB_PASSWORD}` from the same `.env` at parse time, so nothing here needs the file. The ingester keeps its `env_file`, because it needs the tokens.
+- `SLACK_MCP_ALLOWED_HOSTS` is rmcp's guard against DNS rebinding: the `Host` headers `/mcp` will answer. MCPHub's registry addresses this server by container name (`http://slack-mcp:8000/mcp`), so this is that name. It has no port, because `SLACK_MCP_PORT` is already the one place the port is written down, and a second copy would eventually disagree with it. Unset or blank falls back to loopback only, which fails closed: every tool call would return 403 while `/healthz` kept the container green. The effective list is logged at startup.
+- The `slack-mcp` healthcheck is the binary probing its own `/healthz`. It is the only thing that can: the image has no shell and no interpreter, so there is nothing to write a `curl`-shaped probe with. `/healthz` sits outside the `SLACK_MCP_ALLOWED_HOSTS` guard, so it needs no entry of its own.
+- There is one ingester container per Slack account. Each carries its own session credentials and its own scope, so a dead token on one does not touch the other.
+- The ingesters have no healthcheck. A healthy ingester spends most of its life asleep between polls, which no probe can tell apart from wedged. Use the `slack-status` MCP tool instead. It reports each account's last poll, last auth error and backfill progress, which is the question a healthcheck would be trying to answer.
+- `SLACK_SCOPE_CHANNELS` comes from `.env`, which is not committed: the real channel names belong to the account holder, not to this repository. Unset means DMs and group DMs only. A channel is only ever collected because it is named there.

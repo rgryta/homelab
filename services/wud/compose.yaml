@@ -13,11 +13,7 @@ services:
     container_name: wud
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # Self-destructing service worker. The stock one caches the app shell, so an
-      # expired authentik session produces a white screen instead of a login redirect
-      # (the SPAs XHR gets 302d cross-origin, which XHR cannot follow).
       - /mnt/quick/apps/volumes/wud/service-worker.js:/home/node/app/ui/service-worker.js:ro
-      # complexio auto-deploys new releases: wud rewrites its compose file (opt-in trigger below).
       - /mnt/.ix-apps/app_mounts/dockge/stacks/complexio:/mnt/.ix-apps/app_mounts/dockge/stacks/complexio
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *

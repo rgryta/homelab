@@ -1,9 +1,6 @@
 services:
   syncthing:
     labels:
-      # GUI is not published through Traefik: it is reached over wireguard at
-      # http://172.20.0.108:8384. Publishing it would need an authentik
-      # application for syncthing.gryta.eu, which does not exist.
       - traefik.enable=false
       - wud.watch=true
       - wud.watch.digest=true

@@ -24,7 +24,6 @@ services:
       LLAMA_ARG_PORT: 8000
       LLAMA_ARG_EMBEDDINGS: 1
       LLAMA_ARG_POOLING: mean
-      # SYCL_CACHE_PERSISTENT: 1
       LLAMA_API_KEY: ${LLAMA_API_KEY}
       LLAMA_LOG_VERBOSITY: 2
     healthcheck:
@@ -41,14 +40,9 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.15
     restart: unless-stopped
-  # Speech to text (whisper.cpp, same Intel GPU). Internal only: whisper-server has no API key,
-  # so it is not published through Traefik. POST audio to http://whisper-cpp:8080/inference.
-  # Static IP: bemol's GPU worker (other host, over wg0) pins it via extra_hosts.
   whisper-cpp:
     image: ghcr.io/ggml-org/whisper.cpp:main-intel
     container_name: whisper-cpp
-    # The image entrypoint is `bash -c`, so the whole command is one string.
-    # -l auto: the server defaults to English. --convert: voice notes arrive as opus/ogg.
     command:
       - /app/build/bin/whisper-server --host 0.0.0.0 --port 8080 -m /models/ggml-small-q5_1.bin -l auto --convert --tmp-dir /tmp -sns
     devices:

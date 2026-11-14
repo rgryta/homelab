@@ -51,7 +51,6 @@ services:
       DOVECOT_AUTH_BIND: yes
       DOVECOT_USER_FILTER: (&(objectClass=inetOrgPerson)(mail=%{user}))
       DOVECOT_USER_ATTRS: =uid=5000,=gid=5000,=home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir
-      # Dovecot 2.4 (DMS v16) errors on missing LDAP attributes; lldap has no uniqueIdentifier (the DMS default). Map user from mail.
       DOVECOT_PASS_ATTRS: mail=user
       SPOOF_PROTECTION: 1
       ENABLE_OAUTH2: 1
