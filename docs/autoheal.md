@@ -2,16 +2,16 @@
 
 `autoheal` restarts a container when its healthcheck reports `unhealthy`. It is opt-in: only containers with the label `autoheal=true` are watched (`AUTOHEAL_CONTAINER_LABEL=autoheal` in the `autoheal` stack).
 
-Add `autoheal=true` to the `labels` of every service that has a healthcheck, whether the check is in the compose file or in the image. A label on a container without a healthcheck does nothing.
+## When to label a service
 
-## Not labeled on purpose
+Add `autoheal=true` to a service that has a healthcheck and has crashed or hung without restarting properly. A label on a container without a healthcheck does nothing.
+
+Services that run fine do not need it. The core infrastructure (`authentik`, `lldap`, `pihole`, `unbound`, `mailserver`, `wireguard`, the `databases` stack) has no label and does not need one.
+
+## Never label
 
 - `vpn-client`: `qbittorrent` and `slskd` share its network namespace. Restarting it leaves both without a network until they are recreated too, so an automatic restart would make things worse.
 - `ix-dockge-dockge-1`: the Dockge app belongs to TrueNAS, not to a stack in this repository.
-
-## Not labeled yet
-
-Core infrastructure that is recreated with care, because a recreate means an outage for everything behind it: `authentik-server`, `authentik-worker`, `lldap`, `pihole`, `unbound`, `mailserver`, `wireguard` and the containers of the `databases` stack.
 
 ## Adding the label
 
