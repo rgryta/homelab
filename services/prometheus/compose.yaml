@@ -69,6 +69,7 @@ services:
       - traefik.enable=false
       - wud.watch=true
       - wud.tag.include=^v\d+\.\d+\.\d+$
+      - autoheal=true
     image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
     restart: unless-stopped

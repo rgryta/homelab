@@ -8,6 +8,7 @@ services:
       - traefik.http.services.llama.loadbalancer.server.port=8000
       - wud.watch=true
       - wud.watch.digest=true
+      - autoheal=true
     image: ghcr.io/ggml-org/llama.cpp:server-intel
     container_name: llama-cpp
     devices:
@@ -64,6 +65,7 @@ services:
     labels:
       - wud.watch=true
       - wud.watch.digest=true
+      - autoheal=true
     networks:
       homelab-network:
         ipv4_address: 172.20.0.9

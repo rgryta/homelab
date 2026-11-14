@@ -237,6 +237,7 @@ services:
       - traefik.http.services.slskd.loadbalancer.server.url=http://172.20.2.3:5030
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+\.\d+$
+      - autoheal=true
     image: slskd/slskd:0.26.2
     container_name: slskd
     network_mode: container:vpn-client

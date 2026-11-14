@@ -9,6 +9,7 @@ services:
       - traefik.http.routers.wud.middlewares=authentik-forward-auth@file
       - wud.watch=true
       - wud.tag.include=^\d+\.\d+$
+      - autoheal=true
     image: ghcr.io/getwud/wud:8.4
     container_name: wud
     volumes:

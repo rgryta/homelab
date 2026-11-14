@@ -9,6 +9,7 @@ services:
       - wud.watch=true
       - wud.watch.digest=true
       - wud.tag.include=^v\d+$
+      - autoheal=true
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     extends:
@@ -33,6 +34,7 @@ services:
       - wud.watch=true
       - wud.watch.digest=true
       - wud.tag.include=^v\d+-openvino$
+      - autoheal=true
     container_name: immich_machine_learning
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}-openvino
     extends:
