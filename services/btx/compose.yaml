@@ -38,8 +38,6 @@ services:
     container_name: btx-train
     env_file:
       - .env
-    # Run training once (recency gate skips if models are fresh), then hang so
-    # the container stays "Up" cleanly in dockge instead of an exited one-off.
     command:
       - sh
       - -c
@@ -88,10 +86,6 @@ services:
           cpus: "1"
           memory: 1G
     healthcheck:
-      # Healthy ONLY on a fresh "ok" verdict. A missing/unreadable/stale verdict
-      # (ingestion writer down) or any non-ok state (logged_out/unknown) is
-      # UNHEALTHY -- previously all of these silently reported healthy, hiding a
-      # logged-out gateway. 300s staleness tolerates brief ingestion restarts.
       test:
         - CMD-SHELL
         - f=/health/gateway.verdict; [ -r "$$f" ] || exit 1; set -- $$(cat "$$f"

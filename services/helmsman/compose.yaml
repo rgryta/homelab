@@ -21,7 +21,6 @@ services:
       HELMSMAN_AUTH_ENABLED: on
       HELMSMAN_PG_DSN: postgresql://helmsman:${HELMSMAN_DB_PASSWORD}@homelab-postgres:5432/helmsman
       HELMSMAN_EMBED_API_KEY: ${HELMSMAN_EMBED_API_KEY}
-      # The Python server defaulted these four; helmsman-server leaves them unset or empty.
       HELMSMAN_EMBED_URL: ${HELMSMAN_EMBED_URL:-https://llama.gryta.eu}
       HELMSMAN_LLM_MODEL: ${HELMSMAN_LLM_MODEL:-unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL}
       HELMSMAN_MCP_ALLOWED_HOSTS: ${HELMSMAN_MCP_ALLOWED_HOSTS:-helmsman.gryta.eu}

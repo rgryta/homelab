@@ -15,7 +15,7 @@ services:
       homelab-vpn-network:
         ipv4_address: 172.20.2.4
     extra_hosts:
-      - qbit.gryta.eu:172.20.2.3 # Same IP as the VPN-client
+      - qbit.gryta.eu:172.20.2.3
       - prowlarr.gryta.eu:172.20.2.6
     environment:
       - PUID=1000
@@ -239,18 +239,14 @@ services:
       - wud.tag.include=^\d+\.\d+\.\d+$
     image: slskd/slskd:0.26.2
     container_name: slskd
-    # Shares the VPN container's netns (like qBittorrent): all Soulseek traffic leaves via AirVPN.
-    # After a vpn-client recreate this must be force-recreated too (same as qbittorrent).
     network_mode: container:vpn-client
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      # authentik forward-auth gates the UI; slskd's own login is off (same exposure as qBittorrent's WebUI)
       - SLSKD_NO_AUTH=true
       - SLSKD_SLSK_USERNAME=${SLSK_USERNAME}
       - SLSKD_SLSK_PASSWORD=${SLSK_PASSWORD}
-      # reserved AirVPN port; keep local == remote (see vpn-client)
       - SLSKD_SLSK_LISTEN_PORT=${AIRVPN_SLSK_PORT}
       - SLSKD_DOWNLOADS_DIR=/downloads/complete
       - SLSKD_INCOMPLETE_DIR=/downloads/incomplete
@@ -259,7 +255,6 @@ services:
       - slskd_downloads:/downloads
     restart: unless-stopped
 volumes:
-  # *Arr's configs
   sonarr_config:
     driver: local
     driver_opts:
@@ -296,7 +291,6 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/cleanuparr/config
-  # Tdarr
   tdarr_server:
     driver: local
     driver_opts:
@@ -321,14 +315,12 @@ volumes:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/tdarr/transcode_cache
-  # Downloads
   qb_downloads:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/qbittorrent/downloads
-  # Media
   tv_shows:
     driver: local
     driver_opts:
@@ -359,7 +351,6 @@ volumes:
       type: none
       o: bind
       device: /mnt/archive/media/Books
-  # Soulseek
   slskd_config:
     driver: local
     driver_opts:

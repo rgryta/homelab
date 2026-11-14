@@ -36,11 +36,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
-  # One ingester container per Slack account. Each carries its own session
-  # credentials and its own scope; a dead token on one does not touch the other.
-  # No healthcheck: a healthy ingester spends most of its life asleep between
-  # polls, which no HTTP probe can distinguish from wedged. Use the
-  # slack_sync_status MCP tool instead.
   slack-ingest-work:
     labels:
       - traefik.enable=false
