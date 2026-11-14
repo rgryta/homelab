@@ -21,6 +21,10 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.108
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 volumes:
   syncthing_config:
     driver_opts:

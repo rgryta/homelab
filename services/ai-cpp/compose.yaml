@@ -41,6 +41,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.15
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 3G
   whisper-cpp:
     image: ghcr.io/ggml-org/whisper.cpp:main-intel
     container_name: whisper-cpp
@@ -70,6 +74,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.9
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
 volumes:
   models:
     driver_opts:

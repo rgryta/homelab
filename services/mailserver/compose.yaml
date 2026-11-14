@@ -23,6 +23,10 @@ services:
       ROUNDCUBEMAIL_SKIN: elastic
       ROUNDCUBEMAIL_DEFAULT_HOST: tls://mail.gryta.eu
       ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gryta.eu
+    deploy:
+      resources:
+        limits:
+          memory: 512M
   mailserver:
     labels:
       - traefik.enable=false
@@ -69,6 +73,10 @@ services:
       - 465:465
       - 587:587
       - 993:993
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
 volumes:
   roundcube_www:
     driver_opts:

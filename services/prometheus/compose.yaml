@@ -28,6 +28,10 @@ services:
       - /mnt/quick/apps/volumes/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits:
+          memory: 6G
   grafana:
     labels:
       - traefik.enable=true
@@ -64,6 +68,10 @@ services:
         ipv4_address: 172.22.0.5
     volumes:
       - grafana_data:/var/lib/grafana
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
   cadvisor:
     labels:
       - traefik.enable=false
@@ -81,6 +89,10 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      resources:
+        limits:
+          memory: 2G
   node-exporter:
     labels:
       - traefik.enable=false
@@ -100,6 +112,10 @@ services:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
       - --collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 volumes:
   prometheus_data:
     driver_opts:

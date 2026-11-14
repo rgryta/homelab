@@ -347,6 +347,10 @@ services:
         ipv4_address: 172.20.0.40
       monitoring-network:
         ipv4_address: 172.22.0.6
+    deploy:
+      resources:
+        limits:
+          memory: 128M
   valkey-exporter:
     labels:
       - traefik.enable=false
@@ -367,6 +371,10 @@ services:
         ipv4_address: 172.20.0.41
       monitoring-network:
         ipv4_address: 172.22.0.7
+    deploy:
+      resources:
+        limits:
+          memory: 128M
   mongodb-exporter:
     labels:
       - traefik.enable=false
@@ -390,6 +398,10 @@ services:
         ipv4_address: 172.20.0.42
       monitoring-network:
         ipv4_address: 172.22.0.8
+    deploy:
+      resources:
+        limits:
+          memory: 128M
   redpanda:
     labels:
       - traefik.enable=false

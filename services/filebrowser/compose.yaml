@@ -25,6 +25,10 @@ services:
     env_file:
       - .env
     user: 1000:1000
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 volumes:
   filebrowser_quantum:
     driver_opts:

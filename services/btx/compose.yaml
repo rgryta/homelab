@@ -131,6 +131,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 180s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
   btx-inference:
     labels:
       - traefik.enable=false
@@ -163,6 +167,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 180s
+    deploy:
+      resources:
+        limits:
+          memory: 3G
   btx-trading:
     labels:
       - traefik.enable=false
@@ -197,6 +205,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 180s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
   btx-forwardtest:
     labels:
       - traefik.enable=false
@@ -229,6 +241,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 180s
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
 volumes:
   health:
     driver_opts:

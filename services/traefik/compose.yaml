@@ -51,6 +51,10 @@ services:
       ix-dockge_default: {}
       unsafe-network:
         ipv4_address: 172.20.1.2
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 volumes:
   traefik_data:
     driver_opts:

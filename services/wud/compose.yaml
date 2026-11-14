@@ -32,6 +32,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.21
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
 networks:
   homelab-network:
     external: true

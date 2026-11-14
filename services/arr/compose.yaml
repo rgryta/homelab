@@ -28,6 +28,10 @@ services:
       - tv_shows:/tv
       - anime:/anime
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
   radarr:
     labels:
       - traefik.enable=true
@@ -56,6 +60,10 @@ services:
       - qb_downloads:/downloads
       - movies:/movies
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
   prowlarr:
     labels:
       - traefik.enable=true
@@ -85,6 +93,10 @@ services:
       - prowlarr_config:/config
       - qb_downloads:/downloads
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 768M
   flaresolverr:
     labels:
       - traefik.enable=false
@@ -98,6 +110,10 @@ services:
     environment:
       - LOG_LEVEL=info
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
   lidarr:
     labels:
       - traefik.enable=true
@@ -126,6 +142,10 @@ services:
       - qb_downloads:/downloads
       - music:/music
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
   bazarr:
     labels:
       - traefik.enable=true
@@ -154,6 +174,10 @@ services:
       - movies:/movies
       - anime:/anime
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
   cleanuparr:
     labels:
       - traefik.enable=true
@@ -182,6 +206,10 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     image: ghcr.io/cleanuparr/cleanuparr:2.10.12
+    deploy:
+      resources:
+        limits:
+          memory: 768M
   tdarr:
     labels:
       - traefik.enable=true
@@ -227,6 +255,10 @@ services:
     devices:
       - /dev/dri:/dev/dri
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
   slskd:
     labels:
       - traefik.enable=true
@@ -255,6 +287,10 @@ services:
       - slskd_config:/app
       - slskd_downloads:/downloads
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 volumes:
   sonarr_config:
     driver_opts:
