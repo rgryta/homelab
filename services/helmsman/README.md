@@ -2,7 +2,7 @@
 
 Local steering layer for Claude Code, deployed remotely. Watches Claude Code sessions
 through hooks and warns/blocks on house-rule violations or resemblance to past corrections.
-Source + image build: `rgryta/helmsman-server` (Rust), mirrored to `172.20.0.52:5000/helmsman-server:<version>`.
+Source + image build: `rgryta/helmsman-server` (Rust), published to `ghcr.io/rgryta/helmsman-server:<version>`. The deployed stack pulls from ghcr; earlier builds are still in `172.20.0.52:5000/helmsman-server`.
 
 ## Storage
 
