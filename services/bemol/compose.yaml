@@ -43,7 +43,8 @@ services:
       - traefik.enable=false
       - autoheal=true
     networks:
-      - homelab-network
+      homelab-network:
+        ipv4_address: 172.20.0.28
     deploy:
       resources:
         limits:

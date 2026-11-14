@@ -10,7 +10,8 @@ services:
     env_file:
       - .env
     networks:
-      homelab-network: null
+      homelab-network:
+        ipv4_address: 172.20.0.72
     deploy:
       resources:
         limits:
