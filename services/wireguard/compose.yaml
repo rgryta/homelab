@@ -47,7 +47,6 @@ services:
         gw_priority: 1
 volumes:
   wireguard_config:
-    driver: local
     driver_opts:
       o: bind
       type: none

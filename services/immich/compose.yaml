@@ -18,9 +18,9 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.114
     volumes:
-      - /mnt/quick/immich:/data
-      - /mnt/archive/gallery/library:/data/library
-      - /mnt/archive/gallery/encoded-video:/data/encoded-video
+      - immich_upload:/data
+      - immich_library:/data/library
+      - immich_encoded_video:/data/encoded-video
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
@@ -52,11 +52,25 @@ services:
       disable: false
 volumes:
   model_cache:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/immich/cache
+  immich_upload:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/immich
+  immich_library:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/gallery/library
+  immich_encoded_video:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/archive/gallery/encoded-video
 networks:
   homelab-network:
     external: true

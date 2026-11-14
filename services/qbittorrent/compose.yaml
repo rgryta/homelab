@@ -24,13 +24,11 @@ services:
     restart: unless-stopped
 volumes:
   qb_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/qbittorrent/config
   qb_downloads:
-    driver: local
     driver_opts:
       type: none
       o: bind

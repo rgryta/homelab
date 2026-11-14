@@ -71,25 +71,21 @@ services:
     restart: unless-stopped
 volumes:
   jf_media:
-    driver: local
     driver_opts:
       o: bind
       type: none
       device: /mnt/archive/media
   jf_config:
-    driver: local
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/jellyfin/config
   jf_cache:
-    driver: local
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/jellyfin/cache
   seerr_config:
-    driver: local
     driver_opts:
       o: bind
       type: none

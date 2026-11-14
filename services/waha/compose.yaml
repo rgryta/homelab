@@ -121,19 +121,16 @@ services:
 
 volumes:
   waha_sessions:
-    driver: local
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/waha/sessions
   waha_media:
-    driver: local
     driver_opts:
       o: bind
       type: none
       device: /mnt/quick/apps/volumes/waha/media
   whisper_models:
-    driver: local
     driver_opts:
       o: bind
       type: none

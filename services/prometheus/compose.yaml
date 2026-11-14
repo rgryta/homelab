@@ -101,13 +101,11 @@ services:
       - --collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"
 volumes:
   prometheus_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/prometheus/data
   grafana_data:
-    driver: local
     driver_opts:
       type: none
       o: bind

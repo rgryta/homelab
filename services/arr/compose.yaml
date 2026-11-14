@@ -256,109 +256,86 @@ services:
     restart: unless-stopped
 volumes:
   sonarr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/sonarr/config
   radarr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/radarr/config
   lidarr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/lidarr/config
   bazarr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/bazarr/config
   prowlarr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/prowlarr/config
   cleanuparr_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/cleanuparr/config
   tdarr_server:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/tdarr/server
   tdarr_configs:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/tdarr/configs
   tdarr_logs:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/tdarr/logs
   tdarr_transcode_cache:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/arr/tdarr/transcode_cache
   qb_downloads:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/qbittorrent/downloads
   tv_shows:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/media/Shows
   movies:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/media/Movies
   anime:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/media/Anime
   music:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/media/Music
-  books:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/archive/media/Books
   slskd_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/slskd/config
   slskd_downloads:
-    driver: local
     driver_opts:
       type: none
       o: bind

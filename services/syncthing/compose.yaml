@@ -22,13 +22,11 @@ services:
         ipv4_address: 172.20.0.108
 volumes:
   syncthing_config:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/syncthing/config
   syncthing_phone:
-    driver: local
     driver_opts:
       type: none
       o: bind
