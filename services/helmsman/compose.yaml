@@ -8,6 +8,7 @@ services:
       - traefik.http.services.helmsman.loadbalancer.server.port=8787
       - wud.watch=true
       - wud.watch.digest=true
+      - autoheal=true
     image: 172.20.0.52:5000/helmsman-server:0.1.0
     container_name: helmsman
     restart: unless-stopped

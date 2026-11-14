@@ -5,6 +5,7 @@ services:
       - wud.watch=true
       - wud.watch.digest=true
       - wud.tag.include=^2\.\d+\.\d+$
+      - autoheal=true
     image: syncthing/syncthing:2.1.7
     container_name: syncthing
     hostname: homelab
