@@ -7,7 +7,8 @@ services:
     volumes:
       - parking_data:/app/data
     networks:
-      - homelab-network
+      homelab-network:
+        ipv4_address: 172.20.0.29
     labels:
       - traefik.enable=true
       - wud.watch=true

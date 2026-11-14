@@ -16,7 +16,8 @@ services:
         limits:
           memory: 1G
     networks:
-      - unsafe-network
+      unsafe-network:
+        ipv4_address: 172.20.1.3
     labels:
       - traefik.enable=true
       - autoheal=true

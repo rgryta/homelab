@@ -6,6 +6,8 @@ This homelab uses six isolated Docker networks for logical separation of service
 
 Main application network for all services.
 
+Every container has a fixed address (`ipv4_address` in its compose file). Leave nothing dynamic: Docker hands a dynamic container the lowest free address, so it can change on every recreate. The addresses `.2` to `.8` are only a landing area for that and are not used. The exceptions are containers that share another container's network (`slskd`, `qbittorrent`), the seeding helpers in the `vscode` stack, and Traefik's second attachment to `ix-dockge_default`.
+
 | Service | Container | IP Address |
 |---------|-----------|------------|
 | Traefik | traefik | 172.20.0.100 |
@@ -37,6 +39,8 @@ Main application network for all services.
 | Grafana | grafana | 172.20.0.22 |
 | Prometheus | prometheus | 172.20.0.23 |
 | Bemol | bemol-api | 172.20.0.24 |
+| | bemol-worker | 172.20.0.28 |
+| ACT Parking | parking | 172.20.0.29 |
 | VS Code | code-server | 172.20.0.25 |
 | macOS | macos | 172.20.0.26 |
 | Android | android-emulator | 172.20.0.27 |
@@ -53,9 +57,15 @@ Main application network for all services.
 | Immich | immich_server | 172.20.0.114 |
 | | immich_machine_learning | 172.20.0.115 |
 | BTX | btx-ib-gateway | 172.20.0.60 |
+| | btx-ingestion | 172.20.0.61 |
+| | btx-feature | 172.20.0.62 |
 | | btx-train | 172.20.0.63 |
+| | btx-inference | 172.20.0.64 |
+| | btx-trading | 172.20.0.65 |
+| | btx-forwardtest | 172.20.0.66 |
 | Autoheal | autoheal | 172.20.0.70 |
 | Preview | airborn-scout | 172.20.0.71 |
+| PagerDuty auto-ack | pagerduty-auto-ack | 172.20.0.72 |
 | WAHA | waha | 172.20.0.80 |
 | | whatsapp-mcp | 172.20.0.84 |
 | | whatsapp-ingest | 172.20.0.85 |
@@ -86,6 +96,7 @@ VPN-tunneled network for services requiring privacy/anonymity.
 | Lidarr | lidarr | 172.20.2.8 |
 | Bazarr | bazarr | 172.20.2.9 |
 | Cleanuparr | cleanuparr | 172.20.2.10 |
+| Jamroom Soulseek | jamroom-soulseek | 172.20.2.11 |
 | Tdarr | tdarr | 172.20.2.12 |
 | PiHole | pihole | 172.20.2.13 |
 | Seerr | seerr | 172.20.2.14 |
@@ -125,9 +136,10 @@ Docker bridge network for WireGuard container.
 
 ## unsafe-network (172.20.1.0/24)
 
-Network for public-facing apps that must not share homelab-network. Traefik is the only peer with a fixed IP.
+Network for public-facing apps that must not share homelab-network.
 
 | Service | Container | IP Address |
 |---------|-----------|------------|
 | Traefik | traefik | 172.20.1.2 |
-| Complexio | complexio | dynamic |
+| Complexio | complexio | 172.20.1.3 |
+| Jamroom | jamroom | 172.20.1.4 |
