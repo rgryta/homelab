@@ -226,19 +226,16 @@ services:
       start_period: 180s
 volumes:
   health:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/btx/health
   ib_gateway_settings:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/btx/ib-gateway/settings
   ib_ibc_state:
-    driver: local
     driver_opts:
       type: none
       o: bind

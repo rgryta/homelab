@@ -26,19 +26,16 @@ services:
     user: 1000:1000
 volumes:
   filebrowser_quantum:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/filebrowser-quantum/data
   filebrowser_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/filebrowser/data
   filebrowser_slow:
-    driver: local
     driver_opts:
       type: none
       o: bind

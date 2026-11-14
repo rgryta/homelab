@@ -593,109 +593,91 @@ services:
       start_period: 20s
 volumes:
   postgres_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/postgres/data
   nvme_indexes:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_indexes
   nvme_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/postgres/tablespaces/nvme_data
   archive_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/postgres/tablespaces/archive_data
   valkey_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/valkey/data
   questdb_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/questdb/data
   memgraph_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/memgraph/data
   memgraph_wal:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/memgraph/wal
   memgraph_snapshots:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/memgraph/snapshots
   memgraph_log:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/memgraph/log
   mongodb9_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/mongodb/data9
   pgadmin_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/pgadmin/data
   redisinsight_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/redisinsight/data
   redpanda_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/redpanda/data
   garage_meta:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/quick/apps/volumes/databases/garage/meta
   garage_data:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/garage/data
   redpanda_archive:
-    driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/archive/apps/volumes/databases/redpanda/archive
   questdb_archive:
-    driver: local
     driver_opts:
       type: none
       o: bind

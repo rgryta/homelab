@@ -1,55 +1,50 @@
-# Storage Configuration
+# Mounts
 
-This homelab uses a tiered storage strategy with TrueNAS mounts.
+How containers get their files. Every stack follows these rules.
 
-## Mount Points
+## Directories: a named volume bound to a host folder
 
-### /mnt/quick (NVMe)
-
-Fast NVMe storage for performance-critical data:
-- Databases (PostgreSQL, SQLite)
-- Application configs
-- Caches
-- Frequently accessed files
-
-### /mnt/archive (HDD)
-
-Archive storage for bulk data:
-- Media files (video, audio, images)
-- Backups
-- Slow-access files
-
-## Dockge Mounts
-
-The Dockge container requires these mounts for service access:
-
-```
-/dev/dri:/dev/dri      # GPU passthrough for transcoding
-/mnt/quick:/mnt/quick  # NVMe storage
-/mnt/archive:/mnt/archive  # Archive storage
+```yaml
+services:
+  sonarr:
+    volumes:
+      - sonarr_config:/config
+volumes:
+  sonarr_config:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/arr/sonarr/config
 ```
 
-## Per-Service Volume Locations
+- No `driver: local`. It is the default.
+- Name: `<service>_<purpose>` in snake_case, for example `sonarr_config` or `jam_data`.
+- Host folder: `/mnt/quick/apps/volumes/<service>/...` for configuration and data, `/mnt/archive/apps/volumes/<service>/...` for bulk or cold data. Shared media and dataset roots keep their own paths (`/mnt/archive/media/...`, `/mnt/archive/gallery/...`, `/mnt/quick/immich`).
+- Read-only access is set on the service line (`jam_music:/music:ro`), not on the volume.
+- Data never lives in Docker's own storage. A plain or anonymous volume is not backed up with the rest of `/mnt/quick/apps/volumes`.
 
-Each service has a `volume.sh` script that creates the required directories. Run from within Dockge.
+## Single files: a direct bind mount
 
-| Service | Quick Storage | Archive Storage |
-|---------|---------------|-----------------|
-| Traefik | `/mnt/quick/apps/volumes/traefik/` | - |
-| LLDAP | `/mnt/quick/apps/volumes/lldap/` | - |
-| Authentik | - | - |
-| Filebrowser | `/mnt/quick/apps/volumes/filebrowser/`<br>`/mnt/quick/media/` | `/mnt/archive/apps/volumes/filebrowser/` |
-| Mail | `/mnt/quick/apps/volumes/roundcube/`<br>`/mnt/quick/apps/volumes/mailserver/` | - |
-| Jellyfin | `/mnt/quick/apps/volumes/jellyfin/`<br>`/mnt/quick/apps/volumes/seerr/` | `/mnt/archive/media/` |
-| PiHole | `/mnt/quick/apps/volumes/pihole/` | - |
-| Prometheus | `/mnt/quick/apps/volumes/prometheus/`<br>`/mnt/quick/apps/volumes/grafana/` | - |
-| Arr | `/mnt/quick/apps/volumes/arr/`<br>`/mnt/quick/apps/volumes/slskd/` | `/mnt/archive/media/`<br>`/mnt/archive/apps/volumes/qbittorrent/downloads/`<br>`/mnt/archive/apps/volumes/slskd/downloads/` |
-| qBittorrent | `/mnt/quick/apps/volumes/qbittorrent/` | `/mnt/archive/apps/volumes/qbittorrent/downloads/` |
-| Immich | `/mnt/quick/apps/volumes/immich/` | - |
-| Databases | `/mnt/quick/apps/volumes/databases/` | `/mnt/archive/apps/volumes/databases/` |
-| VS Code | `/mnt/quick/apps/volumes/vscode/` | - |
-| Moonlight Web | `/mnt/quick/apps/volumes/moonlight-web/` | - |
-| macOS | `/mnt/quick/apps/volumes/macos/` | - |
-| OpenFoodFacts | - | `/mnt/archive/apps/volumes/openfoodfacts/` |
-| GitHub Runner | - | - |
-| VPN Client | - | - |
+A volume cannot be a single file. Mount it directly and read-only: `valkey.conf`, `garage.toml`, `acme.json`, `prometheus.yml`, wud's `service-worker.js`.
+
+## Exceptions
+
+- `/var/run/docker.sock` (autoheal, wud, traefik, prometheus, code-server) and the host views of cadvisor and node-exporter.
+- wud mounts the stack folders it rewrites at the same path in the container.
+- code-server mounts `/mnt` and keeps its tool folders in anonymous volumes.
+- Anonymous volumes that an image declares for itself and never uses (MongoDB, the registry, FlareSolverr, Syncthing).
+
+## Changing a volume's folder
+
+Compose will not repoint an existing volume. It asks "Recreate (data will be lost)?" and, without an answer, keeps the old binding. To move one:
+
+1. Stop the stack: `docker compose down`.
+2. Copy the data to the new folder and compare the copy.
+3. Remove the old volume object: `docker volume rm <project>_<name>`. For a bind-backed volume this never deletes the host folder.
+4. Edit the compose file and run `docker compose up -d`.
+
+Removing `driver: local`, renaming a volume or adding one needs no such step.
+
+## Not converted yet
+
+- `messenger-sync` still mounts its profile folder directly.

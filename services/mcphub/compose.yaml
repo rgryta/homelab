@@ -50,7 +50,6 @@ services:
       start_period: 60s
 volumes:
   mcphub_data:
-    driver: local
     driver_opts:
       o: bind
       type: none

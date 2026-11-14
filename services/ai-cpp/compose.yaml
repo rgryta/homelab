@@ -70,8 +70,10 @@ services:
     restart: unless-stopped
 volumes:
   models:
-    external: true
-    name: llama-cpp_models
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/ai-cpp/models
 networks:
   homelab-network:
     external: true
