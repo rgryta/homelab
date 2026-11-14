@@ -38,7 +38,6 @@ TrueNAS Dockge-based homelab with containerized services.
 | [WAHA](services/waha/) | WhatsApp HTTP gateway + whatsapp-sync ingester and MCP |
 | [Instagram](services/instagram/) | Instagram ingester + MCP server |
 | [Messenger](services/messenger-sync/) | Messenger harvester + MCP server |
-| [Act Parking](services/act-parking/) | Parking automation |
 | [Complexio](services/complexio/) | The Act of Complexio game (public, own network) |
 | [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
 | [Preview](services/preview/) | Airborn Scout preview/discovery service (not deployed) |

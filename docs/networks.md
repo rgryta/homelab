@@ -40,7 +40,6 @@ Every container has a fixed address (`ipv4_address` in its compose file). Leave 
 | Prometheus | prometheus | 172.20.0.23 |
 | Bemol | bemol-api | 172.20.0.24 |
 | | bemol-worker | 172.20.0.28 |
-| ACT Parking | parking | 172.20.0.29 |
 | VS Code | code-server | 172.20.0.25 |
 | macOS | macos | 172.20.0.26 |
 | Android | android-emulator | 172.20.0.27 |
