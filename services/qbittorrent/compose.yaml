@@ -22,6 +22,10 @@ services:
       - qb_config:/config
       - qb_downloads:/downloads
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
 volumes:
   qb_config:
     driver_opts:

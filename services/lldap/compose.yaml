@@ -22,6 +22,10 @@ services:
       LLDAP_JWT_SECRET: ${LLDAP_JWT_SECRET}
       LLDAP_KEY_SEED: ${LLDAP_KEY_SEED}
       LLDAP_LDAP_USER_PASS: ${LLDAP_ADMIN_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 volumes:
   lldap_data:
     driver_opts:

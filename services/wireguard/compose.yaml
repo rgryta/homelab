@@ -45,6 +45,10 @@ services:
         ipv4_address: 172.20.3.254
         priority: 10
         gw_priority: 1
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 volumes:
   wireguard_config:
     driver_opts:

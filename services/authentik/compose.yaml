@@ -22,6 +22,10 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.13
+    deploy:
+      resources:
+        limits:
+          memory: 2G
   authentik-worker:
     labels:
       - traefik.enable=false
@@ -42,6 +46,10 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.14
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
 networks:
   homelab-network:
     external: true

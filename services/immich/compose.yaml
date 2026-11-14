@@ -28,6 +28,10 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: false
+    deploy:
+      resources:
+        limits:
+          memory: 12G
   immich-machine-learning:
     labels:
       - traefik.enable=false
@@ -52,6 +56,10 @@ services:
     restart: unless-stopped
     healthcheck:
       disable: false
+    deploy:
+      resources:
+        limits:
+          memory: 4G
 volumes:
   model_cache:
     driver_opts:

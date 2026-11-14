@@ -18,6 +18,10 @@ services:
     networks:
       homelab-network:
         ipv4_address: 172.20.0.70
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 networks:
   homelab-network:
     external: true
