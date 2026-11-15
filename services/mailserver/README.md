@@ -53,3 +53,4 @@ Then restart both services.
 ## Design notes
 
 - `DOVECOT_PASS_ATTRS: mail=user`: Dovecot 2.4 (docker-mailserver v16) errors on missing LDAP attributes. lldap has no `uniqueIdentifier`, which is the docker-mailserver default, so the user is mapped from `mail`.
+- Capabilities: the mail daemons need `SYS_CHROOT` (Postfix chroot), `NET_BIND_SERVICE`, `KILL` and `FSETID` on top of the usual root-to-user set. `no-new-privileges` is on and works: `postdrop` and `postqueue` still submit and list mail. See `docs/hardening.md`.

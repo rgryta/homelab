@@ -15,6 +15,10 @@ services:
     image: gtstef/filebrowser:2.0.2-stable
     container_name: filebrowser
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     networks:
       homelab-network:
         ipv4_address: 172.20.0.102

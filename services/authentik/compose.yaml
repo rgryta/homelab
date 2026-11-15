@@ -12,6 +12,10 @@ services:
     image: ghcr.io/goauthentik/server:2026.8.5
     container_name: authentik-server
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       AUTHENTIK_HOST: https://authentik.gryta.eu
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
@@ -35,6 +39,10 @@ services:
     image: ghcr.io/goauthentik/server:2026.8.5
     container_name: authentik-worker
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - authentik-server
     environment:

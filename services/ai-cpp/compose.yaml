@@ -41,6 +41,16 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.15
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -74,6 +84,16 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.9
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

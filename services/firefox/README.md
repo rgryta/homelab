@@ -10,3 +10,4 @@
 - The `firefox_config` volume holds the profile and has to outlive the container: cookies, logins and 2FA trust survive a restart, so signing in is a once-per-service job rather than a once-per-deploy one.
 - `shm_size: 2gb`: Firefox allocates its renderer shared memory there. The 64M Docker default makes tabs crash on real pages without any error that names the cause.
 - `seccomp:unconfined`: the browser's own sandbox uses syscalls that Docker's default seccomp profile blocks. Without it Firefox starts and then dies opening a content process.
+- Capabilities: the image needs `NET_BIND_SERVICE`, `KILL` and `SETPCAP` on top of the usual root-to-user set. Without them its Xvnc service fails with "terminated before being ready" and the container loops, while `docker ps` still shows it as running. See `docs/hardening.md`.

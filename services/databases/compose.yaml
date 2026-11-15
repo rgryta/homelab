@@ -79,6 +79,16 @@ services:
     image: questdb/questdb:10.1.0
     container_name: homelab-questdb
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     environment:
       QDB_PG_USER: ${QUESTDB_USER:-questdb}
       QDB_PG_PASSWORD: ${QUESTDB_PASSWORD}
@@ -113,6 +123,10 @@ services:
     image: memgraph/memgraph-mage:3.14.0
     container_name: homelab-memgraph
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     command:
       - --log-level=WARNING
       - --memory-limit=1536
@@ -150,6 +164,10 @@ services:
     image: memgraph/lab:3.14.1
     container_name: homelab-memgraph-lab
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       memgraph:
         condition: service_healthy
@@ -182,6 +200,16 @@ services:
     image: mongo:9.0.4
     container_name: homelab-mongodb
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
@@ -220,6 +248,16 @@ services:
     image: mongo-express:1
     container_name: homelab-mongo-express
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       mongodb:
         condition: service_healthy
@@ -261,6 +299,10 @@ services:
     image: dpage/pgadmin4:9.19.0
     container_name: homelab-pgadmin
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       postgres:
         condition: service_healthy
@@ -269,6 +311,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
       PGADMIN_CONFIG_WTF_CSRF_ENABLED: "False"
+      PGADMIN_LISTEN_PORT: "80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
@@ -303,6 +346,10 @@ services:
     image: redis/redisinsight:3.8.0
     container_name: homelab-redisinsight
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       valkey:
         condition: service_healthy
@@ -337,6 +384,10 @@ services:
     image: prometheuscommunity/postgres-exporter:v0.20.1
     container_name: postgres-exporter
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       postgres:
         condition: service_healthy
@@ -361,6 +412,10 @@ services:
     image: oliver006/redis_exporter:v1.96.0-alpine
     container_name: valkey-exporter
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       valkey:
         condition: service_healthy
@@ -386,6 +441,10 @@ services:
     image: percona/mongodb_exporter:0.54.0
     container_name: mongodb-exporter
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       mongodb:
         condition: service_healthy
@@ -410,6 +469,10 @@ services:
     image: redpandadata/redpanda:v26.1.19
     container_name: homelab-redpanda
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     command:
       - redpanda
       - start
@@ -452,6 +515,16 @@ services:
     image: dxflrs/garage:v2.5.0
     container_name: homelab-garage
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - garage_meta:/var/lib/garage/meta
       - garage_data:/var/lib/garage/data
@@ -486,6 +559,16 @@ services:
     image: khairul169/garage-webui:1.1.0
     container_name: homelab-garage-webui
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - garage
     environment:
@@ -516,6 +599,16 @@ services:
     image: ghcr.io/mlflow/mlflow:v3.17.2-full
     container_name: homelab-mlflow
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       postgres:
         condition: service_healthy
@@ -568,6 +661,16 @@ services:
     image: registry:3.1.2
     container_name: homelab-registry
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       garage:
         condition: service_started

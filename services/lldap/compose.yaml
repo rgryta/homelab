@@ -12,6 +12,16 @@ services:
     image: lldap/lldap:v0.6.3-alpine
     container_name: lldap
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     networks:
       homelab-network:
         ipv4_address: 172.20.0.10

@@ -28,6 +28,16 @@ services:
       - tv_shows:/tv
       - anime:/anime
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -60,6 +70,16 @@ services:
       - qb_downloads:/downloads
       - movies:/movies
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -93,6 +113,16 @@ services:
       - prowlarr_config:/config
       - qb_downloads:/downloads
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -110,6 +140,10 @@ services:
     environment:
       - LOG_LEVEL=info
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -142,6 +176,16 @@ services:
       - qb_downloads:/downloads
       - music:/music
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -174,6 +218,16 @@ services:
       - movies:/movies
       - anime:/anime
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -190,6 +244,16 @@ services:
       - wud.tag.include=^\d+\.\d+\.\d+$
     container_name: cleanuparr
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     networks:
       homelab-vpn-network:
         ipv4_address: 172.20.2.10
@@ -255,6 +319,16 @@ services:
     devices:
       - /dev/dri:/dev/dri
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -287,6 +361,16 @@ services:
       - slskd_config:/app
       - slskd_downloads:/downloads
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

@@ -16,12 +16,23 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/quick/apps/volumes/wud/service-worker.js:/home/node/app/ui/service-worker.js:ro
       - /mnt/.ix-apps/app_mounts/dockge/stacks/complexio:/mnt/.ix-apps/app_mounts/dockge/stacks/complexio
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/jamroom:/mnt/.ix-apps/app_mounts/dockge/stacks/jamroom
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/slack:/mnt/.ix-apps/app_mounts/dockge/stacks/slack
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/waha:/mnt/.ix-apps/app_mounts/dockge/stacks/waha
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/messenger-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/messenger-sync
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - TZ=Europe/Warsaw
       - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_INCLUDEBYDEFAULT=false
-      - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_BACKUP=true
       - WUD_TRIGGER_DOCKERCOMPOSE_COMPLEXIO_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_JAMROOM_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_JAMROOM_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_SLACK_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_SLACK_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_WHATSAPP_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_WHATSAPP_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_MESSENGER_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_MESSENGER_PRUNE=true
       - WUD_REGISTRY_HUB_PUBLIC_LOGIN=${DOCKERHUB_LOGIN}
       - WUD_REGISTRY_HUB_PUBLIC_PASSWORD=${DOCKERHUB_TOKEN}
       - WUD_REGISTRY_LSCR_PUBLIC_USERNAME=${GITHUB_LOGIN}
@@ -32,6 +43,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.21
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
