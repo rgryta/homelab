@@ -22,9 +22,21 @@ services:
       - KEEP_APP_RUNNING=1
     volumes:
       - firefox_config:/config
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+      - KILL
+      - SETPCAP
+      - NET_BIND_SERVICE
     shm_size: 2gb
     security_opt:
       - seccomp:unconfined
+      - no-new-privileges:true
     restart: unless-stopped
     networks:
       homelab-network:

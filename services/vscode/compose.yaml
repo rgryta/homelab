@@ -27,6 +27,16 @@ services:
         /opt/python/bin/python3 --version
         tail -f /dev/null
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -42,6 +52,10 @@ services:
       - /opt/java/openjdk
       - /opt/android-sdk
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -64,6 +78,16 @@ services:
         chown -R 1000:1000 /opt/node &&
         tail -f /dev/null
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -79,6 +103,10 @@ services:
       - /opt/tools
       - gcloud_config:/opt/tools/gcloud-config
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

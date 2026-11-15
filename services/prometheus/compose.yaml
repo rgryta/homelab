@@ -7,6 +7,16 @@ services:
     image: prom/prometheus:v3.15.1
     container_name: prometheus
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       cadvisor:
         condition: service_started
@@ -45,6 +55,10 @@ services:
     image: grafana/grafana:13.3.0
     container_name: grafana
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       prometheus:
         condition: service_started
@@ -81,6 +95,13 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - DAC_READ_SEARCH
+    security_opt:
+      - no-new-privileges:true
     networks:
       monitoring-network:
         ipv4_address: 172.22.0.3
@@ -101,6 +122,10 @@ services:
     image: prom/node-exporter:v1.12.1
     container_name: node-exporter
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     networks:
       monitoring-network:
         ipv4_address: 172.22.0.4

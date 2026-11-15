@@ -10,6 +10,16 @@ services:
     container_name: syncthing
     hostname: homelab
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     environment:
       - PUID=1000
       - PGID=1000

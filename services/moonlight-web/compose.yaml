@@ -24,6 +24,10 @@ services:
       homelab-network:
         ipv4_address: 172.20.0.109
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

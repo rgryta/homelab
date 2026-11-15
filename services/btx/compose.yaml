@@ -8,6 +8,10 @@ services:
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-ingestion
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     command:
@@ -54,6 +58,10 @@ services:
           cpus: "2"
           memory: 8G
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
   ib-gateway:
     labels:
       - traefik.enable=false
@@ -64,6 +72,10 @@ services:
     image: ghcr.io/gnzsnz/ib-gateway:stable
     container_name: btx-ib-gateway
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       TWS_USERID: ${IBKR_USERNAME}
       TWS_PASSWORD: ${IBKR_PASSWORD}
@@ -104,6 +116,10 @@ services:
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-feature
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
@@ -142,6 +158,10 @@ services:
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-inference
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
@@ -178,6 +198,10 @@ services:
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-trading
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
@@ -218,6 +242,10 @@ services:
     image: 172.20.0.52:5000/btx:latest
     container_name: btx-forwardtest
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:

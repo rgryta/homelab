@@ -26,6 +26,16 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       disable: false
     deploy:
@@ -54,6 +64,16 @@ services:
     environment:
       - MACHINE_LEARNING_MODEL_REVISION=v2
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       disable: false
     deploy:

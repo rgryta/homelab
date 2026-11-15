@@ -10,6 +10,16 @@ services:
     container_name: roundcubemail
     image: roundcube/roundcubemail:1.7.5-apache
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     networks:
       homelab-network:
         ipv4_address: 172.20.0.104
@@ -39,6 +49,20 @@ services:
       roundcube:
         condition: service_started
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - FSETID
+      - KILL
+      - SETGID
+      - SETUID
+      - SYS_CHROOT
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
     environment:
       SSL_TYPE: letsencrypt
       SSL_DOMAIN: mail.gryta.eu

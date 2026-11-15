@@ -12,6 +12,16 @@ services:
     image: samanhappy/mcphub:1.1.14
     container_name: mcphub
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
