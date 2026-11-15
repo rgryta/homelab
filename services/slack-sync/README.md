@@ -1,4 +1,4 @@
-# slack
+# slack-sync
 
 ## Design notes
 

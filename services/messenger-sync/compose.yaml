@@ -3,19 +3,24 @@ services:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.watch.digest=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.messenger
       - autoheal=true
-    image: 172.20.0.52:5000/messenger-sync:latest
+    image: ghcr.io/rgryta/messenger-sync:0.2.6
     container_name: messenger-mcp
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       MESSENGER_DSN: postgresql://messenger_mcp:${MESSENGER_MCP_DB_PASSWORD}@homelab-postgres:5432/messenger
       MESSENGER_HOST: 0.0.0.0
       MESSENGER_PORT: "8000"
+      MESSENGER_MCP_ALLOWED_HOSTS: messenger-mcp
       TZ: Europe/Warsaw
     command:
-      - messenger-sync
-      - mcp
+      - /usr/local/bin/messenger-mcp
     networks:
       homelab-network:
         ipv4_address: 172.20.0.88
@@ -27,41 +32,40 @@ services:
     healthcheck:
       test:
         - CMD
-        - python3
-        - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+        - /usr/local/bin/messenger-mcp
+        - --health-check
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
 
-  messenger-harvest:
+  messenger-ingest:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.watch.digest=true
-    image: 172.20.0.52:5000/messenger-sync:latest
-    container_name: messenger-harvest
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.messenger
+    image: ghcr.io/rgryta/messenger-sync:0.2.6
+    container_name: messenger-ingest
     restart: unless-stopped
-    env_file:
-      - .env
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       MESSENGER_DSN: postgresql://messenger_ingest:${MESSENGER_INGEST_DB_PASSWORD}@homelab-postgres:5432/messenger
+      MESSENGER_ACCOUNT: ${MESSENGER_ACCOUNT}
       TZ: Europe/Warsaw
     command:
-      - messenger-sync
-      - harvest
-    volumes:
-      - /mnt/quick/apps/volumes/messenger-sync/profile:/profile
+      - /usr/local/bin/messenger-ingest
     networks:
       homelab-network:
         ipv4_address: 172.20.0.89
     deploy:
       resources:
         limits:
-          cpus: "2"
-          memory: 1G
-    shm_size: 1gb
+          cpus: "1"
+          memory: 256M
 
 networks:
   homelab-network:

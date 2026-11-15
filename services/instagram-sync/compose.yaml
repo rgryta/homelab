@@ -8,14 +8,18 @@ services:
     image: 172.20.0.52:5000/instagram-sync:latest
     container_name: instagram-mcp
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       INSTAGRAM_MCP_DSN: postgresql://instagram_mcp:${INSTAGRAM_MCP_DB_PASSWORD}@homelab-postgres:5432/instagram
       INSTAGRAM_MCP_HOST: 0.0.0.0
       INSTAGRAM_MCP_PORT: "8000"
+      INSTAGRAM_MCP_ALLOWED_HOSTS: instagram-mcp
       TZ: Europe/Warsaw
     command:
-      - instagram-sync
-      - mcp
+      - instagram-mcp
     networks:
       homelab-network:
         ipv4_address: 172.20.0.86
@@ -27,14 +31,13 @@ services:
     healthcheck:
       test:
         - CMD
-        - python
-        - -c
-        - import urllib.request;
-          urllib.request.urlopen('http://localhost:8000/healthz')
+        - instagram-mcp
+        - --health-check
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
+
   instagram-ingest:
     labels:
       - traefik.enable=false
@@ -42,7 +45,11 @@ services:
       - wud.watch.digest=true
     image: 172.20.0.52:5000/instagram-sync:latest
     container_name: instagram-ingest
-    restart: "on-failure:5"
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
@@ -51,14 +58,25 @@ services:
     command:
       - instagram-sync
       - ingest
+    volumes:
+      - instagram_profile:/profile
     networks:
       homelab-network:
         ipv4_address: 172.20.0.87
     deploy:
       resources:
         limits:
-          cpus: "1"
-          memory: 512M
+          cpus: "2"
+          memory: 2G
+    shm_size: 1gb
+    init: true
+
+volumes:
+  instagram_profile:
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/quick/apps/volumes/instagram-sync/profile
 networks:
   homelab-network:
     external: true
