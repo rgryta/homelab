@@ -34,10 +34,10 @@ TrueNAS Dockge-based homelab with containerized services.
 | [Bemol](services/bemol/) | Lyrics alignment and karaoke pipeline |
 | [BTX](services/btx/) | IBKR gateway and training stack |
 | [MCPHub](services/mcphub/) | MCP server aggregator |
-| [Slack](services/slack/) | Slack ingester + read-only MCP server backed by PostgreSQL |
-| [WAHA](services/waha/) | WhatsApp HTTP gateway + whatsapp-sync ingester and MCP |
-| [Instagram](services/instagram/) | Instagram ingester + MCP server |
-| [Messenger](services/messenger-sync/) | Messenger harvester + MCP server |
+| [Slack](services/slack-sync/) | Slack ingester + read-only MCP server backed by PostgreSQL |
+| [WhatsApp](services/whatsapp-sync/) | WhatsApp ingester (linked device) + MCP server |
+| [Instagram](services/instagram-sync/) | Instagram ingester + MCP server |
+| [Messenger](services/messenger-sync/) | Messenger ingester + MCP server |
 | [Complexio](services/complexio/) | The Act of Complexio game (public, own network) |
 | [PagerDuty Auto Ack](services/pagerduty-auto-ack/) | Auto-acknowledges assigned PagerDuty incidents |
 | [Preview](services/preview/) | Airborn Scout preview/discovery service (not deployed) |

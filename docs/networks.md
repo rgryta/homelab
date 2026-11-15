@@ -65,16 +65,15 @@ Every container has a fixed address (`ipv4_address` in its compose file). Leave 
 | Autoheal | autoheal | 172.20.0.70 |
 | Preview | airborn-scout | 172.20.0.71 |
 | PagerDuty auto-ack | pagerduty-auto-ack | 172.20.0.72 |
-| WAHA | waha | 172.20.0.80 |
-| | whatsapp-mcp | 172.20.0.84 |
-| | whatsapp-ingest | 172.20.0.85 |
+| WhatsApp | whatsapp-mcp | 172.20.0.84 |
+| | whatsapp-ingest | 172.20.0.92 |
 | MCPHub | mcphub | 172.20.0.81 |
 | Slack | slack-mcp | 172.20.0.82 |
-| | slack-ingest-work | 172.20.0.83 |
+| | slack-ingest | 172.20.0.83 |
 | Instagram | instagram-mcp | 172.20.0.86 |
 | | instagram-ingest | 172.20.0.87 |
 | Messenger | messenger-mcp | 172.20.0.88 |
-| | messenger-harvest | 172.20.0.89 |
+| | messenger-ingest | 172.20.0.89 |
 | WellMate | wellmateio | 172.20.0.150 |
 | WireGuard | wireguard | 172.20.0.200 |
 | PiHole | pihole | 172.20.0.254 |

@@ -1,4 +1,4 @@
-# instagram
+# instagram-sync
 
 ## Design notes
 
@@ -11,6 +11,6 @@
 - `instagram-ingest` has no healthcheck. It sleeps about 15 minutes between polls by design, which no HTTP probe can tell apart from wedged. Use the MCP status tool instead.
 - `instagram-ingest` takes the whole `.env` through `env_file`, because it owns the credentials. `INSTAGRAM_ACCOUNT`, `INSTAGRAM_SESSIONID`, `INSTAGRAM_CSRFTOKEN` and any optional `INSTAGRAM_*` tuning variable arrive by name, with no mapping to keep in sync.
 - The profile directory is the Instagram session once a pass has run. Instagram rotates `sessionid` while the browser is open, so it has to persist. A fresh profile every time would fall back to the cookie in `.env`, which goes stale the first time Instagram rotates it, and the logged-out page that follows is indistinguishable from a block. That mistake cost three weeks of archive.
-- Memory limit is 2G, not 1G. Chromium needs about 1 GiB to page the inbox and was being OOM-killed mid-scroll: 36 kills and 30 `Target crashed` in 24 hours, which stalled polling for about 10 hours. `messenger-harvest` does the same work at 3G and never OOMs. It is a cap, not a reservation: the container only holds the memory while a pass is running, and the browser is stopped in between.
+- Memory limit is 2G, not 1G. Chromium needs about 1 GiB to page the inbox and was being OOM-killed mid-scroll: 36 kills and 30 `Target crashed` in 24 hours, which stalled polling for about 10 hours. It is a cap, not a reservation: the container only holds the memory while a pass is running, and the browser is stopped in between.
 - `shm_size` is raised because Chromium needs more than the default 64 MB of shared memory. Without it Chromium crashes rendering tabs, which surfaces as an unexplained page-load timeout.
 - `init: true` runs tini as PID 1 purely to reap children. Chromium reparents its exited helpers to PID 1, which here is the Python entrypoint, and Python never calls `wait()` on children it did not start, so every pass left zombies behind. 48 were measured in three hours (32 `chrome`, 16 `chrome_crashpad`). Closing the browser between passes does not help, because the leak is in who reaps them rather than when they exit. It is harmless for a container that restarts often and not for one on `unless-stopped`.

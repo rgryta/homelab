@@ -1,0 +1,71 @@
+services:
+  whatsapp-ingest:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.whatsapp
+    image: ghcr.io/rgryta/whatsapp-sync:0.3.2
+    container_name: whatsapp-ingest
+    command: ["/usr/local/bin/whatsapp-ingest"]
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WHATSAPP_DSN: postgresql://whatsapp_ingest:${WHATSAPP_INGEST_PASSWORD}@homelab-postgres:5432/whatsapp
+      WHATSAPP_WHISPER_URL: http://whisper-cpp:8080
+      TZ: Europe/Warsaw
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.92
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 256M
+
+  whatsapp-mcp:
+    labels:
+      - traefik.enable=false
+      - wud.watch=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.whatsapp
+      - autoheal=true
+    image: ghcr.io/rgryta/whatsapp-sync:0.3.2
+    container_name: whatsapp-mcp
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WHATSAPP_DSN: postgresql://whatsapp_mcp:${WHATSAPP_MCP_PASSWORD}@homelab-postgres:5432/whatsapp
+      WHATSAPP_HOST: 0.0.0.0
+      WHATSAPP_PORT: "8000"
+      WHATSAPP_MCP_ALLOWED_HOSTS: whatsapp-mcp
+      TZ: Europe/Warsaw
+    command:
+      - /usr/local/bin/whatsapp-mcp
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.84
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+    healthcheck:
+      test:
+        - CMD
+        - /usr/local/bin/whatsapp-mcp
+        - --health-check
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+networks:
+  homelab-network:
+    external: true

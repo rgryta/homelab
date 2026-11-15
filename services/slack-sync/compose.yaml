@@ -3,21 +3,24 @@ services:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.watch.digest=true
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.slack
       - autoheal=true
-    image: 172.20.0.52:5000/slack-sync:latest
+    image: ghcr.io/rgryta/slack-sync:0.2.0
     container_name: slack-mcp
     restart: unless-stopped
-    env_file:
-      - .env
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     environment:
       SLACK_MCP_DSN: postgresql://slack_mcp:${SLACK_MCP_DB_PASSWORD}@homelab-postgres:5432/slack
       SLACK_MCP_HOST: 0.0.0.0
       SLACK_MCP_PORT: "8000"
+      SLACK_MCP_ALLOWED_HOSTS: slack-mcp
       TZ: Europe/Warsaw
     command:
-      - slack-sync
-      - mcp
+      - slack-mcp
     networks:
       homelab-network:
         ipv4_address: 172.20.0.82
@@ -29,21 +32,25 @@ services:
     healthcheck:
       test:
         - CMD
-        - python
-        - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+        - slack-mcp
+        - --health-check
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
-  slack-ingest-work:
+  slack-ingest:
     labels:
       - traefik.enable=false
       - wud.watch=true
-      - wud.watch.digest=true
-    image: 172.20.0.52:5000/slack-sync:latest
-    container_name: slack-ingest-work
+      - wud.tag.include=^\d+\.\d+\.\d+$
+      - wud.trigger.include=dockercompose.slack
+    image: ghcr.io/rgryta/slack-sync:0.2.0
+    container_name: slack-ingest
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - .env
     environment:
@@ -51,11 +58,9 @@ services:
       SLACK_XOXC: ${SLACK_WORK_XOXC}
       SLACK_XOXD: ${SLACK_WORK_XOXD}
       SLACK_DSN: postgresql://slack_ingest:${SLACK_INGEST_DB_PASSWORD}@homelab-postgres:5432/slack
-      SLACK_SCOPE_CHANNELS: stevie,stevie-dev
       TZ: Europe/Warsaw
     command:
-      - slack-sync
-      - ingest
+      - slack-ingest
     networks:
       homelab-network:
         ipv4_address: 172.20.0.83
