@@ -21,6 +21,8 @@ services:
       - /mnt/.ix-apps/app_mounts/dockge/stacks/whatsapp-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/whatsapp-sync
       - /mnt/.ix-apps/app_mounts/dockge/stacks/messenger-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/messenger-sync
       - /mnt/.ix-apps/app_mounts/dockge/stacks/instagram-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/instagram-sync
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/garmin-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/garmin-sync
+      - /mnt/.ix-apps/app_mounts/dockge/stacks/withings-sync:/mnt/.ix-apps/app_mounts/dockge/stacks/withings-sync
     environment:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - TZ=Europe/Warsaw
@@ -36,6 +38,10 @@ services:
       - WUD_TRIGGER_DOCKERCOMPOSE_MESSENGER_PRUNE=true
       - WUD_TRIGGER_DOCKERCOMPOSE_INSTAGRAM_INCLUDEBYDEFAULT=false
       - WUD_TRIGGER_DOCKERCOMPOSE_INSTAGRAM_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_GARMIN_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_GARMIN_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_WITHINGS_INCLUDEBYDEFAULT=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_WITHINGS_PRUNE=true
       - WUD_REGISTRY_HUB_PUBLIC_LOGIN=${DOCKERHUB_LOGIN}
       - WUD_REGISTRY_HUB_PUBLIC_PASSWORD=${DOCKERHUB_TOKEN}
       - WUD_REGISTRY_LSCR_PUBLIC_USERNAME=${GITHUB_LOGIN}
