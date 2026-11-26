@@ -1,0 +1,43 @@
+services:
+  gryta-site:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.gryta-site.rule=Host(`gryta.eu`) || Host(`www.gryta.eu`)
+      - traefik.http.routers.gryta-site.entrypoints=websecure
+      - traefik.http.routers.gryta-site.tls.certresolver=le
+      - traefik.http.services.gryta-site.loadbalancer.server.port=8080
+      - wud.watch=true
+      - wud.tag.include=^1\.30\.\d+-alpine$
+    image: nginxinc/nginx-unprivileged:1.30.6-alpine
+    container_name: gryta-site
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.116
+    volumes:
+      - gryta_site_html:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+volumes:
+  gryta_site_html:
+    driver_opts:
+      o: bind
+      type: none
+      device: /mnt/quick/apps/volumes/gryta-site/html
+networks:
+  homelab-network:
+    external: true
