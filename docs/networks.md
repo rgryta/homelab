@@ -55,6 +55,7 @@ Every container has a fixed address (`ipv4_address` in its compose file). Leave 
 | | openfoodfacts-updater | 172.20.0.112 |
 | Immich | immich_server | 172.20.0.114 |
 | | immich_machine_learning | 172.20.0.115 |
+| Gryta site | gryta-site | 172.20.0.116 |
 | BTX | btx-ib-gateway | 172.20.0.60 |
 | | btx-ingestion | 172.20.0.61 |
 | | btx-feature | 172.20.0.62 |
